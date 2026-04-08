@@ -4,6 +4,7 @@ import { hasFirebaseConfig } from '../lib/firebase'
 import {
   deleteShoppingItem,
   deleteTask,
+  ensureHouseholdMembership,
   markReminderSent,
   markTaskCompleted,
   readPlannerState,
@@ -13,6 +14,7 @@ import {
   setTaskClaim,
   subscribePlannerState,
   toggleShoppingItemChecked,
+  updateHouseholdMembership,
 } from '../lib/firestorePlanner'
 import {
   buildCompletionRecord,
@@ -38,6 +40,7 @@ export function usePlannerState(currentUser = null) {
   const [isRemoteLoaded, setIsRemoteLoaded] = useState(false)
   const [isRemoteLoading, setIsRemoteLoading] = useState(hasFirebaseConfig)
   const [remoteError, setRemoteError] = useState(null)
+  const [membership, setMembership] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -50,6 +53,10 @@ export function usePlannerState(currentUser = null) {
       setIsRemoteLoading(true)
       setRemoteError(null)
       try {
+        if (currentUser) {
+          const nextMembership = await ensureHouseholdMembership(currentUser)
+          if (!cancelled) setMembership(nextMembership)
+        }
         const state = await readPlannerState()
         if (!cancelled && state) {
           setHouseProfile(state.houseProfile)
@@ -81,7 +88,7 @@ export function usePlannerState(currentUser = null) {
       cancelled = true
       unsubscribe()
     }
-  }, [])
+  }, [currentUser])
 
   const enrichedTasks = useMemo(() => taskState.map(enrichTask).sort((a, b) => a.daysUntilDue - b.daysUntilDue), [taskState])
   const sentReminderHistory = useMemo(() => reminders
@@ -200,9 +207,33 @@ export function usePlannerState(currentUser = null) {
 
   const resolvedActorName = currentUser?.displayName || currentUser?.email || null
 
+  async function handleGenerateInviteCode() {
+    const nextCode = Math.random().toString(36).slice(2, 8).toUpperCase()
+    if (hasFirebaseConfig) {
+      const ok = await updateHouseholdMembership({ inviteCode: nextCode })
+      if (ok) {
+        setHouseProfile((current) => ({ ...current, inviteCode: nextCode }))
+        return nextCode
+      }
+    }
+    setHouseProfile((current) => ({ ...current, inviteCode: nextCode }))
+    return nextCode
+  }
+
+  async function handlePromoteMember(memberId) {
+    const nextMembers = householdMembers.map((member) => member.id === memberId ? { ...member, role: 'owner' } : member)
+    if (hasFirebaseConfig) {
+      const ok = await updateHouseholdMembership({ members: nextMembers })
+      if (ok) setHouseProfile((current) => ({ ...current, members: nextMembers }))
+      return
+    }
+    setHouseProfile((current) => ({ ...current, members: nextMembers }))
+  }
+
   return {
     houseProfile,
     householdMembers,
+    membership,
     resolvedActorName,
     taskState,
     lists,
@@ -224,5 +255,7 @@ export function usePlannerState(currentUser = null) {
     handleDeleteShoppingItem,
     handleToggleShoppingItem,
     handleMarkReminderSent,
+    handleGenerateInviteCode,
+    handlePromoteMember,
   }
 }

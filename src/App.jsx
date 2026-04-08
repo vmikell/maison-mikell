@@ -47,6 +47,7 @@ function App() {
   const {
     houseProfile,
     householdMembers,
+    membership,
     resolvedActorName,
     lists,
     reminders,
@@ -67,6 +68,8 @@ function App() {
     handleDeleteShoppingItem,
     handleToggleShoppingItem,
     handleMarkReminderSent,
+    handleGenerateInviteCode,
+    handlePromoteMember,
   } = usePlannerState(user)
 
   const categories = useMemo(() => ['All', ...new Set(enrichedTasks.map((task) => task.category))], [enrichedTasks])
@@ -143,12 +146,16 @@ function App() {
           <p className="panel-label">Household access</p>
           <h2>{user ? 'Signed in' : 'Sign in to join the household'}</h2>
           <p className="hero-copy">Current member: {user ? (user.displayName || user.email) : authLoading ? 'Checking sign-in…' : 'Not signed in yet'}</p>
-          <p className="hero-copy">Household members: {householdMembers.map((member) => member.name).join(' · ')}</p>
+          <p className="hero-copy">Role: {membership?.role || 'guest'} · Household members: {householdMembers.map((member) => `${member.name} (${member.role})`).join(' · ')}</p>
+          <p className="hero-copy">Invite code: {houseProfile.inviteCode || 'Not generated yet'}</p>
         </div>
         <div className="auth-actions">
+          {membership?.role === 'owner' ? <button className="secondary-button" onClick={() => handleGenerateInviteCode()}>Refresh invite code</button> : null}
           {user ? <button className="secondary-button" onClick={() => signOutUser()}>Sign out</button> : <button className="primary-button" onClick={() => signInWithGoogle()}>Sign in with Google</button>}
         </div>
       </section>
+
+      {membership?.role === 'owner' ? <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2></div></div><div className="completion-list">{householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>)}</div></section> : null}
       <nav className="top-tabs">
         <div className="top-tabs-left">
           {activeTab === 'planner' ? <button className="menu-button" onClick={() => setFiltersOpen((open) => !open)} aria-label="Open filters">☰</button> : null}

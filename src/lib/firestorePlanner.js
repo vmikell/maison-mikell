@@ -77,6 +77,43 @@ async function readCompletions() {
   return snaps.docs.map((snap) => ({ id: snap.id, ...snap.data() })).sort((a, b) => (b.completedAt || '').localeCompare(a.completedAt || ''))
 }
 
+function buildInviteCode() {
+  return Math.random().toString(36).slice(2, 8).toUpperCase()
+}
+
+export async function ensureHouseholdMembership(currentUser) {
+  if (!hasFirebaseConfig || !firestore || !currentUser) return null
+  await ensurePlannerSeeded()
+  const snap = await getDoc(householdRef())
+  const current = snap.exists() ? snap.data() : {}
+  const members = current.members ?? []
+  const existing = members.find((member) => member.email === currentUser.email)
+  if (existing) return existing
+
+  const nextRole = members.length === 0 ? 'owner' : 'member'
+  const nextMember = {
+    id: currentUser.uid,
+    email: currentUser.email,
+    name: currentUser.displayName || currentUser.email,
+    role: nextRole,
+    joinedAt: new Date().toISOString(),
+  }
+
+  await setDoc(householdRef(), {
+    inviteCode: current.inviteCode || buildInviteCode(),
+    members: [...members, nextMember],
+    updatedAt: serverTimestamp(),
+  }, { merge: true })
+
+  return nextMember
+}
+
+export async function updateHouseholdMembership(patch) {
+  if (!hasFirebaseConfig || !firestore) return false
+  await updateDoc(householdRef(), { ...patch, updatedAt: serverTimestamp() })
+  return true
+}
+
 export async function readPlannerState() {
   if (!hasFirebaseConfig || !firestore) return null
   await ensurePlannerSeeded()
