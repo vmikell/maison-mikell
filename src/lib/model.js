@@ -118,7 +118,6 @@ export function normalizeTaskInput(input) {
     major: Boolean(input.major || reminderLeadDays >= 30 || cadenceDays >= 90),
     lastCompletedAt: input.lastCompletedAt || null,
     lastCompletedBy: input.lastCompletedBy || null,
-    assignedTo: input.assignedTo || null,
     claimedBy: input.claimedBy || null,
     claimedAt: input.claimedAt || null,
   }
