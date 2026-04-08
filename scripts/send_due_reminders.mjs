@@ -5,7 +5,7 @@ import process from 'node:process'
 import { spawnSync } from 'node:child_process'
 import { fileURLToPath } from 'node:url'
 import { initializeApp } from 'firebase/app'
-import { getFirestore, collection, doc, getDocs, query, updateDoc, where } from 'firebase/firestore'
+import { getFirestore, collection, doc, getDoc, getDocs, query, updateDoc, where } from 'firebase/firestore'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -48,7 +48,7 @@ if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId
 const app = initializeApp(firebaseConfig)
 const firestore = getFirestore(app)
 const dryRun = process.argv.includes('--dry-run')
-const recipientEmail = process.env.MAISON_RESET_REMINDER_EMAIL || 'victormikell@gmail.com'
+const fallbackRecipientEmail = process.env.MAISON_RESET_REMINDER_EMAIL || 'victormikell@gmail.com'
 const pushOutboxPath = process.env.MAISON_RESET_PUSH_OUTBOX || path.join(projectRoot, 'push-outbox.json')
 const householdId = process.env.MAISON_RESET_HOUSEHOLD_ID || 'victor-home'
 
@@ -66,6 +66,16 @@ function reminderDoc(reminderId) {
 
 async function readPendingReminders() {
   const snaps = await getDocs(query(remindersRef(), where('sent', '==', false)))
+  return snaps.docs.map((snap) => ({ id: snap.id, ...snap.data() }))
+}
+
+async function readHousehold() {
+  const snap = await getDoc(householdDoc())
+  return snap.exists() ? { id: snap.id, ...snap.data() } : null
+}
+
+async function readTasks() {
+  const snaps = await getDocs(collection(firestore, 'households', householdId, 'maintenanceTasks'))
   return snaps.docs.map((snap) => ({ id: snap.id, ...snap.data() }))
 }
 
@@ -87,11 +97,35 @@ async function markReminderRun(channel = 'email+push', ranAt = new Date().toISOS
   })
 }
 
-function renderMessage(item) {
-  return `[Maison Reset] ${item.title} is due on ${item.dueAt}. Reminder window opened ${item.leadDays} day(s) ahead.`
+function normalizeName(value) {
+  return (value || '').trim().toLowerCase()
 }
 
-function sendEmail(item, message) {
+function resolveRecipients(item, household, tasks) {
+  const members = household?.members || []
+  const task = tasks.find((entry) => entry.id === item.taskId)
+  const assignedName = normalizeName(task?.assignedTo)
+  const claimedName = normalizeName(task?.claimedBy)
+
+  const targeted = members.filter((member) => {
+    const memberName = normalizeName(member.name)
+    const memberEmail = (member.email || '').trim()
+    if (!memberEmail) return false
+    if (claimedName) return memberName === claimedName
+    if (assignedName) return memberName === assignedName
+    return false
+  })
+
+  if (targeted.length) return targeted.map((member) => ({ email: member.email, name: member.name || member.email }))
+  return [{ email: fallbackRecipientEmail, name: household?.name || 'Household owner' }]
+}
+
+function renderMessage(item, recipient) {
+  const greeting = recipient?.name ? `Hi ${recipient.name},` : 'Hi,'
+  return `${greeting}\n\n[Maison Reset] ${item.title} is due on ${item.dueAt}. Reminder window opened ${item.leadDays} day(s) ahead.`
+}
+
+function sendEmail(recipientEmail, item, message) {
   const tempDir = mkdtempSync(path.join(tmpdir(), 'maison-reset-'))
   const bodyPath = path.join(tempDir, 'body.txt')
   writeFileSync(bodyPath, `${message}\n\nTask: ${item.title}\nDue: ${item.dueAt}\nReminder opened: ${item.remindAt}\n`)
@@ -105,13 +139,14 @@ function sendEmail(item, message) {
   if (result.status !== 0) throw new Error(result.stderr || result.stdout || 'Email delivery failed')
 }
 
-function queuePush(item, message) {
+function queuePush(item, message, recipients) {
   const payload = {
     id: item.id,
     title: 'Maison Reset reminder',
     body: message,
     taskId: item.taskId,
     dueAt: item.dueAt,
+    recipients,
     createdAt: new Date().toISOString(),
   }
   const items = existsSync(pushOutboxPath) ? JSON.parse(readFileSync(pushOutboxPath, 'utf8')) : []
@@ -119,7 +154,11 @@ function queuePush(item, message) {
   writeFileSync(pushOutboxPath, JSON.stringify(items, null, 2))
 }
 
-const reminders = await readPendingReminders()
+const [reminders, household, tasks] = await Promise.all([
+  readPendingReminders(),
+  readHousehold(),
+  readTasks(),
+])
 const today = new Date().toISOString().slice(0, 10)
 const due = reminders.filter((item) => item.remindAt <= today && !item.sent)
 
@@ -129,17 +168,25 @@ console.log(`Due to send today: ${due.length}`)
 if (!dryRun && due.length) {
   const runAt = new Date().toISOString()
   for (const item of due) {
-    const message = renderMessage(item)
-    console.log(message)
-    sendEmail(item, message)
-    queuePush(item, message)
+    const recipients = resolveRecipients(item, household, tasks)
+    console.log(`[Reminder recipients] ${item.title}: ${recipients.map((entry) => entry.email).join(', ')}`)
+    for (const recipient of recipients) {
+      const message = renderMessage(item, recipient)
+      console.log(message)
+      sendEmail(recipient.email, item, message)
+    }
+    queuePush(item, renderMessage(item, recipients[0]), recipients.map((entry) => entry.email))
     await markReminderSent(item.id, 'email+push')
   }
   await markReminderRun('email+push', runAt)
 } else {
   for (const item of due) {
-    const message = renderMessage(item)
-    console.log(message)
+    const recipients = resolveRecipients(item, household, tasks)
+    console.log(`[Reminder recipients] ${item.title}: ${recipients.map((entry) => entry.email).join(', ')}`)
+    for (const recipient of recipients) {
+      const message = renderMessage(item, recipient)
+      console.log(message)
+    }
   }
 }
 
