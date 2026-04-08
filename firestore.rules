@@ -1,27 +1,42 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
     match /households/{householdId} {
-      allow read, write: if true;
+      allow read: if true;
+      allow write: if signedIn();
 
       match /maintenanceTasks/{taskId} {
-        allow read, write: if true;
+        allow read: if true;
+        allow write: if signedIn();
       }
 
       match /shoppingLists/{listId} {
-        allow read, write: if true;
+        allow read: if true;
+        allow write: if signedIn();
 
         match /items/{itemId} {
-          allow read, write: if true;
+          allow read: if true;
+          allow write: if signedIn();
         }
       }
 
       match /reminders/{reminderId} {
-        allow read, write: if true;
+        allow read: if true;
+        allow write: if signedIn();
       }
 
       match /activity/{entryId} {
-        allow read, write: if true;
+        allow read: if true;
+        allow write: if signedIn();
+      }
+
+      match /completions/{entryId} {
+        allow read: if true;
+        allow write: if signedIn();
       }
     }
   }

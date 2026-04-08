@@ -29,7 +29,7 @@ import {
   updateShoppingListMeta,
 } from '../lib/model'
 
-export function usePlannerState() {
+export function usePlannerState(currentUser = null) {
   const [houseProfile, setHouseProfile] = useState(seedHouseProfile)
   const [taskState, setTaskState] = useState(seedTasks)
   const [lists, setLists] = useState(seedLists)
@@ -185,8 +185,17 @@ export function usePlannerState() {
     setReminders((current) => current.map((item) => item.id === reminderId ? { ...item, sent: true, sentAt: new Date().toISOString(), sentChannel: 'email' } : item))
   }
 
+  const householdMembers = houseProfile.members ?? [
+    { id: 'victor', name: 'Victor', role: 'owner' },
+    { id: 'riah', name: 'Riah', role: 'member' },
+  ]
+
+  const resolvedActorName = currentUser?.displayName || currentUser?.email || null
+
   return {
     houseProfile,
+    householdMembers,
+    resolvedActorName,
     taskState,
     lists,
     reminders,

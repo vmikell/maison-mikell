@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react'
 import './App.css'
 import { formatDate, addDays } from './lib/model'
 import { usePlannerState } from './hooks/usePlannerState'
+import { signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
 
 const emptyTaskForm = {
   id: '', title: '', area: '', category: 'Cleaning', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
@@ -42,8 +43,11 @@ function App() {
   const [shoppingForms, setShoppingForms] = useState({})
   const [editingShopping, setEditingShopping] = useState({})
   const [activeShoppingListId, setActiveShoppingListId] = useState('home-depot')
+  const { user, authLoading } = useAuthState()
   const {
     houseProfile,
+    householdMembers,
+    resolvedActorName,
     lists,
     reminders,
     completions,
@@ -61,7 +65,7 @@ function App() {
     handleDeleteShoppingItem,
     handleToggleShoppingItem,
     handleMarkReminderSent,
-  } = usePlannerState()
+  } = usePlannerState(user)
 
   const categories = useMemo(() => ['All', ...new Set(enrichedTasks.map((task) => task.category))], [enrichedTasks])
   const filteredTasks = enrichedTasks.filter((task) => {
@@ -131,6 +135,17 @@ function App() {
   return (
     <div className="shell">
       <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
+      <section className="panel auth-panel">
+        <div>
+          <p className="panel-label">Household access</p>
+          <h2>{user ? 'Signed in' : 'Sign in to join the household'}</h2>
+          <p className="hero-copy">Current member: {user ? (user.displayName || user.email) : authLoading ? 'Checking sign-in…' : 'Not signed in yet'}</p>
+          <p className="hero-copy">Household members: {householdMembers.map((member) => member.name).join(' · ')}</p>
+        </div>
+        <div className="auth-actions">
+          {user ? <button className="secondary-button" onClick={() => signOutUser()}>Sign out</button> : <button className="primary-button" onClick={() => signInWithGoogle()}>Sign in with Google</button>}
+        </div>
+      </section>
       <nav className="top-tabs">
         <div className="top-tabs-left">
           {activeTab === 'planner' ? <button className="menu-button" onClick={() => setFiltersOpen((open) => !open)} aria-label="Open filters">☰</button> : null}
@@ -215,8 +230,9 @@ function App() {
               <div className="task-actions">
                 <button className="secondary-button" onClick={() => claimFromModal(selectedTask.id, 'Victor')}>Claim for Victor</button>
                 <button className="secondary-button" onClick={() => claimFromModal(selectedTask.id, 'Riah')}>Claim for Riah</button>
+                {resolvedActorName ? <button className="secondary-button" onClick={() => claimFromModal(selectedTask.id, resolvedActorName)}>Claim as me</button> : null}
                 <button className="secondary-button" onClick={() => claimFromModal(selectedTask.id, null)}>Clear claim</button>
-                <button className="primary-button" onClick={() => completeFromModal(selectedTask.id, selectedTask.claimedBy || 'Victor')}>Mark done today</button>
+                <button className="primary-button" onClick={() => completeFromModal(selectedTask.id, selectedTask.claimedBy || resolvedActorName || 'Victor')}>Mark done today</button>
                 <button className="secondary-button" onClick={() => startEditTask(selectedTask)}>Edit</button>
                 <button className="danger-button" onClick={() => deleteFromModal(selectedTask.id)}>Delete</button>
                 {selectedTask.major ? <span className="major-flag">Large maintenance</span> : null}

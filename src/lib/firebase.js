@@ -1,4 +1,5 @@
 import { initializeApp, getApps } from 'firebase/app'
+import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const firebaseConfig = {
@@ -13,4 +14,5 @@ const firebaseConfig = {
 export const hasFirebaseConfig = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.appId)
 
 export const firebaseApp = hasFirebaseConfig ? (getApps()[0] ?? initializeApp(firebaseConfig)) : null
+export const auth = hasFirebaseConfig ? getAuth(firebaseApp) : null
 export const firestore = hasFirebaseConfig ? getFirestore(firebaseApp) : null
