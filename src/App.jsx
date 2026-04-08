@@ -5,7 +5,7 @@ import { usePlannerState } from './hooks/usePlannerState'
 import { signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
 
 const emptyTaskForm = {
-  id: '', title: '', area: '', category: 'Cleaning', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
+  id: '', title: '', area: '', category: 'Cleaning', room: '', system: '', assetName: '', vendor: '', supplyNote: '', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
 }
 const emptyShoppingForm = { id: '', name: '', qty: '1', aisleHint: 'Household', checked: false }
 
@@ -117,7 +117,7 @@ function App() {
   function closeTaskModal() { setSelectedTask(null) }
   function startEditTask(task) {
     setEditingTaskId(task.id)
-    setTaskForm({ id: task.id, title: task.title, area: task.area, category: task.category, frequency: task.frequency, cadenceDays: task.cadenceDays, reminderLeadDays: task.reminderLeadDays, effort: task.effort, season: task.season, priority: task.priority, notes: task.notes, lastDone: task.lastDone, major: task.major })
+    setTaskForm({ id: task.id, title: task.title, area: task.area, category: task.category, room: task.room || '', system: task.system || '', assetName: task.assetName || '', vendor: task.vendor || '', supplyNote: task.supplyNote || '', frequency: task.frequency, cadenceDays: task.cadenceDays, reminderLeadDays: task.reminderLeadDays, effort: task.effort, season: task.season, priority: task.priority, notes: task.notes, lastDone: task.lastDone, major: task.major })
     setTaskEditorOpen(true)
     setSelectedTask(task)
   }
@@ -206,6 +206,11 @@ function App() {
               <label><span>Area</span><input value={taskForm.area} onChange={(e) => setTaskForm((current) => ({ ...current, area: e.target.value }))} required /></label>
               <label><span>Category</span><input value={taskForm.category} onChange={(e) => setTaskForm((current) => ({ ...current, category: e.target.value }))} required /></label>
               <label><span>Frequency</span><input value={taskForm.frequency} onChange={(e) => setTaskForm((current) => ({ ...current, frequency: e.target.value }))} required /></label>
+              <label><span>Room / zone</span><input value={taskForm.room} onChange={(e) => setTaskForm((current) => ({ ...current, room: e.target.value }))} /></label>
+              <label><span>System</span><input value={taskForm.system} onChange={(e) => setTaskForm((current) => ({ ...current, system: e.target.value }))} /></label>
+              <label><span>Asset</span><input value={taskForm.assetName} onChange={(e) => setTaskForm((current) => ({ ...current, assetName: e.target.value }))} /></label>
+              <label><span>Vendor</span><input value={taskForm.vendor} onChange={(e) => setTaskForm((current) => ({ ...current, vendor: e.target.value }))} /></label>
+              <label><span>Supply note</span><input value={taskForm.supplyNote} onChange={(e) => setTaskForm((current) => ({ ...current, supplyNote: e.target.value }))} /></label>
               <label><span>Cadence days</span><input type="number" min="1" value={taskForm.cadenceDays} onChange={(e) => setTaskForm((current) => ({ ...current, cadenceDays: Number(e.target.value) }))} required /></label>
               <label><span>Reminder lead days</span><input type="number" min="1" value={taskForm.reminderLeadDays} onChange={(e) => setTaskForm((current) => ({ ...current, reminderLeadDays: Number(e.target.value), major: Number(e.target.value) >= 30 || current.major }))} required /></label>
               <label><span>Effort</span><input value={taskForm.effort} onChange={(e) => setTaskForm((current) => ({ ...current, effort: e.target.value }))} /></label>
@@ -223,6 +228,10 @@ function App() {
                 <TaskDatum label="Time" value={selectedTask.effort} />
                 <TaskDatum label="Season" value={selectedTask.season} />
                 <TaskDatum label="Priority" value={selectedTask.priority} />
+                <TaskDatum label="Room / zone" value={selectedTask.room || '—'} />
+                <TaskDatum label="System" value={selectedTask.system || '—'} />
+                <TaskDatum label="Asset" value={selectedTask.assetName || '—'} />
+                <TaskDatum label="Vendor" value={selectedTask.vendor || '—'} />
                 <TaskDatum label="Last done" value={formatDate(addDays(selectedTask.lastDone, 0))} />
                 <TaskDatum label="Next due" value={formatDate(selectedTask.nextDue)} />
                 <TaskDatum label="Reminder starts" value={formatDate(selectedTask.reminderDate)} />
@@ -230,6 +239,7 @@ function App() {
               </div>
               {selectedTask.claimedBy ? <p className="claim-copy">Claimed by {selectedTask.claimedBy}</p> : <p className="claim-copy">Unclaimed</p>}
               <p className="task-notes">{selectedTask.notes}</p>
+              {selectedTask.supplyNote ? <p className="task-notes"><strong>Supplies:</strong> {selectedTask.supplyNote}</p> : null}
               <div className="task-actions">
                 <button className="secondary-button" onClick={() => claimFromModal(selectedTask.id, 'Victor')}>Claim for Victor</button>
                 <button className="secondary-button" onClick={() => claimFromModal(selectedTask.id, 'Riah')}>Claim for Riah</button>
