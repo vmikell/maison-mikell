@@ -48,6 +48,11 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
 .calendar-task-days { font-size: 0.82rem; color: #d9cef1; text-align: right; }
 .reminder-panel { background: linear-gradient(180deg, rgba(26, 49, 74, 0.96), rgba(14, 23, 35, 0.92)); }
 .reminder-list,.completion-list { display: grid; gap: 10px; margin-top: 12px; }
+.ops-summary-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin-top: 12px; }
+.ops-stat { display: grid; gap: 4px; padding: 12px; border-radius: 18px; background: rgba(255,255,255,0.06); }
+.ops-stat span { text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.68rem; color: #c9bddf; }
+.ops-stat strong { color: #fff; font-size: 1.1rem; }
+.ops-columns { display: grid; gap: 14px; margin-top: 14px; }
 .reminder-item,.completion-item { display: grid; gap: 8px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,0.06); }
 .reminder-item.sent { opacity: 0.7; }
 .reminder-item strong,.completion-item strong { color: #fff; }
@@ -123,5 +128,6 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
   .spotlight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .task-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .shopping-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .ops-columns { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .task-modal { left: 50%; right: auto; width: min(720px, calc(100vw - 40px)); transform: translate(-50%, -50%); }
 }

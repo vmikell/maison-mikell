@@ -50,6 +50,8 @@ function App() {
     resolvedActorName,
     lists,
     reminders,
+    sentReminderHistory,
+    pendingReminderQueue,
     completions,
     enrichedTasks,
     hasFirebaseConfig,
@@ -77,6 +79,7 @@ function App() {
   const overdueTasks = enrichedTasks.filter((task) => task.status === 'overdue').slice(0, 3)
   const reminderQueue = reminders.filter((item) => item.status === 'remind' || item.status === 'overdue').slice(0, 6)
   const recentCompletions = completions.slice(0, 12)
+  const recentReminderHistory = sentReminderHistory.slice(0, 8)
   const activeShoppingList = lists.find((list) => list.id === activeShoppingListId) ?? lists[0]
 
   const statusCardFilterActive = selectedStatus !== 'All' || selectedCategory !== 'All'
@@ -265,7 +268,24 @@ function App() {
             <section className="panel spotlight-panel due-soon-panel"><p className="panel-label">Coming up next</p><h2>Due within 2 weeks</h2><div className="spotlight-list">{dueSoonTasks.length ? dueSoonTasks.map((task) => (<button key={task.id} className="spotlight-item" onClick={() => openTaskModal(task)}><strong>{task.title}</strong><span>{task.daysUntilDue === 0 ? 'Due today' : `Due in ${task.daysUntilDue} days`} · {task.area}</span></button>)) : <p className="empty-copy">No near-term crunch right now. The next two weeks are relatively light.</p>}</div></section>
           </section>
 
-          <section className="panel reminder-panel"><div className="section-head"><div><p className="panel-label">Reminder queue preview</p><h2>Delivery-ready reminder records</h2></div></div><div className="reminder-list">{reminderQueue.length ? reminderQueue.map((item) => (<article key={item.id} className={`reminder-item ${item.sent ? 'sent' : ''}`}><strong>{item.title}</strong><span>Remind: {item.remindAt} · Due: {item.dueAt}</span><span>{item.channelTargets.join(' + ')} · {item.sent ? `sent via ${item.sentChannel ?? 'worker'}` : item.status}</span>{!item.sent ? <button className="secondary-button" onClick={() => handleMarkReminderSent(item.id)}>Mark delivered</button> : null}</article>)) : <p className="empty-copy">No reminders are currently queued. Once tasks enter their reminder window, they’ll show up here ready for a delivery worker.</p>}</div></section>
+          <section className="panel reminder-panel">
+            <div className="section-head"><div><p className="panel-label">Reminder operations</p><h2>Delivery queue and history</h2></div></div>
+            <div className="ops-summary-grid">
+              <div className="ops-stat"><span>Pending</span><strong>{pendingReminderQueue.length}</strong></div>
+              <div className="ops-stat"><span>Sent</span><strong>{sentReminderHistory.length}</strong></div>
+              <div className="ops-stat"><span>Last run</span><strong>{houseProfile.lastReminderRunAt ? new Date(houseProfile.lastReminderRunAt).toLocaleDateString() : '—'}</strong></div>
+            </div>
+            <div className="ops-columns">
+              <div>
+                <p className="panel-label">Pending reminders</p>
+                <div className="reminder-list">{pendingReminderQueue.length ? pendingReminderQueue.slice(0, 8).map((item) => (<article key={item.id} className={`reminder-item ${item.sent ? 'sent' : ''}`}><strong>{item.title}</strong><span>Remind: {item.remindAt} · Due: {item.dueAt}</span><span>{item.channelTargets.join(' + ')} · {item.status}</span><div className="form-actions"><button className="secondary-button" onClick={() => handleMarkReminderSent(item.id)}>Mark delivered</button></div></article>)) : <p className="empty-copy">No pending reminders right now.</p>}</div>
+              </div>
+              <div>
+                <p className="panel-label">Recent delivery history</p>
+                <div className="completion-list">{recentReminderHistory.length ? recentReminderHistory.map((item) => (<article key={item.id} className="completion-item"><strong>{item.title}</strong><span>Sent {item.sentAt ? new Date(item.sentAt).toLocaleString() : '—'}</span><span>{item.sentChannel || 'worker'} · Due {item.dueAt}</span></article>)) : <p className="empty-copy">No reminder deliveries recorded yet.</p>}</div>
+              </div>
+            </div>
+          </section>
 
           <section className="panel completion-panel">
             <div className="section-head"><div><p className="panel-label">Completed bucket</p><h2>Recently completed tasks</h2></div></div>

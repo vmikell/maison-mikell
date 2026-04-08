@@ -84,6 +84,14 @@ export function usePlannerState(currentUser = null) {
   }, [])
 
   const enrichedTasks = useMemo(() => taskState.map(enrichTask).sort((a, b) => a.daysUntilDue - b.daysUntilDue), [taskState])
+  const sentReminderHistory = useMemo(() => reminders
+    .filter((item) => item.sent)
+    .sort((a, b) => (b.sentAt || '').localeCompare(a.sentAt || '')),
+  [reminders])
+  const pendingReminderQueue = useMemo(() => reminders
+    .filter((item) => !item.sent)
+    .sort((a, b) => (a.dueAt || '').localeCompare(b.dueAt || '')),
+  [reminders])
 
   async function handleComplete(taskId, actor = 'Victor') {
     const currentTask = taskState.find((task) => task.id === taskId)
@@ -199,6 +207,8 @@ export function usePlannerState(currentUser = null) {
     taskState,
     lists,
     reminders,
+    sentReminderHistory,
+    pendingReminderQueue,
     completions,
     enrichedTasks,
     hasFirebaseConfig,
