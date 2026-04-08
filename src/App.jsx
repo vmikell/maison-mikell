@@ -139,6 +139,12 @@ function App() {
   function resetShoppingForm(listId) { setEditingShopping((current) => ({ ...current, [listId]: null })); setShoppingFormValue(listId, emptyShoppingForm) }
   async function submitShoppingForm(event, listId) { event.preventDefault(); await handleSaveShoppingItem(listId, getShoppingForm(listId)); resetShoppingForm(listId) }
 
+  const normalizedResolvedActor = (resolvedActorName || '').trim().toLowerCase()
+  const visibleClaimMembers = householdMembers.filter((member) => {
+    const memberName = (member.name || '').trim().toLowerCase()
+    return memberName && memberName !== normalizedResolvedActor
+  })
+
   if (!user) {
     return (
       <div className="shell auth-shell">
@@ -303,9 +309,8 @@ function App() {
               <p className="task-notes">{selectedTask.notes}</p>
               {selectedTask.supplyNote ? <p className="task-notes"><strong>Supplies:</strong> {selectedTask.supplyNote}</p> : null}
               <div className="task-actions">
-                <button className="secondary-button" onClick={() => claimFromModal(selectedTask.id, 'Victor')}>Claim for Victor</button>
-                <button className="secondary-button" onClick={() => claimFromModal(selectedTask.id, 'Riah')}>Claim for Riah</button>
-                {resolvedActorName ? <button className="secondary-button" onClick={() => claimFromModal(selectedTask.id, resolvedActorName)}>Claim as me</button> : null}
+                {resolvedActorName ? <button className="primary-button" onClick={() => claimFromModal(selectedTask.id, resolvedActorName)}>Claim as me</button> : null}
+                {visibleClaimMembers.map((member) => <button key={member.id} className="secondary-button" onClick={() => claimFromModal(selectedTask.id, member.name)}>Claim for {member.name}</button>)}
                 <button className="secondary-button" onClick={() => claimFromModal(selectedTask.id, null)}>Clear claim</button>
                 <button className="primary-button" onClick={() => completeFromModal(selectedTask.id, selectedTask.claimedBy || resolvedActorName || 'Victor')}>Mark done today</button>
                 <button className="secondary-button" onClick={() => startEditTask(selectedTask)}>Edit</button>
