@@ -107,7 +107,8 @@ function resolveRecipients(item, household, tasks) {
   const assignedName = normalizeName(task?.assignedTo)
   const claimedName = normalizeName(task?.claimedBy)
 
-  const targeted = members.filter((member) => {
+  const owners = members.filter((member) => member.role === 'owner' && (member.email || '').trim())
+  const targetedMembers = members.filter((member) => {
     const memberName = normalizeName(member.name)
     const memberEmail = (member.email || '').trim()
     if (!memberEmail) return false
@@ -116,7 +117,14 @@ function resolveRecipients(item, household, tasks) {
     return false
   })
 
-  if (targeted.length) return targeted.map((member) => ({ email: member.email, name: member.name || member.email }))
+  const deduped = new Map()
+  for (const member of [...owners, ...targetedMembers]) {
+    const email = (member.email || '').trim()
+    if (!email) continue
+    deduped.set(email.toLowerCase(), { email, name: member.name || email })
+  }
+
+  if (deduped.size) return Array.from(deduped.values())
   return [{ email: fallbackRecipientEmail, name: household?.name || 'Household owner' }]
 }
 
