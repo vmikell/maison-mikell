@@ -320,25 +320,6 @@ function App() {
             <section className="panel spotlight-panel due-soon-panel"><p className="panel-label">Coming up next</p><h2>Due within 2 weeks</h2><div className="spotlight-list">{dueSoonTasks.length ? dueSoonTasks.map((task) => (<button key={task.id} className="spotlight-item" onClick={() => openTaskModal(task)}><strong>{task.title}</strong><span>{task.daysUntilDue === 0 ? 'Due today' : `Due in ${task.daysUntilDue} days`} · {task.area}</span></button>)) : <p className="empty-copy">No near-term crunch right now. The next two weeks are relatively light.</p>}</div></section>
           </section>
 
-          <section className="panel reminder-panel">
-            <div className="section-head"><div><p className="panel-label">Reminder operations</p><h2>Delivery queue and history</h2></div></div>
-            <div className="ops-summary-grid">
-              <div className="ops-stat"><span>Pending</span><strong>{pendingReminderQueue.length}</strong></div>
-              <div className="ops-stat"><span>Sent</span><strong>{sentReminderHistory.length}</strong></div>
-              <div className="ops-stat"><span>Last run</span><strong>{houseProfile.lastReminderRunAt ? new Date(houseProfile.lastReminderRunAt).toLocaleDateString() : '—'}</strong></div>
-            </div>
-            <div className="ops-columns">
-              <div>
-                <p className="panel-label">Pending reminders</p>
-                <div className="reminder-list">{pendingReminderQueue.length ? pendingReminderQueue.slice(0, 8).map((item) => (<article key={item.id} className={`reminder-item ${item.sent ? 'sent' : ''}`}><strong>{item.title}</strong><span>Remind: {item.remindAt} · Due: {item.dueAt}</span><span>{item.channelTargets.join(' + ')} · {item.status}</span><div className="form-actions"><button className="secondary-button" onClick={() => handleMarkReminderSent(item.id)}>Mark delivered</button></div></article>)) : <p className="empty-copy">No pending reminders right now.</p>}</div>
-              </div>
-              <div>
-                <p className="panel-label">Recent delivery history</p>
-                <div className="completion-list">{recentReminderHistory.length ? recentReminderHistory.map((item) => (<article key={item.id} className="completion-item"><strong>{item.title}</strong><span>Sent {item.sentAt ? new Date(item.sentAt).toLocaleString() : '—'}</span><span>{item.sentChannel || 'worker'} · Due {item.dueAt}</span></article>)) : <p className="empty-copy">No reminder deliveries recorded yet.</p>}</div>
-              </div>
-            </div>
-          </section>
-
           <section className="panel completion-panel">
             <div className="section-head"><div><p className="panel-label">Completed bucket</p><h2>Recently completed tasks</h2></div></div>
             <div className="completion-list">
@@ -413,6 +394,25 @@ function App() {
           </section>
 
           <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2></div></div><div className="completion-list">{householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>)}</div></section>
+
+          <section className="panel reminder-panel">
+            <div className="section-head"><div><p className="panel-label">Reminder operations</p><h2>Delivery queue and history</h2></div></div>
+            <div className="ops-summary-grid">
+              <div className="ops-stat"><span>Pending</span><strong>{pendingReminderQueue.length}</strong></div>
+              <div className="ops-stat"><span>Sent</span><strong>{sentReminderHistory.length}</strong></div>
+              <div className="ops-stat"><span>Last run</span><strong>{houseProfile.lastReminderRunAt ? new Date(houseProfile.lastReminderRunAt).toLocaleDateString() : '—'}</strong></div>
+            </div>
+            <div className="ops-columns">
+              <div>
+                <p className="panel-label">Pending reminders</p>
+                <div className="reminder-list">{pendingReminderQueue.length ? pendingReminderQueue.slice(0, 8).map((item) => (<article key={item.id} className={`reminder-item ${item.sent ? 'sent' : ''}`}><strong>{item.title}</strong><span>Remind: {item.remindAt} · Due: {item.dueAt}</span><span>{item.channelTargets.join(' + ')} · {item.status}</span><div className="form-actions"><button className="secondary-button" onClick={() => handleMarkReminderSent(item.id)}>Mark delivered</button></div></article>)) : <p className="empty-copy">No pending reminders right now.</p>}</div>
+              </div>
+              <div>
+                <p className="panel-label">Recent delivery history</p>
+                <div className="completion-list">{recentReminderHistory.length ? recentReminderHistory.map((item) => (<article key={item.id} className="completion-item"><strong>{item.title}</strong><span>Sent {item.sentAt ? new Date(item.sentAt).toLocaleString() : '—'}</span><span>{item.sentChannel || 'worker'} · Due {item.dueAt}</span></article>)) : <p className="empty-copy">No reminder deliveries recorded yet.</p>}</div>
+              </div>
+            </div>
+          </section>
         </>
       ) : (
         <section className="panel"><div className="section-head"><div><p className="panel-label">Shopping lists</p><h2>Household errands by store</h2></div></div><div className="shopping-tabs">{lists.map((list) => (<button key={list.id} className={`shopping-tab ${activeShoppingList?.id === list.id ? 'active' : ''}`} onClick={() => setActiveShoppingListId(list.id)}>{list.title}</button>))}</div>{activeShoppingList ? <article className={`shopping-card ${activeShoppingList.tone}`}><div className="shopping-top"><div><p className="task-meta">Store list</p><h3>{activeShoppingList.id === 'other' ? (activeShoppingList.storeName || 'Other') : activeShoppingList.title}</h3></div><span className="count-pill">{activeShoppingList.items.filter((item) => !item.checked).length} open</span></div>{activeShoppingList.id === 'other' ? <label className="shopping-store-field"><span>Store name</span><input placeholder="Store name" value={activeShoppingList.storeName || ''} onChange={(e) => handleSaveShoppingListMeta(activeShoppingList.id, { storeName: e.target.value })} /></label> : null}<form className="shopping-form" onSubmit={(event) => submitShoppingForm(event, activeShoppingList.id)}><input placeholder="Item name" value={getShoppingForm(activeShoppingList.id).name} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), name: e.target.value })} required /><input placeholder="Qty" value={getShoppingForm(activeShoppingList.id).qty} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), qty: e.target.value })} /><input placeholder="Aisle / note" value={getShoppingForm(activeShoppingList.id).aisleHint} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), aisleHint: e.target.value })} /><div className="form-actions"><button className="primary-button" type="submit">{editingShopping[activeShoppingList.id] ? 'Save item' : 'Add item'}</button>{editingShopping[activeShoppingList.id] ? <button className="secondary-button" type="button" onClick={() => resetShoppingForm(activeShoppingList.id)}>Cancel</button> : null}</div></form><div className="shopping-items">{activeShoppingList.items.map((item) => (<div key={item.id} className={`shopping-item ${item.checked ? 'checked' : ''}`}><input type="checkbox" checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span></div><div className="shopping-item-actions"><button className="inline-action" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>))}</div></article> : null}</section>
