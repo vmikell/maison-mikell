@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import './App.css'
 import { formatDate, addDays } from './lib/model'
 import { usePlannerState } from './hooks/usePlannerState'
-import { signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
+import { signInWithGoogle, signInWithGoogleRedirect, signOutUser, useAuthState } from './lib/auth'
 
 const emptyTaskForm = {
   id: '', title: '', area: '', category: 'Cleaning', room: '', system: '', assetName: '', vendor: '', supplyNote: '', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
@@ -43,7 +43,8 @@ function App() {
   const [shoppingForms, setShoppingForms] = useState({})
   const [editingShopping, setEditingShopping] = useState({})
   const [activeShoppingListId, setActiveShoppingListId] = useState('home-depot')
-  const { user, authLoading } = useAuthState()
+  const [authMessage, setAuthMessage] = useState('')
+  const { user, authLoading, authError, setAuthError } = useAuthState()
   const {
     houseProfile,
     householdMembers,
@@ -148,10 +149,26 @@ function App() {
           <p className="hero-copy">Current member: {user ? (user.displayName || user.email) : authLoading ? 'Checking sign-in…' : 'Not signed in yet'}</p>
           <p className="hero-copy">Role: {membership?.role || 'guest'} · Household members: {householdMembers.map((member) => `${member.name} (${member.role})`).join(' · ')}</p>
           <p className="hero-copy">Invite code: {houseProfile.inviteCode || 'Not generated yet'}</p>
+          {!user ? <p className="hero-copy">If the popup gets blocked or does nothing, use the full-page Google sign-in button instead.</p> : null}
+          {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
+          {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
         </div>
         <div className="auth-actions">
           {membership?.role === 'owner' ? <button className="secondary-button" onClick={() => handleGenerateInviteCode()}>Refresh invite code</button> : null}
-          {user ? <button className="secondary-button" onClick={() => signOutUser()}>Sign out</button> : <button className="primary-button" onClick={() => signInWithGoogle()}>Sign in with Google</button>}
+          {user ? <button className="secondary-button" onClick={() => signOutUser()}>Sign out</button> : <><button className="primary-button" onClick={async () => {
+            const result = await signInWithGoogle()
+            if (result?.error) {
+              setAuthMessage(result.error)
+              setAuthError(result.error)
+            } else {
+              setAuthMessage('')
+              setAuthError('')
+            }
+          }}>Sign in with Google</button><button className="secondary-button" onClick={async () => {
+            setAuthMessage('Redirecting you to Google sign-in…')
+            setAuthError('')
+            await signInWithGoogleRedirect()
+          }}>Use full-page sign-in</button></>}
         </div>
       </section>
 
