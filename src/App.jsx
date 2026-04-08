@@ -186,37 +186,6 @@ function App() {
   return (
     <div className="shell">
       <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
-      <section className="panel auth-panel">
-        <div>
-          <p className="panel-label">Household access</p>
-          <h2>{user ? 'Signed in' : 'Sign in to join the household'}</h2>
-          <p className="hero-copy">Current member: {user ? (user.displayName || user.email) : authLoading ? 'Checking sign-in…' : 'Not signed in yet'}</p>
-          <p className="hero-copy">Role: {membership?.role || 'guest'} · Household members: {householdMembers.map((member) => `${member.name} (${member.role})`).join(' · ')}</p>
-          <p className="hero-copy">Invite code: {houseProfile.inviteCode || 'Not generated yet'}</p>
-          {!user ? <p className="hero-copy">If the popup gets blocked or does nothing, use the full-page Google sign-in button instead.</p> : null}
-          {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
-          {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
-        </div>
-        <div className="auth-actions">
-          {membership?.role === 'owner' ? <button className="secondary-button" onClick={() => handleGenerateInviteCode()}>Refresh invite code</button> : null}
-          {user ? <button className="secondary-button" onClick={() => signOutUser()}>Sign out</button> : <><button className="primary-button" onClick={async () => {
-            const result = await signInWithGoogle()
-            if (result?.error) {
-              setAuthMessage(result.error)
-              setAuthError(result.error)
-            } else {
-              setAuthMessage('')
-              setAuthError('')
-            }
-          }}>Sign in with Google</button><button className="secondary-button" onClick={async () => {
-            setAuthMessage('Redirecting you to Google sign-in…')
-            setAuthError('')
-            await signInWithGoogleRedirect()
-          }}>Use full-page sign-in</button></>}
-        </div>
-      </section>
-
-      {membership?.role === 'owner' ? <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2></div></div><div className="completion-list">{householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>)}</div></section> : null}
       <nav className="top-tabs">
         <div className="top-tabs-left">
           {activeTab === 'planner' ? <button className="menu-button" onClick={() => setFiltersOpen((open) => !open)} aria-label="Open filters">☰</button> : null}
@@ -224,6 +193,7 @@ function App() {
           <button className={`top-tab ${activeTab === 'calendar' ? 'active' : ''}`} onClick={() => { setActiveTab('calendar'); setFiltersOpen(false); setSelectedTask(null) }}>Calendar</button>
           <button className={`top-tab ${activeTab === 'shopping' ? 'active' : ''}`} onClick={() => { setActiveTab('shopping'); setFiltersOpen(false); setSelectedTask(null) }}>Shopping</button>
         </div>
+        {membership?.role === 'owner' ? <div className="top-tabs-right"><button className={`top-tab ${activeTab === 'admin' ? 'active' : ''}`} onClick={() => { setActiveTab('admin'); setFiltersOpen(false); setSelectedTask(null) }}>Admin</button></div> : null}
       </nav>
 
       {activeTab === 'planner' ? (
@@ -420,6 +390,24 @@ function App() {
               </article>
             )) : <section className="panel"><p className="empty-copy">No tasks are due in the next 30 days.</p></section>}
           </section>
+        </>
+      ) : activeTab === 'admin' ? (
+        <>
+          <section className="panel auth-panel">
+            <div>
+              <p className="panel-label">Household access</p>
+              <h2>Admin controls</h2>
+              <p className="hero-copy">Current member: {user ? (user.displayName || user.email) : authLoading ? 'Checking sign-in…' : 'Not signed in yet'}</p>
+              <p className="hero-copy">Role: {membership?.role || 'guest'} · Household members: {householdMembers.map((member) => `${member.name} (${member.role})`).join(' · ')}</p>
+              <p className="hero-copy">Invite code: {houseProfile.inviteCode || 'Not generated yet'}</p>
+            </div>
+            <div className="auth-actions">
+              <button className="secondary-button" onClick={() => handleGenerateInviteCode()}>Refresh invite code</button>
+              <button className="secondary-button" onClick={() => signOutUser()}>Sign out</button>
+            </div>
+          </section>
+
+          <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2></div></div><div className="completion-list">{householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>)}</div></section>
         </>
       ) : (
         <section className="panel"><div className="section-head"><div><p className="panel-label">Shopping lists</p><h2>Household errands by store</h2></div></div><div className="shopping-tabs">{lists.map((list) => (<button key={list.id} className={`shopping-tab ${activeShoppingList?.id === list.id ? 'active' : ''}`} onClick={() => setActiveShoppingListId(list.id)}>{list.title}</button>))}</div>{activeShoppingList ? <article className={`shopping-card ${activeShoppingList.tone}`}><div className="shopping-top"><div><p className="task-meta">Store list</p><h3>{activeShoppingList.id === 'other' ? (activeShoppingList.storeName || 'Other') : activeShoppingList.title}</h3></div><span className="count-pill">{activeShoppingList.items.filter((item) => !item.checked).length} open</span></div>{activeShoppingList.id === 'other' ? <label className="shopping-store-field"><span>Store name</span><input placeholder="Store name" value={activeShoppingList.storeName || ''} onChange={(e) => handleSaveShoppingListMeta(activeShoppingList.id, { storeName: e.target.value })} /></label> : null}<form className="shopping-form" onSubmit={(event) => submitShoppingForm(event, activeShoppingList.id)}><input placeholder="Item name" value={getShoppingForm(activeShoppingList.id).name} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), name: e.target.value })} required /><input placeholder="Qty" value={getShoppingForm(activeShoppingList.id).qty} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), qty: e.target.value })} /><input placeholder="Aisle / note" value={getShoppingForm(activeShoppingList.id).aisleHint} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), aisleHint: e.target.value })} /><div className="form-actions"><button className="primary-button" type="submit">{editingShopping[activeShoppingList.id] ? 'Save item' : 'Add item'}</button>{editingShopping[activeShoppingList.id] ? <button className="secondary-button" type="button" onClick={() => resetShoppingForm(activeShoppingList.id)}>Cancel</button> : null}</div></form><div className="shopping-items">{activeShoppingList.items.map((item) => (<div key={item.id} className={`shopping-item ${item.checked ? 'checked' : ''}`}><input type="checkbox" checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span></div><div className="shopping-item-actions"><button className="inline-action" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>))}</div></article> : null}</section>
