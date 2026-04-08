@@ -56,6 +56,10 @@ function remindersRef() {
   return collection(firestore, 'households', householdId, 'reminders')
 }
 
+function householdDoc() {
+  return doc(firestore, 'households', householdId)
+}
+
 function reminderDoc(reminderId) {
   return doc(firestore, 'households', householdId, 'reminders', reminderId)
 }
@@ -65,11 +69,21 @@ async function readPendingReminders() {
   return snaps.docs.map((snap) => ({ id: snap.id, ...snap.data() }))
 }
 
-async function markReminderSent(reminderId, channel = 'email+telegram+push') {
+async function markReminderSent(reminderId, channel = 'email+push') {
+  const sentAt = new Date().toISOString()
   await updateDoc(reminderDoc(reminderId), {
     sent: true,
-    sentAt: new Date().toISOString(),
+    sentAt,
     sentChannel: channel,
+  })
+  return sentAt
+}
+
+async function markReminderRun(channel = 'email+push', ranAt = new Date().toISOString()) {
+  await updateDoc(householdDoc(), {
+    lastReminderRunAt: ranAt,
+    lastReminderChannel: channel,
+    updatedAt: ranAt,
   })
 }
 
@@ -112,13 +126,21 @@ const due = reminders.filter((item) => item.remindAt <= today && !item.sent)
 console.log(`Pending reminders: ${reminders.length}`)
 console.log(`Due to send today: ${due.length}`)
 
-for (const item of due) {
-  const message = renderMessage(item)
-  console.log(message)
-  if (dryRun) continue
-  sendEmail(item, message)
-  queuePush(item, message)
-  await markReminderSent(item.id, 'email+push')
+if (!dryRun && due.length) {
+  const runAt = new Date().toISOString()
+  for (const item of due) {
+    const message = renderMessage(item)
+    console.log(message)
+    sendEmail(item, message)
+    queuePush(item, message)
+    await markReminderSent(item.id, 'email+push')
+  }
+  await markReminderRun('email+push', runAt)
+} else {
+  for (const item of due) {
+    const message = renderMessage(item)
+    console.log(message)
+  }
 }
 
 console.log(dryRun ? 'Dry run complete.' : 'Reminder delivery execution complete.')
