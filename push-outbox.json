@@ -1,0 +1,122 @@
+[
+  {
+    "id": "bathroom-refresh:2026-03-29",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Clean full bathroom is due on 2026-04-05. Reminder window opened 7 day(s) ahead.",
+    "taskId": "bathroom-refresh",
+    "dueAt": "2026-04-05",
+    "createdAt": "2026-04-03T19:48:32.830Z"
+  },
+  {
+    "id": "bedsheets:2026-03-28",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Wash bedding and remake beds is due on 2026-04-04. Reminder window opened 7 day(s) ahead.",
+    "taskId": "bedsheets",
+    "dueAt": "2026-04-04",
+    "createdAt": "2026-04-03T19:48:48.307Z"
+  },
+  {
+    "id": "caulk-grout-check:2026-02-28",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Inspect bath caulk / grout and touch up if needed is due on 2026-03-30. Reminder window opened 30 day(s) ahead.",
+    "taskId": "caulk-grout-check",
+    "dueAt": "2026-03-30",
+    "createdAt": "2026-04-03T19:49:07.406Z"
+  },
+  {
+    "id": "detector-check:2026-03-25",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Test smoke / CO detectors is due on 2026-04-01. Reminder window opened 7 day(s) ahead.",
+    "taskId": "detector-check",
+    "dueAt": "2026-04-01",
+    "createdAt": "2026-04-03T19:49:25.126Z"
+  },
+  {
+    "id": "drains-refresh:2026-03-26",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Refresh sink and shower drains is due on 2026-04-02. Reminder window opened 7 day(s) ahead.",
+    "taskId": "drains-refresh",
+    "dueAt": "2026-04-02",
+    "createdAt": "2026-04-03T19:49:40.987Z"
+  },
+  {
+    "id": "dryer-vent-lint:2026-03-16",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Deep clean lint trap area and dryer vent connection is due on 2026-04-15. Reminder window opened 30 day(s) ahead.",
+    "taskId": "dryer-vent-lint",
+    "dueAt": "2026-04-15",
+    "createdAt": "2026-04-03T19:49:57.079Z"
+  },
+  {
+    "id": "fridge-cleanout:2026-03-31",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Clean out fridge and check for expired food is due on 2026-04-07. Reminder window opened 7 day(s) ahead.",
+    "taskId": "fridge-cleanout",
+    "dueAt": "2026-04-07",
+    "createdAt": "2026-04-03T19:50:21.084Z"
+  },
+  {
+    "id": "half-bath-refresh:2026-03-30",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Clean half bath / powder room is due on 2026-04-06. Reminder window opened 7 day(s) ahead.",
+    "taskId": "half-bath-refresh",
+    "dueAt": "2026-04-06",
+    "createdAt": "2026-04-03T19:50:41.029Z"
+  },
+  {
+    "id": "kitchen-deep-reset:2026-03-26",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Deep clean kitchen surfaces and appliance fronts is due on 2026-04-02. Reminder window opened 7 day(s) ahead.",
+    "taskId": "kitchen-deep-reset",
+    "dueAt": "2026-04-02",
+    "createdAt": "2026-04-03T19:50:56.788Z"
+  },
+  {
+    "id": "mini-split-filters:2026-03-24",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Clean mini split filters on all 4 heads is due on 2026-03-31. Reminder window opened 7 day(s) ahead.",
+    "taskId": "mini-split-filters",
+    "dueAt": "2026-03-31",
+    "createdAt": "2026-04-03T19:51:11.114Z"
+  },
+  {
+    "id": "mini-split-head-wipe:2026-03-28",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Wipe mini split covers and check for dust/mildew is due on 2026-04-04. Reminder window opened 7 day(s) ahead.",
+    "taskId": "mini-split-head-wipe",
+    "dueAt": "2026-04-04",
+    "createdAt": "2026-04-03T19:51:27.394Z"
+  },
+  {
+    "id": "mini-split-pro:2026-04-01",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Professional mini split maintenance / coil cleaning is due on 2026-05-01. Reminder window opened 30 day(s) ahead.",
+    "taskId": "mini-split-pro",
+    "dueAt": "2026-05-01",
+    "createdAt": "2026-04-03T19:51:47.233Z"
+  },
+  {
+    "id": "under-sink-check:2026-03-11",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Inspect under sinks for leaks or moisture is due on 2026-04-10. Reminder window opened 30 day(s) ahead.",
+    "taskId": "under-sink-check",
+    "dueAt": "2026-04-10",
+    "createdAt": "2026-04-03T19:52:04.849Z"
+  },
+  {
+    "id": "vacuum-floors:2026-03-27",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Vacuum and spot mop floors is due on 2026-04-03. Reminder window opened 7 day(s) ahead.",
+    "taskId": "vacuum-floors",
+    "dueAt": "2026-04-03",
+    "createdAt": "2026-04-03T19:52:20.376Z"
+  },
+  {
+    "id": "windows-screens:2026-02-18",
+    "title": "Maison Reset reminder",
+    "body": "[Maison Reset] Clean interior windows and inspect screens is due on 2026-03-20. Reminder window opened 30 day(s) ahead.",
+    "taskId": "windows-screens",
+    "dueAt": "2026-03-20",
+    "createdAt": "2026-04-03T19:52:36.305Z"
+  }
+]
