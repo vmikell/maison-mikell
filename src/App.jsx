@@ -103,6 +103,12 @@ function App() {
     return Array.from(buckets.values())
   }, [enrichedTasks])
 
+  const myTasks = enrichedTasks.filter((task) => {
+    const assigned = (task.assignedTo || '').trim().toLowerCase()
+    const claimed = (task.claimedBy || '').trim().toLowerCase()
+    return normalizedResolvedActor && (assigned === normalizedResolvedActor || claimed === normalizedResolvedActor)
+  })
+
   const summary = {
     overdue: enrichedTasks.filter((task) => task.status === 'overdue').length,
     remind: enrichedTasks.filter((task) => task.status === 'remind').length,
@@ -121,7 +127,7 @@ function App() {
   function closeTaskModal() { setSelectedTask(null) }
   function startEditTask(task) {
     setEditingTaskId(task.id)
-    setTaskForm({ id: task.id, title: task.title, area: task.area, category: task.category, room: task.room || '', system: task.system || '', assetName: task.assetName || '', vendor: task.vendor || '', supplyNote: task.supplyNote || '', frequency: task.frequency, cadenceDays: task.cadenceDays, reminderLeadDays: task.reminderLeadDays, effort: task.effort, season: task.season, priority: task.priority, notes: task.notes, lastDone: task.lastDone, major: task.major })
+    setTaskForm({ id: task.id, title: task.title, area: task.area, category: task.category, room: task.room || '', system: task.system || '', assetName: task.assetName || '', vendor: task.vendor || '', supplyNote: task.supplyNote || '', frequency: task.frequency, cadenceDays: task.cadenceDays, reminderLeadDays: task.reminderLeadDays, effort: task.effort, season: task.season, priority: task.priority, notes: task.notes, lastDone: task.lastDone, major: task.major, assignedTo: task.assignedTo || '' })
     setTaskEditorOpen(true)
     setSelectedTask(task)
   }
@@ -191,6 +197,7 @@ function App() {
         <div className="top-tabs-left">
           {activeTab === 'planner' ? <button className="menu-button" onClick={() => setFiltersOpen((open) => !open)} aria-label="Open filters">☰</button> : null}
           <button className={`top-tab ${activeTab === 'planner' ? 'active' : ''}`} onClick={() => { setActiveTab('planner'); setFiltersOpen(false) }}>Planner</button>
+          <button className={`top-tab ${activeTab === 'my-tasks' ? 'active' : ''}`} onClick={() => { setActiveTab('my-tasks'); setFiltersOpen(false); setSelectedTask(null) }}>My Tasks</button>
           <button className={`top-tab ${activeTab === 'calendar' ? 'active' : ''}`} onClick={() => { setActiveTab('calendar'); setFiltersOpen(false); setSelectedTask(null) }}>Calendar</button>
           <button className={`top-tab ${activeTab === 'shopping' ? 'active' : ''}`} onClick={() => { setActiveTab('shopping'); setFiltersOpen(false); setSelectedTask(null) }}>Shopping</button>
         </div>
@@ -352,6 +359,13 @@ function App() {
 
           {!statusCardFilterActive ? <section className="panel"><div className="section-head"><div><p className="panel-label">Maintenance schedule</p><h2>{filteredTasks.length} tasks in view</h2></div></div><div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div></section> : null}
         </>
+      ) : activeTab === 'my-tasks' ? (
+        <section className="panel">
+          <div className="section-head"><div><p className="panel-label">My tasks</p><h2>Tasks assigned or claimed by you</h2></div></div>
+          <div className="compact-task-list">
+            {myTasks.length ? myTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>)) : <p className="empty-copy">You do not have any claimed or assigned tasks right now.</p>}
+          </div>
+        </section>
       ) : activeTab === 'calendar' ? (
         <>
           <section className="panel calendar-summary-panel">
