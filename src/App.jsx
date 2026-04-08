@@ -139,6 +139,44 @@ function App() {
   function resetShoppingForm(listId) { setEditingShopping((current) => ({ ...current, [listId]: null })); setShoppingFormValue(listId, emptyShoppingForm) }
   async function submitShoppingForm(event, listId) { event.preventDefault(); await handleSaveShoppingItem(listId, getShoppingForm(listId)); resetShoppingForm(listId) }
 
+  if (!user) {
+    return (
+      <div className="shell auth-shell">
+        <section className="hero-card auth-landing-card">
+          <div>
+            <p className="eyebrow">Maison Mikell</p>
+            <h1>Welcome home.</h1>
+            <p className="hero-copy">Sign in first to access your shared home care dashboard, calendar, reminders, shopping lists, and household admin tools.</p>
+            <p className="hero-copy">If the Google popup gets blocked or seems to do nothing, use the full-page sign-in button instead.</p>
+            {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
+            {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
+          </div>
+          <div className="auth-landing-actions">
+            <button className="primary-button" onClick={async () => {
+              const result = await signInWithGoogle()
+              if (result?.error) {
+                setAuthMessage(result.error)
+                setAuthError(result.error)
+              } else {
+                setAuthMessage('')
+                setAuthError('')
+              }
+            }}>Sign in with Google</button>
+            <button className="secondary-button" onClick={async () => {
+              setAuthMessage('Redirecting you to Google sign-in…')
+              setAuthError('')
+              await signInWithGoogleRedirect()
+            }}>Use full-page sign-in</button>
+            <div className="auth-landing-note">
+              <strong>Invite code</strong>
+              <span>{houseProfile.inviteCode || 'An owner can generate this after signing in.'}</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    )
+  }
+
   return (
     <div className="shell">
       <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
