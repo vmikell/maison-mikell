@@ -201,7 +201,11 @@ function App() {
           <button className={`top-tab ${activeTab === 'calendar' ? 'active' : ''}`} onClick={() => { setActiveTab('calendar'); setFiltersOpen(false); setSelectedTask(null) }}>Calendar</button>
           <button className={`top-tab ${activeTab === 'shopping' ? 'active' : ''}`} onClick={() => { setActiveTab('shopping'); setFiltersOpen(false); setSelectedTask(null) }}>Shopping</button>
         </div>
-        {membership?.role === 'owner' ? <div className="top-tabs-right"><button className={`top-tab ${activeTab === 'admin' ? 'active' : ''}`} onClick={() => { setActiveTab('admin'); setFiltersOpen(false); setSelectedTask(null) }}>Admin</button></div> : null}
+        <div className="top-tabs-right">
+          {membership?.role === 'owner'
+            ? <button className={`top-tab ${activeTab === 'admin' ? 'active' : ''}`} onClick={() => { setActiveTab('admin'); setFiltersOpen(false); setSelectedTask(null) }}>Admin</button>
+            : <button className="top-tab" onClick={() => signOutUser()}>Sign out</button>}
+        </div>
       </nav>
 
       {activeTab === 'planner' ? (
