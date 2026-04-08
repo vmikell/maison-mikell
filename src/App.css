@@ -4,9 +4,10 @@
 .auth-landing-actions { display: grid; gap: 12px; }
 .auth-landing-note { display: grid; gap: 6px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,0.06); color: #e6ddf4; }
 .auth-landing-note strong { color: #fff; }
-.top-tabs { display: grid; gap: 10px; position: sticky; top: 10px; z-index: 20; }
-.top-tabs-left,.top-tabs-right { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
-.top-tabs-right { justify-content: flex-end; }
+.top-tabs { display: flex; gap: 10px; align-items: center; position: sticky; top: 10px; z-index: 20; }
+.top-tabs-left,.top-tabs-right { display: flex; gap: 10px; align-items: center; }
+.top-tabs-left { flex: 1 1 auto; min-width: 0; flex-wrap: wrap; }
+.top-tabs-right { margin-left: auto; flex: 0 0 auto; }
 .menu-button { border: 1px solid rgba(255,255,255,0.12); background: rgba(17,18,33,0.82); color: #f3edf9; border-radius: 999px; padding: 12px 16px; font-weight: 700; backdrop-filter: blur(18px); }
 .top-tab { border: 1px solid rgba(255,255,255,0.12); background: rgba(17,18,33,0.82); color: #f3edf9; border-radius: 999px; padding: 12px 18px; font-weight: 700; backdrop-filter: blur(18px); }
 .top-tab.active { background: linear-gradient(135deg, #ff8ecf, #9d7bff); color: #180f27; border-color: transparent; }
