@@ -211,8 +211,8 @@ function App() {
       ) : null}
 
       <header className="hero-card">
-        <div><p className="eyebrow">Home care planner</p><h1>{activeTab === 'shopping' ? 'Maison Restock' : 'Maison Reset'}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your two-level home and 4-head mini split setup.</p></div>
-        <div className="hero-note"><strong>{activeTab === 'shopping' ? 'All your shopping lists, together in one place.' : `${houseProfile.reminderRules.majorLeadDays} days for large maintenance · ${houseProfile.reminderRules.standardLeadDays} days for everything else`}</strong></div>
+        <div><p className="eyebrow">Maison Mikell</p><h1>{activeTab === 'shopping' ? 'Maison Restock' : 'Maison Reset'}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your two-level home and 4-head mini split setup.</p></div>
+        <div className="hero-note"><strong>{activeTab === 'shopping' ? 'All your shopping lists, together in one place.' : `${houseProfile.reminderRules.majorLeadDays} days for large maintenance · ${houseProfile.reminderRules.standardLeadDays} days for everything else`}</strong><span>{houseProfile.lastReminderRunAt ? `Last reminder run: ${new Date(houseProfile.lastReminderRunAt).toLocaleString()}${houseProfile.lastReminderChannel ? ` via ${houseProfile.lastReminderChannel}` : ''}` : 'Last reminder run: not recorded yet'}</span></div>
       </header>
 
       {activeTab === 'planner' ? (
@@ -264,9 +264,9 @@ function App() {
 }
 
 function StatusBanner({ hasFirebaseConfig, isRemoteLoaded, isRemoteLoading, remoteError }) {
-  if (!hasFirebaseConfig) return <div className="status-banner local">Firebase is not configured yet, so the planner is using the built-in local fallback data.</div>
+  if (!hasFirebaseConfig) return <div className="status-banner local">Firebase is not configured yet, so Maison Mikell is using the built-in local fallback data.</div>
   if (remoteError) return <div className="status-banner error">Firestore sync hit an error. Showing the best local state available. Error: {remoteError}</div>
-  return <div className="status-banner remote">Firestore mode enabled{isRemoteLoaded ? ' and household data loaded.' : isRemoteLoading ? ', loading planner state...' : '.'}</div>
+  return <div className="status-banner remote">Firestore mode enabled{isRemoteLoaded ? ' and Maison Mikell household data loaded.' : isRemoteLoading ? ', loading planner state...' : '.'}</div>
 }
 function StatCard({ label, value, tone, active = false, onClick }) { return <button className={`stat-card ${tone} ${active ? 'active' : ''}`} onClick={onClick}><p>{label}</p><strong>{value}</strong></button> }
 function TaskDatum({ label, value }) { return <div className="task-datum"><span>{label}</span><strong>{value}</strong></div> }

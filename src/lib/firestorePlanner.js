@@ -193,6 +193,11 @@ export async function markReminderSent(reminderId, channel = 'email') {
     sentChannel: channel,
     updatedAt: serverTimestamp(),
   })
+  await updateDoc(householdRef(), {
+    lastReminderRunAt: new Date().toISOString(),
+    lastReminderChannel: channel,
+    updatedAt: serverTimestamp(),
+  })
   return true
 }
 
