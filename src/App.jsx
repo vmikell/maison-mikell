@@ -109,6 +109,22 @@ function App() {
     return normalizedResolvedActor && (assigned === normalizedResolvedActor || claimed === normalizedResolvedActor)
   })
 
+  const pageTitle = activeTab === 'shopping'
+    ? 'Maison Restock'
+    : activeTab === 'my-tasks'
+      ? 'My Tasks'
+      : activeTab === 'admin'
+        ? 'Maison Admin'
+        : 'Maison Reset'
+
+  const pageSubtitle = activeTab === 'shopping'
+    ? 'All your shopping lists, together in one place.'
+    : activeTab === 'my-tasks'
+      ? 'Everything currently assigned or claimed by you.'
+      : activeTab === 'admin'
+        ? 'Owner controls, invite codes, and household membership.'
+        : `${houseProfile.reminderRules.majorLeadDays} days for large maintenance · ${houseProfile.reminderRules.standardLeadDays} days for everything else`
+
   const summary = {
     overdue: enrichedTasks.filter((task) => task.status === 'overdue').length,
     remind: enrichedTasks.filter((task) => task.status === 'remind').length,
@@ -305,8 +321,8 @@ function App() {
       ) : null}
 
       <header className="hero-card">
-        <div><p className="eyebrow">Maison Mikell</p><h1>{activeTab === 'shopping' ? 'Maison Restock' : 'Maison Reset'}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your two-level home and 4-head mini split setup.</p></div>
-        <div className="hero-note"><strong>{activeTab === 'shopping' ? 'All your shopping lists, together in one place.' : `${houseProfile.reminderRules.majorLeadDays} days for large maintenance · ${houseProfile.reminderRules.standardLeadDays} days for everything else`}</strong><span>{houseProfile.lastReminderRunAt ? `Last reminder run: ${new Date(houseProfile.lastReminderRunAt).toLocaleString()}${houseProfile.lastReminderChannel ? ` via ${houseProfile.lastReminderChannel}` : ''}` : 'Last reminder run: not recorded yet'}</span></div>
+        <div><p className="eyebrow">Maison Mikell</p><h1>{pageTitle}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your two-level home and 4-head mini split setup.</p></div>
+        <div className="hero-note"><strong>{pageSubtitle}</strong><span>{houseProfile.lastReminderRunAt ? `Last reminder run: ${new Date(houseProfile.lastReminderRunAt).toLocaleString()}${houseProfile.lastReminderChannel ? ` via ${houseProfile.lastReminderChannel}` : ''}` : 'Last reminder run: not recorded yet'}</span></div>
       </header>
 
       {activeTab === 'planner' ? (
@@ -364,12 +380,20 @@ function App() {
           {!statusCardFilterActive ? <section className="panel"><div className="section-head"><div><p className="panel-label">Maintenance schedule</p><h2>{filteredTasks.length} tasks in view</h2></div></div><div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div></section> : null}
         </>
       ) : activeTab === 'my-tasks' ? (
-        <section className="panel">
-          <div className="section-head"><div><p className="panel-label">My tasks</p><h2>Tasks assigned or claimed by you</h2></div></div>
-          <div className="compact-task-list">
-            {myTasks.length ? myTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>)) : <p className="empty-copy">You do not have any claimed or assigned tasks right now.</p>}
-          </div>
-        </section>
+        <>
+          <section className="stats-grid">
+            <StatCard label="My tasks" value={myTasks.length} tone="violet" />
+            <StatCard label="Overdue" value={myTasks.filter((task) => task.status === 'overdue').length} tone="rose" />
+            <StatCard label="In reminder window" value={myTasks.filter((task) => task.status === 'remind').length} tone="gold" />
+            <StatCard label="Upcoming" value={myTasks.filter((task) => task.status === 'upcoming').length} tone="teal" />
+          </section>
+          <section className="panel">
+            <div className="section-head"><div><p className="panel-label">My tasks</p><h2>Tasks assigned or claimed by you</h2></div></div>
+            <div className="compact-task-list">
+              {myTasks.length ? myTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>)) : <p className="empty-copy">You do not have any claimed or assigned tasks right now.</p>}
+            </div>
+          </section>
+        </>
       ) : activeTab === 'calendar' ? (
         <>
           <section className="panel calendar-summary-panel">
