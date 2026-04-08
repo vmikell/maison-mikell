@@ -186,6 +186,7 @@ function App() {
   return (
     <div className="shell">
       <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
+      <SignedInPill user={user} membership={membership} />
       <nav className="top-tabs">
         <div className="top-tabs-left">
           {activeTab === 'planner' ? <button className="menu-button" onClick={() => setFiltersOpen((open) => !open)} aria-label="Open filters">☰</button> : null}
@@ -420,10 +421,15 @@ function App() {
   )
 }
 
-function StatusBanner({ hasFirebaseConfig, isRemoteLoaded, isRemoteLoading, remoteError }) {
-  if (!hasFirebaseConfig) return <div className="status-banner local">Firebase is not configured yet, so Maison Mikell is using the built-in local fallback data.</div>
-  if (remoteError) return <div className="status-banner error">Firestore sync hit an error. Showing the best local state available. Error: {remoteError}</div>
-  return <div className="status-banner remote">Firestore mode enabled{isRemoteLoaded ? ' and Maison Mikell household data loaded.' : isRemoteLoading ? ', loading planner state...' : '.'}</div>
+function StatusBanner({ hasFirebaseConfig, remoteError }) {
+  if (!hasFirebaseConfig) return <div className="status-banner local">Maison Mikell cannot reach Firebase right now, so it is using fallback local data.</div>
+  if (remoteError) return <div className="status-banner error">Maison Mikell had trouble reaching the live household data, so some information may be outdated right now.</div>
+  return null
+}
+function SignedInPill({ user, membership }) {
+  if (!user) return null
+  const label = membership?.role === 'owner' ? `Signed in as ${user.displayName || user.email} (owner)` : `Signed in as ${user.displayName || user.email}`
+  return <div className="status-pill-bar">{label}</div>
 }
 function StatCard({ label, value, tone, active = false, onClick }) { return <button className={`stat-card ${tone} ${active ? 'active' : ''}`} onClick={onClick}><p>{label}</p><strong>{value}</strong></button> }
 function TaskDatum({ label, value }) { return <div className="task-datum"><span>{label}</span><strong>{value}</strong></div> }
