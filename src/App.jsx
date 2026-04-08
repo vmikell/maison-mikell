@@ -77,6 +77,21 @@ function App() {
 
   const statusCardFilterActive = selectedStatus !== 'All' || selectedCategory !== 'All'
 
+  const calendarSections = useMemo(() => {
+    const buckets = new Map()
+    const tasksInRange = enrichedTasks
+      .filter((task) => task.daysUntilDue >= -7 && task.daysUntilDue <= 30)
+      .sort((a, b) => a.nextDue - b.nextDue)
+
+    for (const task of tasksInRange) {
+      const key = task.nextDue.toISOString().slice(0, 10)
+      if (!buckets.has(key)) buckets.set(key, { key, date: task.nextDue, tasks: [] })
+      buckets.get(key).tasks.push(task)
+    }
+
+    return Array.from(buckets.values())
+  }, [enrichedTasks])
+
   const summary = {
     overdue: enrichedTasks.filter((task) => task.status === 'overdue').length,
     remind: enrichedTasks.filter((task) => task.status === 'remind').length,
@@ -120,6 +135,7 @@ function App() {
         <div className="top-tabs-left">
           {activeTab === 'planner' ? <button className="menu-button" onClick={() => setFiltersOpen((open) => !open)} aria-label="Open filters">☰</button> : null}
           <button className={`top-tab ${activeTab === 'planner' ? 'active' : ''}`} onClick={() => { setActiveTab('planner'); setFiltersOpen(false) }}>Planner</button>
+          <button className={`top-tab ${activeTab === 'calendar' ? 'active' : ''}`} onClick={() => { setActiveTab('calendar'); setFiltersOpen(false); setSelectedTask(null) }}>Calendar</button>
           <button className={`top-tab ${activeTab === 'shopping' ? 'active' : ''}`} onClick={() => { setActiveTab('shopping'); setFiltersOpen(false); setSelectedTask(null) }}>Shopping</button>
         </div>
       </nav>
@@ -251,6 +267,46 @@ function App() {
           <section className="panel task-form-panel"><button className="editor-toggle" onClick={() => setTaskEditorOpen((open) => !open)}><div><p className="panel-label">Maintenance task editor</p><h2>{editingTaskId ? 'Edit task' : 'Add new maintenance task'}</h2></div><span>{taskEditorOpen ? 'Hide' : 'Open'}</span></button>{taskEditorOpen ? <form className="task-form-grid" onSubmit={submitTaskForm}><label><span>Title</span><input value={taskForm.title} onChange={(e) => setTaskForm((current) => ({ ...current, title: e.target.value }))} required /></label><label><span>Area</span><input value={taskForm.area} onChange={(e) => setTaskForm((current) => ({ ...current, area: e.target.value }))} required /></label><label><span>Category</span><input value={taskForm.category} onChange={(e) => setTaskForm((current) => ({ ...current, category: e.target.value }))} required /></label><label><span>Frequency</span><input value={taskForm.frequency} onChange={(e) => setTaskForm((current) => ({ ...current, frequency: e.target.value }))} required /></label><label><span>Cadence days</span><input type="number" min="1" value={taskForm.cadenceDays} onChange={(e) => setTaskForm((current) => ({ ...current, cadenceDays: Number(e.target.value) }))} required /></label><label><span>Reminder lead days</span><input type="number" min="1" value={taskForm.reminderLeadDays} onChange={(e) => setTaskForm((current) => ({ ...current, reminderLeadDays: Number(e.target.value), major: Number(e.target.value) >= 30 || current.major }))} required /></label><label><span>Effort</span><input value={taskForm.effort} onChange={(e) => setTaskForm((current) => ({ ...current, effort: e.target.value }))} /></label><label><span>Season</span><input value={taskForm.season} onChange={(e) => setTaskForm((current) => ({ ...current, season: e.target.value }))} /></label><label><span>Priority</span><input value={taskForm.priority} onChange={(e) => setTaskForm((current) => ({ ...current, priority: e.target.value }))} /></label><label><span>Last done</span><input type="date" value={taskForm.lastDone} onChange={(e) => setTaskForm((current) => ({ ...current, lastDone: e.target.value }))} required /></label><label className="checkbox-field"><input type="checkbox" checked={taskForm.major} onChange={(e) => setTaskForm((current) => ({ ...current, major: e.target.checked }))} /><span>Large maintenance item</span></label><label className="full-span"><span>Notes</span><textarea rows="3" value={taskForm.notes} onChange={(e) => setTaskForm((current) => ({ ...current, notes: e.target.value }))} /></label><div className="form-actions full-span"><button className="primary-button" type="submit">{editingTaskId ? 'Save changes' : 'Add task'}</button><button className="secondary-button" type="button" onClick={resetTaskForm}>{editingTaskId ? 'Cancel edit' : 'Close'}</button></div></form> : null}</section>
 
           {!statusCardFilterActive ? <section className="panel"><div className="section-head"><div><p className="panel-label">Maintenance schedule</p><h2>{filteredTasks.length} tasks in view</h2></div></div><div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div></section> : null}
+        </>
+      ) : activeTab === 'calendar' ? (
+        <>
+          <section className="panel calendar-summary-panel">
+            <div className="section-head">
+              <div>
+                <p className="panel-label">Calendar view</p>
+                <h2>Next 30 days of home care</h2>
+              </div>
+            </div>
+            <p className="hero-copy">A mobile-friendly agenda of what’s due and when, with overdue tasks still visible so nothing quietly vanishes after a missed date.</p>
+          </section>
+
+          <section className="calendar-agenda">
+            {calendarSections.length ? calendarSections.map((section) => (
+              <article key={section.key} className="panel calendar-day-card">
+                <div className="calendar-day-head">
+                  <div>
+                    <p className="panel-label">{section.date.toLocaleDateString(undefined, { weekday: 'long' })}</p>
+                    <h2>{formatDate(section.date)}</h2>
+                  </div>
+                  <span className="count-pill">{section.tasks.length} task{section.tasks.length === 1 ? '' : 's'}</span>
+                </div>
+                <div className="calendar-task-list">
+                  {section.tasks.map((task) => (
+                    <button key={task.id} className="calendar-task-item" onClick={() => openTaskModal(task)}>
+                      <div>
+                        <strong>{task.title}</strong>
+                        <span>{task.area} · {task.category}</span>
+                      </div>
+                      <div className="calendar-task-meta">
+                        <span className={`status-pill ${task.status}`}>{task.status}</span>
+                        <span className="calendar-task-days">{task.daysUntilDue < 0 ? `${Math.abs(task.daysUntilDue)} day${Math.abs(task.daysUntilDue) === 1 ? '' : 's'} late` : task.daysUntilDue === 0 ? 'Due today' : `In ${task.daysUntilDue} day${task.daysUntilDue === 1 ? '' : 's'}`}</span>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </article>
+            )) : <section className="panel"><p className="empty-copy">No tasks are due in the next 30 days.</p></section>}
+          </section>
         </>
       ) : (
         <section className="panel"><div className="section-head"><div><p className="panel-label">Shopping lists</p><h2>Household errands by store</h2></div></div><div className="shopping-tabs">{lists.map((list) => (<button key={list.id} className={`shopping-tab ${activeShoppingList?.id === list.id ? 'active' : ''}`} onClick={() => setActiveShoppingListId(list.id)}>{list.title}</button>))}</div>{activeShoppingList ? <article className={`shopping-card ${activeShoppingList.tone}`}><div className="shopping-top"><div><p className="task-meta">Store list</p><h3>{activeShoppingList.id === 'other' ? (activeShoppingList.storeName || 'Other') : activeShoppingList.title}</h3></div><span className="count-pill">{activeShoppingList.items.filter((item) => !item.checked).length} open</span></div>{activeShoppingList.id === 'other' ? <label className="shopping-store-field"><span>Store name</span><input placeholder="Store name" value={activeShoppingList.storeName || ''} onChange={(e) => handleSaveShoppingListMeta(activeShoppingList.id, { storeName: e.target.value })} /></label> : null}<form className="shopping-form" onSubmit={(event) => submitShoppingForm(event, activeShoppingList.id)}><input placeholder="Item name" value={getShoppingForm(activeShoppingList.id).name} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), name: e.target.value })} required /><input placeholder="Qty" value={getShoppingForm(activeShoppingList.id).qty} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), qty: e.target.value })} /><input placeholder="Aisle / note" value={getShoppingForm(activeShoppingList.id).aisleHint} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), aisleHint: e.target.value })} /><div className="form-actions"><button className="primary-button" type="submit">{editingShopping[activeShoppingList.id] ? 'Save item' : 'Add item'}</button>{editingShopping[activeShoppingList.id] ? <button className="secondary-button" type="button" onClick={() => resetShoppingForm(activeShoppingList.id)}>Cancel</button> : null}</div></form><div className="shopping-items">{activeShoppingList.items.map((item) => (<div key={item.id} className={`shopping-item ${item.checked ? 'checked' : ''}`}><input type="checkbox" checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span></div><div className="shopping-item-actions"><button className="inline-action" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>))}</div></article> : null}</section>
