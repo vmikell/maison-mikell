@@ -47,11 +47,26 @@ export async function ensurePlannerSeeded() {
 
   const existingListSnaps = await getDocs(listsRef())
   const existingListIds = new Set(existingListSnaps.docs.map((snap) => snap.id))
+  const existingItemsByListId = new Map(
+    await Promise.all(existingListSnaps.docs.map(async (snap) => {
+      const itemSnaps = await getDocs(listItemsRef(snap.id))
+      return [snap.id, new Set(itemSnaps.docs.map((itemSnap) => itemSnap.id))]
+    })),
+  )
+
   shoppingLists.forEach((list) => {
     if (!existingListIds.has(list.id)) {
       batch.set(doc(listsRef(), list.id), { id: list.id, title: list.title, tone: list.tone, storeName: list.storeName ?? '', createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
       list.items.forEach((item) => batch.set(doc(listItemsRef(list.id), item.id), { ...item, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }))
+      return
     }
+
+    const existingItemIds = existingItemsByListId.get(list.id) ?? new Set()
+    list.items.forEach((item) => {
+      if (!existingItemIds.has(item.id)) {
+        batch.set(doc(listItemsRef(list.id), item.id), { ...item, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }, { merge: true })
+      }
+    })
   })
 
   await batch.commit()
