@@ -200,6 +200,22 @@ function App() {
     )
   }
 
+  if (user && (authLoading || isRemoteLoading || (hasFirebaseConfig && !isRemoteLoaded && membership === null && !joinError && !joinSuccess))) {
+    return (
+      <div className="shell auth-shell">
+        <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
+        <SignedInPill user={user} membership={membership} />
+        <section className="hero-card auth-landing-card">
+          <div>
+            <p className="eyebrow">Maison Mikell</p>
+            <h1>Getting your household ready</h1>
+            <p className="hero-copy">One second, I’m checking your household access and loading the latest home data.</p>
+          </div>
+        </section>
+      </div>
+    )
+  }
+
   if (user && !membership) {
     return (
       <div className="shell auth-shell">
