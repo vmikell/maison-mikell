@@ -172,15 +172,15 @@ function App() {
                 setAuthMessage('')
                 setAuthError('')
               }
-            }}>Sign in with Google</button>
+            }}>Sign in or sign up with Google</button>
             <button className="secondary-button" onClick={async () => {
               setAuthMessage('Redirecting you to Google sign-in…')
               setAuthError('')
               await signInWithGoogleRedirect()
             }}>Use full-page sign-in</button>
             <div className="auth-landing-note">
-              <strong>Invite code</strong>
-              <span>{houseProfile.inviteCode || 'An owner can generate this after signing in.'}</span>
+              <strong>Private household access</strong>
+              <span>After sign-in, non-members will need a valid invite code from an owner before they can join this household.</span>
             </div>
           </div>
         </section>
