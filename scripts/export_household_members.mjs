@@ -1,7 +1,6 @@
-import { existsSync, readFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { initializeApp } from 'firebase/app'
-import { getFirestore, collection, getDocs } from 'firebase/firestore'
-import fs from 'node:fs'
+import { getFirestore, doc, getDoc } from 'firebase/firestore'
 import path from 'node:path'
 import process from 'node:process'
 
@@ -35,18 +34,23 @@ const firebaseConfig = {
 }
 
 if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.appId) {
-  console.error('Missing Firebase env for calendar export.')
+  console.error('Missing Firebase env for household export.')
   process.exit(1)
 }
 
 const householdId = process.env.MAISON_RESET_HOUSEHOLD_ID || 'victor-home'
 const app = initializeApp(firebaseConfig)
 const db = getFirestore(app)
-const snaps = await getDocs(collection(db, 'households', householdId, 'reminders'))
-const items = snaps.docs.map((snap) => ({ id: snap.id, ...snap.data() }))
-  .filter((item) => !item.sent)
-  .sort((a, b) => a.dueAt.localeCompare(b.dueAt))
+const snap = await getDoc(doc(db, 'households', householdId))
+const members = snap.exists() ? (snap.data().members || []) : []
+const patchedMembers = members.map((member) => {
+  const normalizedName = (member.name || '').trim().toLowerCase()
+  if (normalizedName === 'riah' || normalizedName === 'mariah neuroth' || normalizedName === 'mariah') {
+    return { ...member, email: 'mariah@rawartworks.org' }
+  }
+  return member
+})
 
-const outputPath = path.join(projectRoot, 'calendar-sync-preview.json')
-fs.writeFileSync(outputPath, JSON.stringify(items, null, 2))
-console.log(`Exported ${items.length} reminder-backed calendar items to ${outputPath}.`)
+const outputPath = path.join(projectRoot, 'household-members.json')
+writeFileSync(outputPath, JSON.stringify(patchedMembers, null, 2))
+console.log(`Exported ${patchedMembers.length} household members to ${outputPath}.`)
