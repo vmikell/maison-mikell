@@ -52,18 +52,29 @@ export function usePlannerState(currentUser = null) {
   useEffect(() => {
     let cancelled = false
     let unsubscribe = () => {}
+
+    if (!hasFirebaseConfig) {
+      setIsRemoteLoading(false)
+      setMembership(null)
+      return () => {}
+    }
+
+    if (!currentUser) {
+      setMembership(null)
+      setIsRemoteLoaded(false)
+      setIsRemoteLoading(false)
+      setRemoteError(null)
+      return () => {}
+    }
+
     async function loadRemote() {
-      if (!hasFirebaseConfig) {
-        setIsRemoteLoading(false)
-        return
-      }
       setIsRemoteLoading(true)
       setRemoteError(null)
       try {
-        if (currentUser) {
-          const nextMembership = await ensureHouseholdMembership(currentUser)
-          if (!cancelled) setMembership(nextMembership)
-        }
+        const nextMembership = await ensureHouseholdMembership(currentUser)
+        if (cancelled) return
+        setMembership(nextMembership)
+
         const state = await readPlannerState()
         if (!cancelled && state) {
           setHouseProfile(state.houseProfile)
@@ -73,6 +84,7 @@ export function usePlannerState(currentUser = null) {
           setCompletions(state.completions)
           setIsRemoteLoaded(true)
         }
+
         unsubscribe = await subscribePlannerState((nextState) => {
           if (cancelled || !nextState) return
           setHouseProfile(nextState.houseProfile)
@@ -90,6 +102,7 @@ export function usePlannerState(currentUser = null) {
         if (!cancelled) setIsRemoteLoading(false)
       }
     }
+
     loadRemote()
     return () => {
       cancelled = true
