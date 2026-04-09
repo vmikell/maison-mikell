@@ -9,44 +9,12 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/households/$(householdId));
     }
 
-    function memberEntry() {
-      return {
-        id: request.auth.uid,
-        email: request.auth.token.email,
-        name: request.auth.token.name != null ? request.auth.token.name : request.auth.token.email,
-        role: 'member',
-        joinedAt: request.resource.data.members[request.resource.data.members.size() - 1].joinedAt,
-      };
-    }
-
-    function ownerEntries(householdId) {
-      return householdDoc(householdId).data.members.filter(member, member.role == 'owner');
-    }
-
     function isHouseholdMember(householdId) {
-      return signedIn()
-        && householdDoc(householdId).data.members.hasAny([
-          {
-            id: request.auth.uid,
-            email: request.auth.token.email,
-            name: request.auth.token.name != null ? request.auth.token.name : request.auth.token.email,
-            role: 'member',
-            joinedAt: request.time,
-          },
-          {
-            id: request.auth.uid,
-            email: request.auth.token.email,
-            name: request.auth.token.name != null ? request.auth.token.name : request.auth.token.email,
-            role: 'owner',
-            joinedAt: request.time,
-          }
-        ]);
+      return signedIn() && householdDoc(householdId).data.members.where(member, member.email == request.auth.token.email).size() > 0;
     }
 
     function isOwner(householdId) {
-      return signedIn()
-        && ownerEntries(householdId).size() > 0
-        && ownerEntries(householdId).where(member, member.email == request.auth.token.email).size() > 0;
+      return signedIn() && householdDoc(householdId).data.members.where(member, member.email == request.auth.token.email && member.role == 'owner').size() > 0;
     }
 
     function isSelfJoiningExistingHousehold(householdId) {
@@ -111,11 +79,6 @@ service cloud.firestore {
         allow read: if true;
         allow create: if isHouseholdMember(householdId);
         allow update, delete: if isOwner(householdId);
-      }
-
-      match /private/{docId} {
-        allow read: if isOwner(householdId);
-        allow create, update, delete: if isOwner(householdId);
       }
     }
   }

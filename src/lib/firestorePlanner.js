@@ -19,7 +19,6 @@ import { buildCompletionRecord, buildReminderRecord, completeTask, normalizeShop
 const HOUSEHOLD_ID = houseProfile.id
 
 function householdRef() { return doc(firestore, 'households', HOUSEHOLD_ID) }
-function householdSettingsRef() { return doc(firestore, 'households', HOUSEHOLD_ID, 'private', 'settings') }
 function tasksRef() { return collection(firestore, 'households', HOUSEHOLD_ID, 'maintenanceTasks') }
 function taskDoc(taskId) { return doc(firestore, 'households', HOUSEHOLD_ID, 'maintenanceTasks', taskId) }
 function listsRef() { return collection(firestore, 'households', HOUSEHOLD_ID, 'shoppingLists') }
@@ -39,7 +38,6 @@ export async function ensurePlannerSeeded() {
 
   if (!homeSnap.exists()) {
     batch.set(householdRef(), { ...houseProfile, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
-    batch.set(householdSettingsRef(), { inviteCode: buildInviteCode(), createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
     maintenanceTasks.forEach((task) => {
       batch.set(doc(tasksRef(), task.id), { ...task, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
       const reminder = buildReminderRecord(task)
@@ -87,12 +85,8 @@ export async function ensureHouseholdMembership(currentUser) {
   if (!hasFirebaseConfig || !firestore || !currentUser) return null
   await ensurePlannerSeeded()
   const snap = await getDoc(householdRef())
-  const settingsSnap = await getDoc(householdSettingsRef())
   const current = snap.exists() ? snap.data() : {}
   const members = current.members ?? []
-  if (!current.inviteCode && settingsSnap.exists()) {
-    current.inviteCode = settingsSnap.data().inviteCode || ''
-  }
   const existing = members.find((member) => member.email === currentUser.email)
   return existing ?? null
 }
@@ -104,14 +98,12 @@ export async function joinHouseholdWithInviteCode(currentUser, inviteCode) {
   if (!normalizedCode) return { ok: false, error: 'Enter the household invite code.' }
 
   const snap = await getDoc(householdRef())
-  const settingsSnap = await getDoc(householdSettingsRef())
   const current = snap.exists() ? snap.data() : {}
   const members = current.members ?? []
-  const activeInviteCode = ((settingsSnap.exists() ? settingsSnap.data().inviteCode : current.inviteCode) || '').trim().toUpperCase()
   const existing = members.find((member) => member.email === currentUser.email)
   if (existing) return { ok: true, membership: existing }
 
-  if (activeInviteCode !== normalizedCode) {
+  if ((current.inviteCode || '').trim().toUpperCase() !== normalizedCode) {
     return { ok: false, error: 'That invite code does not match this household.' }
   }
 
@@ -125,6 +117,7 @@ export async function joinHouseholdWithInviteCode(currentUser, inviteCode) {
   }
 
   await setDoc(householdRef(), {
+    inviteCode: current.inviteCode || buildInviteCode(),
     members: [...members, nextMember],
     updatedAt: serverTimestamp(),
   }, { merge: true })
@@ -135,10 +128,6 @@ export async function joinHouseholdWithInviteCode(currentUser, inviteCode) {
 export async function updateHouseholdMembership(patch) {
   if (!hasFirebaseConfig || !firestore) return { ok: false, error: 'Firebase is not configured.' }
   try {
-    if (Object.prototype.hasOwnProperty.call(patch, 'inviteCode')) {
-      await setDoc(householdSettingsRef(), { inviteCode: patch.inviteCode, updatedAt: serverTimestamp() }, { merge: true })
-      return { ok: true }
-    }
     await updateDoc(householdRef(), { ...patch, updatedAt: serverTimestamp() })
     return { ok: true }
   } catch (error) {
@@ -154,9 +143,9 @@ export async function updateHouseholdMembership(patch) {
 export async function readPlannerState() {
   if (!hasFirebaseConfig || !firestore) return null
   await ensurePlannerSeeded()
-  const [homeSnap, settingsSnap, taskSnaps, shopping, reminders, completions] = await Promise.all([getDoc(householdRef()), getDoc(householdSettingsRef()), getDocs(tasksRef()), readShoppingLists(), readReminders(), readCompletions()])
+  const [homeSnap, taskSnaps, shopping, reminders, completions] = await Promise.all([getDoc(householdRef()), getDocs(tasksRef()), readShoppingLists(), readReminders(), readCompletions()])
   return {
-    houseProfile: { id: homeSnap.id, ...homeSnap.data(), inviteCode: settingsSnap.exists() ? settingsSnap.data().inviteCode || '' : (homeSnap.data()?.inviteCode || '') },
+    houseProfile: { id: homeSnap.id, ...homeSnap.data() },
     maintenanceTasks: taskSnaps.docs.map((snap) => ({ id: snap.id, ...snap.data() })),
     shoppingLists: shopping,
     reminders,
@@ -170,14 +159,13 @@ export async function subscribePlannerState(onChange) {
 
   const emit = async (taskSnap = null) => {
     const homeSnap = await getDoc(householdRef())
-    const settingsSnap = await getDoc(householdSettingsRef())
     const shopping = await readShoppingLists()
     const reminders = await readReminders()
     const completions = await readCompletions()
     const nextTasks = taskSnap
       ? taskSnap.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
       : (await getDocs(tasksRef())).docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
-    onChange({ houseProfile: { id: homeSnap.id, ...homeSnap.data(), inviteCode: settingsSnap.exists() ? settingsSnap.data().inviteCode || '' : (homeSnap.data()?.inviteCode || '') }, maintenanceTasks: nextTasks, shoppingLists: shopping, reminders, completions })
+    onChange({ houseProfile: { id: homeSnap.id, ...homeSnap.data() }, maintenanceTasks: nextTasks, shoppingLists: shopping, reminders, completions })
   }
 
   const taskUnsub = onSnapshot(tasksRef(), emit)
