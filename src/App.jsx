@@ -44,8 +44,9 @@ function App() {
   const [editingShopping, setEditingShopping] = useState({})
   const [activeShoppingListId, setActiveShoppingListId] = useState('home-depot')
   const [authMessage, setAuthMessage] = useState('')
+  const [authErrorDetail, setAuthErrorDetail] = useState('')
   const [inviteCodeInput, setInviteCodeInput] = useState('')
-  const { user, authLoading, authError, setAuthError } = useAuthState()
+  const { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode } = useAuthState()
   const {
     houseProfile,
     householdMembers,
@@ -163,6 +164,8 @@ function App() {
             <p className="hero-copy">If the Google popup gets blocked or seems to do nothing, use the full-page sign-in button instead.</p>
             {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
             {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
+            {!authMessage && authErrorCode ? <p className="auth-help error">Debug code: {authErrorCode}</p> : null}
+            {authErrorDetail ? <p className="auth-help error">Debug detail: {authErrorDetail}</p> : null}
           </div>
           <div className="auth-landing-actions">
             <button className="primary-button" onClick={async () => {
@@ -170,14 +173,20 @@ function App() {
               if (result?.error) {
                 setAuthMessage(result.error)
                 setAuthError(result.error)
+                setAuthErrorCode(result.rawCode || '')
+                setAuthErrorDetail(result.rawMessage || '')
               } else {
                 setAuthMessage('')
                 setAuthError('')
+                setAuthErrorCode('')
+                setAuthErrorDetail('')
               }
             }}>Sign in or sign up with Google</button>
             <button className="secondary-button" onClick={async () => {
               setAuthMessage('Redirecting you to Google sign-in…')
               setAuthError('')
+              setAuthErrorCode('')
+              setAuthErrorDetail('')
               await signInWithGoogleRedirect()
             }}>Use full-page sign-in</button>
             <div className="auth-landing-note">

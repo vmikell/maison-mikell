@@ -17,23 +17,30 @@ export function useAuthState() {
   const [user, setUser] = useState(null)
   const [authLoading, setAuthLoading] = useState(() => Boolean(hasFirebaseConfig && auth))
   const [authError, setAuthError] = useState('')
+  const [authErrorCode, setAuthErrorCode] = useState('')
 
   useEffect(() => {
     if (!hasFirebaseConfig || !auth) return
 
     getRedirectResult(auth)
       .then(() => {})
-      .catch((error) => setAuthError(toPlainEnglishAuthError(error)))
+      .catch((error) => {
+        setAuthError(toPlainEnglishAuthError(error))
+        setAuthErrorCode(error?.code || '')
+      })
 
     const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       setUser(nextUser)
       setAuthLoading(false)
-      if (nextUser) setAuthError('')
+      if (nextUser) {
+        setAuthError('')
+        setAuthErrorCode('')
+      }
     })
     return unsubscribe
   }, [])
 
-  return { user, authLoading, authError, setAuthError }
+  return { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode }
 }
 
 export async function signInWithGoogle() {
@@ -43,7 +50,7 @@ export async function signInWithGoogle() {
     return { user: result.user, redirected: false }
   } catch (error) {
     const message = toPlainEnglishAuthError(error)
-    return { user: null, redirected: false, error: message, rawCode: error?.code || '' }
+    return { user: null, redirected: false, error: message, rawCode: error?.code || '', rawMessage: error?.message || '' }
   }
 }
 
