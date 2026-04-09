@@ -44,6 +44,7 @@ export function usePlannerState(currentUser = null) {
   const [membership, setMembership] = useState(null)
   const [joinError, setJoinError] = useState('')
   const [joinSuccess, setJoinSuccess] = useState('')
+  const [settingsMessage, setSettingsMessage] = useState('')
   const [isJoiningHousehold, setIsJoiningHousehold] = useState(false)
 
   useEffect(() => {
@@ -213,14 +214,19 @@ export function usePlannerState(currentUser = null) {
 
   async function handleGenerateInviteCode() {
     const nextCode = Math.random().toString(36).slice(2, 8).toUpperCase()
+    setSettingsMessage('')
     if (hasFirebaseConfig) {
       const ok = await updateHouseholdMembership({ inviteCode: nextCode })
       if (ok) {
         setHouseProfile((current) => ({ ...current, inviteCode: nextCode }))
+        setSettingsMessage('Invite code refreshed.')
         return nextCode
       }
+      setSettingsMessage('Could not refresh the invite code. The saved value did not change.')
+      return null
     }
     setHouseProfile((current) => ({ ...current, inviteCode: nextCode }))
+    setSettingsMessage('Invite code refreshed locally.')
     return nextCode
   }
 
@@ -271,6 +277,7 @@ export function usePlannerState(currentUser = null) {
     membership,
     joinError,
     joinSuccess,
+    settingsMessage,
     isJoiningHousehold,
     resolvedActorName,
     taskState,

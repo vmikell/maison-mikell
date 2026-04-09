@@ -127,8 +127,13 @@ export async function joinHouseholdWithInviteCode(currentUser, inviteCode) {
 
 export async function updateHouseholdMembership(patch) {
   if (!hasFirebaseConfig || !firestore) return false
-  await updateDoc(householdRef(), { ...patch, updatedAt: serverTimestamp() })
-  return true
+  try {
+    await updateDoc(householdRef(), { ...patch, updatedAt: serverTimestamp() })
+    return true
+  } catch (error) {
+    console.error('Failed to update household membership/settings', error)
+    return false
+  }
 }
 
 export async function readPlannerState() {
