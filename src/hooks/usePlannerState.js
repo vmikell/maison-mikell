@@ -46,6 +46,7 @@ export function usePlannerState(currentUser = null) {
   const [joinSuccess, setJoinSuccess] = useState('')
   const [settingsMessage, setSettingsMessage] = useState('')
   const [settingsErrorDetail, setSettingsErrorDetail] = useState('')
+  const [shoppingErrorDetail, setShoppingErrorDetail] = useState('')
   const [isJoiningHousehold, setIsJoiningHousehold] = useState(false)
 
   useEffect(() => {
@@ -146,9 +147,12 @@ export function usePlannerState(currentUser = null) {
   }
 
   async function handleSaveShoppingItem(listId, input) {
+    setShoppingErrorDetail('')
     if (hasFirebaseConfig) {
-      const ok = await saveShoppingItem(listId, input)
-      if (ok) return
+      const result = await saveShoppingItem(listId, input)
+      if (result?.ok) return
+      setShoppingErrorDetail([result?.code, result?.error].filter(Boolean).join(' · '))
+      return
     }
     setLists((current) => upsertShoppingItem(current, listId, input))
   }
@@ -282,6 +286,7 @@ export function usePlannerState(currentUser = null) {
     joinSuccess,
     settingsMessage,
     settingsErrorDetail,
+    shoppingErrorDetail,
     isJoiningHousehold,
     resolvedActorName,
     taskState,

@@ -220,11 +220,20 @@ export async function deleteTask(taskId) {
 }
 
 export async function saveShoppingItem(listId, input) {
-  if (!hasFirebaseConfig || !firestore) return false
+  if (!hasFirebaseConfig || !firestore) return { ok: false, error: 'Firebase is not configured.' }
   const item = normalizeShoppingItemInput(input)
-  await setDoc(listItemDoc(listId, item.id), { ...item, updatedAt: serverTimestamp(), createdAt: serverTimestamp() }, { merge: true })
-  await updateDoc(listDoc(listId), { updatedAt: serverTimestamp() })
-  return true
+  try {
+    await setDoc(listItemDoc(listId, item.id), { ...item, updatedAt: serverTimestamp(), createdAt: serverTimestamp() }, { merge: true })
+    await updateDoc(listDoc(listId), { updatedAt: serverTimestamp() })
+    return { ok: true, item }
+  } catch (error) {
+    console.error('Failed to save shopping item', error)
+    return {
+      ok: false,
+      error: error?.message || 'Failed to save shopping item.',
+      code: error?.code || null,
+    }
+  }
 }
 
 export async function deleteShoppingItem(listId, itemId) {
