@@ -44,11 +44,15 @@ function App() {
   const [editingShopping, setEditingShopping] = useState({})
   const [activeShoppingListId, setActiveShoppingListId] = useState('home-depot')
   const [authMessage, setAuthMessage] = useState('')
+  const [inviteCodeInput, setInviteCodeInput] = useState('')
   const { user, authLoading, authError, setAuthError } = useAuthState()
   const {
     houseProfile,
     householdMembers,
     membership,
+    joinError,
+    joinSuccess,
+    isJoiningHousehold,
     resolvedActorName,
     lists,
     reminders,
@@ -71,6 +75,7 @@ function App() {
     handleMarkReminderSent,
     handleGenerateInviteCode,
     handlePromoteMember,
+    handleJoinHousehold,
   } = usePlannerState(user)
 
   const categories = useMemo(() => ['All', ...new Set(enrichedTasks.map((task) => task.category))], [enrichedTasks])
@@ -178,6 +183,41 @@ function App() {
               <span>{houseProfile.inviteCode || 'An owner can generate this after signing in.'}</span>
             </div>
           </div>
+        </section>
+      </div>
+    )
+  }
+
+  if (user && !membership) {
+    return (
+      <div className="shell auth-shell">
+        <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
+        <SignedInPill user={user} membership={membership} />
+        <section className="hero-card auth-landing-card">
+          <div>
+            <p className="eyebrow">Maison Mikell</p>
+            <h1>Join this household</h1>
+            <p className="hero-copy">You’re signed in, but you are not part of this household yet. Enter the invite code from an owner to continue.</p>
+            {joinSuccess ? <p className="auth-help success">{joinSuccess}</p> : null}
+            {joinError ? <p className="auth-help error">{joinError}</p> : null}
+          </div>
+          <form className="auth-landing-actions" onSubmit={async (event) => {
+            event.preventDefault()
+            const joined = await handleJoinHousehold(inviteCodeInput)
+            if (joined) setInviteCodeInput('')
+          }}>
+            <input
+              className="invite-code-input"
+              placeholder="Enter invite code"
+              value={inviteCodeInput}
+              onChange={(event) => setInviteCodeInput(event.target.value.toUpperCase())}
+              autoCapitalize="characters"
+              autoCorrect="off"
+              spellCheck="false"
+            />
+            <button className="primary-button" type="submit" disabled={isJoiningHousehold}>{isJoiningHousehold ? 'Joining…' : 'Join household'}</button>
+            <button className="secondary-button" type="button" onClick={() => signOutUser()}>Sign out</button>
+          </form>
         </section>
       </div>
     )
@@ -386,6 +426,7 @@ function App() {
               <p className="hero-copy">Current member: {user ? (user.displayName || user.email) : authLoading ? 'Checking sign-in…' : 'Not signed in yet'}</p>
               <p className="hero-copy">Role: {membership?.role || 'guest'} · Household members: {householdMembers.map((member) => `${member.name} (${member.role})`).join(' · ')}</p>
               <p className="hero-copy">Invite code: {houseProfile.inviteCode || 'Not generated yet'}</p>
+              <p className="hero-copy">Share this code with a household member after they sign in, then they can join from the invite screen.</p>
             </div>
             <div className="auth-actions">
               {membership?.role === 'owner' ? <button className="secondary-button" onClick={() => handleGenerateInviteCode()}>Refresh invite code</button> : null}

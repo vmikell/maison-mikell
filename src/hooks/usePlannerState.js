@@ -5,6 +5,7 @@ import {
   deleteShoppingItem,
   deleteTask,
   ensureHouseholdMembership,
+  joinHouseholdWithInviteCode,
   markReminderSent,
   markTaskCompleted,
   readPlannerState,
@@ -41,6 +42,9 @@ export function usePlannerState(currentUser = null) {
   const [isRemoteLoading, setIsRemoteLoading] = useState(hasFirebaseConfig)
   const [remoteError, setRemoteError] = useState(null)
   const [membership, setMembership] = useState(null)
+  const [joinError, setJoinError] = useState('')
+  const [joinSuccess, setJoinSuccess] = useState('')
+  const [isJoiningHousehold, setIsJoiningHousehold] = useState(false)
 
   useEffect(() => {
     let cancelled = false
@@ -230,10 +234,44 @@ export function usePlannerState(currentUser = null) {
     setHouseProfile((current) => ({ ...current, members: nextMembers }))
   }
 
+  async function handleJoinHousehold(inviteCode) {
+    if (!currentUser) {
+      setJoinError('Sign in first, then enter the household invite code.')
+      setJoinSuccess('')
+      return false
+    }
+    if (!hasFirebaseConfig) {
+      setJoinError('Invite-code joining needs live Firebase data. The app is in local fallback mode right now.')
+      setJoinSuccess('')
+      return false
+    }
+    setIsJoiningHousehold(true)
+    setJoinError('')
+    setJoinSuccess('')
+    try {
+      const result = await joinHouseholdWithInviteCode(currentUser, inviteCode)
+      if (!result.ok) {
+        setJoinError(result.error || 'Could not join the household with that invite code.')
+        return false
+      }
+      setMembership(result.membership)
+      setJoinSuccess('You joined the household successfully.')
+      return true
+    } catch (error) {
+      setJoinError(error instanceof Error ? error.message : 'Could not join the household right now.')
+      return false
+    } finally {
+      setIsJoiningHousehold(false)
+    }
+  }
+
   return {
     houseProfile,
     householdMembers,
     membership,
+    joinError,
+    joinSuccess,
+    isJoiningHousehold,
     resolvedActorName,
     taskState,
     lists,
@@ -257,5 +295,6 @@ export function usePlannerState(currentUser = null) {
     handleMarkReminderSent,
     handleGenerateInviteCode,
     handlePromoteMember,
+    handleJoinHousehold,
   }
 }

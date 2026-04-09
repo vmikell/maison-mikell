@@ -88,7 +88,24 @@ export async function ensureHouseholdMembership(currentUser) {
   const current = snap.exists() ? snap.data() : {}
   const members = current.members ?? []
   const existing = members.find((member) => member.email === currentUser.email)
-  if (existing) return existing
+  return existing ?? null
+}
+
+export async function joinHouseholdWithInviteCode(currentUser, inviteCode) {
+  if (!hasFirebaseConfig || !firestore || !currentUser) return { ok: false, error: 'Sign in first to join the household.' }
+  await ensurePlannerSeeded()
+  const normalizedCode = (inviteCode || '').trim().toUpperCase()
+  if (!normalizedCode) return { ok: false, error: 'Enter the household invite code.' }
+
+  const snap = await getDoc(householdRef())
+  const current = snap.exists() ? snap.data() : {}
+  const members = current.members ?? []
+  const existing = members.find((member) => member.email === currentUser.email)
+  if (existing) return { ok: true, membership: existing }
+
+  if ((current.inviteCode || '').trim().toUpperCase() !== normalizedCode) {
+    return { ok: false, error: 'That invite code does not match this household.' }
+  }
 
   const nextRole = members.length === 0 ? 'owner' : 'member'
   const nextMember = {
@@ -105,7 +122,7 @@ export async function ensureHouseholdMembership(currentUser) {
     updatedAt: serverTimestamp(),
   }, { merge: true })
 
-  return nextMember
+  return { ok: true, membership: nextMember }
 }
 
 export async function updateHouseholdMembership(patch) {

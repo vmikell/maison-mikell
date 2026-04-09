@@ -21,6 +21,9 @@
 .auth-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 .auth-help { margin-top: 8px; font-size: 0.92rem; line-height: 1.5; }
 .auth-help.error { color: #ffbfd0; }
+.auth-help.success { color: #bfffe9; }
+.invite-code-input { width: 100%; border-radius: 16px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.06); color: #fff; padding: 14px 16px; font: inherit; text-transform: uppercase; letter-spacing: 0.12em; }
+.invite-code-input::placeholder { letter-spacing: normal; text-transform: none; }
 .hero-card { padding: 22px; border-radius: 28px; display: grid; gap: 18px; background: linear-gradient(145deg, rgba(26,20,44,0.96), rgba(17,26,48,0.88)); }
 .eyebrow,.panel-label,.task-meta,.task-datum span,.stat-card p { margin: 0; text-transform: uppercase; letter-spacing: 0.18em; font-size: 0.72rem; color: #c9bddf; }
 h1,h2,h3,p { margin: 0; }
