@@ -148,13 +148,21 @@ export function usePlannerState(currentUser = null) {
 
   async function handleSaveShoppingItem(listId, input) {
     setShoppingErrorDetail('')
+    const normalizedInput = { ...input, id: input.id || '' }
+    const optimisticItem = normalizeShoppingItemInput(normalizedInput)
+    const revertSnapshot = lists
+
+    setLists((current) => upsertShoppingItem(current, listId, optimisticItem))
+
     if (hasFirebaseConfig) {
-      const result = await saveShoppingItem(listId, input)
-      if (result?.ok) return
+      const result = await saveShoppingItem(listId, normalizedInput)
+      if (result?.ok) return result.item
+      setLists(revertSnapshot)
       setShoppingErrorDetail([result?.code, result?.error].filter(Boolean).join(' · '))
-      return
+      return null
     }
-    setLists((current) => upsertShoppingItem(current, listId, input))
+
+    return optimisticItem
   }
 
 
@@ -167,25 +175,34 @@ export function usePlannerState(currentUser = null) {
   }
 
   async function handleDeleteShoppingItem(listId, itemId) {
+    const revertSnapshot = lists
+    setLists((current) => removeShoppingItem(current, listId, itemId))
     if (hasFirebaseConfig) {
       const ok = await deleteShoppingItem(listId, itemId)
-      if (ok) return
+      if (ok) return true
+      setLists(revertSnapshot)
+      return false
     }
-    setLists((current) => removeShoppingItem(current, listId, itemId))
+    return true
   }
 
   async function handleToggleShoppingItem(listId, itemId) {
     const list = lists.find((entry) => entry.id === listId)
     const item = list?.items.find((entry) => entry.id === itemId)
-    if (!list || !item) return
-    if (hasFirebaseConfig) {
-      const ok = await toggleShoppingItemChecked(listId, itemId, !item.checked)
-      if (ok) return
-    }
+    if (!list || !item) return false
+    const nextChecked = !item.checked
+    const revertSnapshot = lists
     setLists((current) => current.map((entry) => entry.id !== listId ? entry : {
       ...entry,
-      items: entry.items.map((listItem) => (listItem.id === itemId ? { ...listItem, checked: !listItem.checked } : listItem)),
+      items: entry.items.map((listItem) => (listItem.id === itemId ? { ...listItem, checked: nextChecked } : listItem)),
     }))
+    if (hasFirebaseConfig) {
+      const ok = await toggleShoppingItemChecked(listId, itemId, nextChecked)
+      if (ok) return true
+      setLists(revertSnapshot)
+      return false
+    }
+    return true
   }
 
 
