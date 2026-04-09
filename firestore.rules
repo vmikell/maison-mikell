@@ -5,38 +5,61 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function householdDoc(householdId) {
+      return get(/databases/$(database)/documents/households/$(householdId));
+    }
+
+    function isHouseholdMember(householdId) {
+      return signedIn() && householdDoc(householdId).data.members.where(member, member.email == request.auth.token.email).size() > 0;
+    }
+
+    function isOwner(householdId) {
+      return signedIn() && householdDoc(householdId).data.members.where(member, member.email == request.auth.token.email && member.role == 'owner').size() > 0;
+    }
+
     match /households/{householdId} {
       allow read: if true;
-      allow write: if signedIn();
+      allow create: if signedIn();
+      allow update: if isOwner(householdId)
+        || (isHouseholdMember(householdId)
+          && request.resource.data.diff(resource.data).changedKeys().hasOnly(['lastReminderRunAt', 'lastReminderChannel', 'updatedAt']));
+      allow delete: if isOwner(householdId);
 
       match /maintenanceTasks/{taskId} {
         allow read: if true;
-        allow write: if signedIn();
+        allow create, delete: if isOwner(householdId);
+        allow update: if isOwner(householdId)
+          || (isHouseholdMember(householdId)
+            && request.resource.data.diff(resource.data).changedKeys().hasOnly(['claimedBy', 'claimedAt', 'lastDone', 'lastCompletedAt', 'lastCompletedBy', 'updatedAt']));
       }
 
       match /shoppingLists/{listId} {
         allow read: if true;
-        allow write: if signedIn();
+        allow create, update, delete: if isHouseholdMember(householdId);
 
         match /items/{itemId} {
           allow read: if true;
-          allow write: if signedIn();
+          allow create, update, delete: if isHouseholdMember(householdId);
         }
       }
 
       match /reminders/{reminderId} {
         allow read: if true;
-        allow write: if signedIn();
+        allow create, delete: if isOwner(householdId);
+        allow update: if isOwner(householdId)
+          || (isHouseholdMember(householdId)
+            && request.resource.data.diff(resource.data).changedKeys().hasOnly(['sent', 'sentAt', 'sentChannel', 'updatedAt']));
       }
 
       match /activity/{entryId} {
         allow read: if true;
-        allow write: if signedIn();
+        allow write: if isOwner(householdId);
       }
 
       match /completions/{entryId} {
         allow read: if true;
-        allow write: if signedIn();
+        allow create: if isHouseholdMember(householdId);
+        allow update, delete: if isOwner(householdId);
       }
     }
   }
