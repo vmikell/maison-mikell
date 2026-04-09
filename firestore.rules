@@ -9,12 +9,55 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/households/$(householdId));
     }
 
+    function householdMembers(householdId) {
+      return householdDoc(householdId).data.members;
+    }
+
+    function memberMatches(householdId, role) {
+      return householdMembers(householdId).hasAny([
+        {
+          id: request.auth.uid,
+          email: request.auth.token.email,
+          name: request.auth.token.name,
+          role: role,
+          joinedAt: householdMembers(householdId)[0].joinedAt,
+        },
+        {
+          id: request.auth.uid,
+          email: request.auth.token.email,
+          name: request.auth.token.email,
+          role: role,
+          joinedAt: householdMembers(householdId)[0].joinedAt,
+        }
+      ])
+      || householdMembers(householdId).hasAny([
+        {
+          id: request.auth.uid,
+          email: request.auth.token.email,
+          name: request.auth.token.name,
+          role: role,
+          joinedAt: householdMembers(householdId)[1].joinedAt,
+        },
+        {
+          id: request.auth.uid,
+          email: request.auth.token.email,
+          name: request.auth.token.email,
+          role: role,
+          joinedAt: householdMembers(householdId)[1].joinedAt,
+        }
+      ]);
+    }
+
     function isHouseholdMember(householdId) {
-      return signedIn() && householdDoc(householdId).data.members.where(member, member.email == request.auth.token.email).size() > 0;
+      return signedIn()
+        && request.auth.token.email != null
+        && (memberMatches(householdId, 'owner') || memberMatches(householdId, 'member'));
     }
 
     function isOwner(householdId) {
-      return signedIn() && householdDoc(householdId).data.members.where(member, member.email == request.auth.token.email && member.role == 'owner').size() > 0;
+      return signedIn()
+        && request.auth.token.email != null
+        && memberMatches(householdId, 'owner');
     }
 
     function isSelfJoiningExistingHousehold(householdId) {
