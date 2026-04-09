@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { initializeApp } from 'firebase/app'
+import { deleteApp, initializeApp } from 'firebase/app'
 import { getFirestore, collection, getDocs } from 'firebase/firestore'
 import fs from 'node:fs'
 import path from 'node:path'
@@ -50,3 +50,5 @@ const items = snaps.docs.map((snap) => ({ id: snap.id, ...snap.data() }))
 const outputPath = path.join(projectRoot, 'calendar-sync-preview.json')
 fs.writeFileSync(outputPath, JSON.stringify(items, null, 2))
 console.log(`Exported ${items.length} reminder-backed calendar items to ${outputPath}.`)
+await deleteApp(app)
+process.exit(0)
