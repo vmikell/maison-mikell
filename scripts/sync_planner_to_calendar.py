@@ -5,15 +5,15 @@ from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
-from datetime import datetime, timedelta, timezone
 import json
-import os
+import sys
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
 CLIENT_SECRET = Path('/home/vboxuser/Downloads/client_secret_521736129971-3p5a8itaj85r4jdjbbc8736jv7hfiphj.apps.googleusercontent.com.json')
 TOKEN_PATH = Path('/home/vboxuser/.secrets/maison-reset-google-token.json')
 CALENDAR_ID = 'c2522bd5ec79eecca4cd55ef8ecd88b420b014870f0417426f7060cf9104e1c3@group.calendar.google.com'
-PLANNER_EXPORT = Path('/home/vboxuser/.openclaw/workspace/projects/home-maintenance-planner/calendar-sync-preview.json')
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+PLANNER_EXPORT = PROJECT_ROOT / 'calendar-sync-preview.json'
 TIMEZONE = 'America/New_York'
 
 
@@ -77,15 +77,22 @@ def upsert_event(service, item):
 
 def main():
     creds = get_creds()
-    service = build('calendar', 'v3', credentials=creds)
+    service = build('calendar', 'v3', credentials=creds, cache_discovery=False)
     items = load_sync_items()
     results = []
 
-    for item in items:
-        results.append(upsert_event(service, item))
-
-    print(json.dumps({'calendarId': CALENDAR_ID, 'synced': results}, indent=2))
+    try:
+        for item in items:
+            results.append(upsert_event(service, item))
+        print(json.dumps({'calendarId': CALENDAR_ID, 'synced': results}, indent=2), flush=True)
+    finally:
+        http = getattr(service, '_http', None)
+        if http is not None:
+            close = getattr(http, 'close', None)
+            if callable(close):
+                close()
 
 
 if __name__ == '__main__':
     main()
+    sys.exit(0)
