@@ -45,6 +45,7 @@ export function usePlannerState(currentUser = null) {
   const [joinError, setJoinError] = useState('')
   const [joinSuccess, setJoinSuccess] = useState('')
   const [settingsMessage, setSettingsMessage] = useState('')
+  const [settingsErrorDetail, setSettingsErrorDetail] = useState('')
   const [isJoiningHousehold, setIsJoiningHousehold] = useState(false)
 
   useEffect(() => {
@@ -215,14 +216,16 @@ export function usePlannerState(currentUser = null) {
   async function handleGenerateInviteCode() {
     const nextCode = Math.random().toString(36).slice(2, 8).toUpperCase()
     setSettingsMessage('')
+    setSettingsErrorDetail('')
     if (hasFirebaseConfig) {
-      const ok = await updateHouseholdMembership({ inviteCode: nextCode })
-      if (ok) {
+      const result = await updateHouseholdMembership({ inviteCode: nextCode })
+      if (result?.ok) {
         setHouseProfile((current) => ({ ...current, inviteCode: nextCode }))
         setSettingsMessage('Invite code refreshed.')
         return nextCode
       }
       setSettingsMessage('Could not refresh the invite code. The saved value did not change.')
+      setSettingsErrorDetail([result?.code, result?.error].filter(Boolean).join(' · '))
       return null
     }
     setHouseProfile((current) => ({ ...current, inviteCode: nextCode }))
@@ -233,8 +236,8 @@ export function usePlannerState(currentUser = null) {
   async function handlePromoteMember(memberId) {
     const nextMembers = householdMembers.map((member) => member.id === memberId ? { ...member, role: 'owner' } : member)
     if (hasFirebaseConfig) {
-      const ok = await updateHouseholdMembership({ members: nextMembers })
-      if (ok) setHouseProfile((current) => ({ ...current, members: nextMembers }))
+      const result = await updateHouseholdMembership({ members: nextMembers })
+      if (result?.ok) setHouseProfile((current) => ({ ...current, members: nextMembers }))
       return
     }
     setHouseProfile((current) => ({ ...current, members: nextMembers }))
@@ -278,6 +281,7 @@ export function usePlannerState(currentUser = null) {
     joinError,
     joinSuccess,
     settingsMessage,
+    settingsErrorDetail,
     isJoiningHousehold,
     resolvedActorName,
     taskState,

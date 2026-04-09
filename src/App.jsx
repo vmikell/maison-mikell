@@ -53,6 +53,7 @@ function App() {
     joinError,
     joinSuccess,
     settingsMessage,
+    settingsErrorDetail,
     isJoiningHousehold,
     resolvedActorName,
     lists,
@@ -448,6 +449,8 @@ function App() {
               <p className="hero-copy">Invite code: {houseProfile.inviteCode || 'Not generated yet'}</p>
               <p className="hero-copy">Share this code with a household member after they sign in, then they can join from the invite screen.</p>
               {settingsMessage ? <p className={`auth-help ${settingsMessage.includes('Could not') ? 'error' : 'success'}`}>{settingsMessage}</p> : null}
+              {settingsErrorDetail ? <p className="auth-help error">Debug: {settingsErrorDetail}</p> : null}
+              <p className="hero-copy">Signed in as: {user?.email || 'unknown'} {membership?.role ? `· role: ${membership.role}` : ''}</p>
             </div>
             <div className="auth-actions">
               {membership?.role === 'owner' ? <button className="secondary-button" onClick={() => handleGenerateInviteCode()}>Refresh invite code</button> : null}
