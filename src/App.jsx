@@ -164,7 +164,7 @@ function App() {
             <p className="hero-copy">If the Google popup gets blocked or seems to do nothing, use the full-page sign-in button instead.</p>
             {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
             {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
-            {!authMessage && authErrorCode ? <p className="auth-help error">Debug code: {authErrorCode}</p> : null}
+            {authErrorCode ? <p className="auth-help error">Debug code: {authErrorCode}</p> : null}
             {authErrorDetail ? <p className="auth-help error">Debug detail: {authErrorDetail}</p> : null}
           </div>
           <div className="auth-landing-actions">
