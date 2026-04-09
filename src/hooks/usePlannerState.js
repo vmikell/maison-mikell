@@ -59,9 +59,10 @@ export function usePlannerState(currentUser = null) {
       setIsRemoteLoading(true)
       setRemoteError(null)
       try {
+        let nextMembership = null
         if (currentUser) {
-          const nextMembership = await ensureHouseholdMembership(currentUser)
-          if (!cancelled) setMembership(nextMembership)
+          nextMembership = await ensureHouseholdMembership(currentUser)
+          if (!cancelled && nextMembership) setMembership(nextMembership)
         }
         const state = await readPlannerState()
         if (!cancelled && state) {
@@ -71,6 +72,10 @@ export function usePlannerState(currentUser = null) {
           setReminders(state.reminders)
           setCompletions(state.completions)
           setIsRemoteLoaded(true)
+          if (currentUser && !nextMembership) {
+            const derivedMembership = (state.houseProfile?.members ?? []).find((member) => member.email === currentUser.email) ?? null
+            if (derivedMembership) setMembership(derivedMembership)
+          }
         }
         unsubscribe = await subscribePlannerState((nextState) => {
           if (cancelled || !nextState) return
@@ -84,7 +89,9 @@ export function usePlannerState(currentUser = null) {
           setRemoteError(null)
         })
       } catch (error) {
-        if (!cancelled) setRemoteError(error instanceof Error ? error.message : 'Failed to load planner state.')
+        if (!cancelled) {
+          setRemoteError(error instanceof Error ? error.message : 'Failed to load planner state.')
+        }
       } finally {
         if (!cancelled) setIsRemoteLoading(false)
       }
