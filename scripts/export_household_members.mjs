@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, writeFileSync } from 'node:fs'
-import { initializeApp } from 'firebase/app'
+import { deleteApp, initializeApp } from 'firebase/app'
 import { getFirestore, doc, getDoc } from 'firebase/firestore'
 import path from 'node:path'
 import process from 'node:process'
@@ -54,3 +54,5 @@ const patchedMembers = members.map((member) => {
 const outputPath = path.join(projectRoot, 'household-members.json')
 writeFileSync(outputPath, JSON.stringify(patchedMembers, null, 2))
 console.log(`Exported ${patchedMembers.length} household members to ${outputPath}.`)
+await deleteApp(app)
+process.exit(0)
