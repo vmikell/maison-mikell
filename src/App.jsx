@@ -55,7 +55,6 @@ function App() {
     isJoiningHousehold,
     resolvedActorName,
     lists,
-    reminders,
     sentReminderHistory,
     pendingReminderQueue,
     completions,
@@ -86,7 +85,6 @@ function App() {
   })
   const dueSoonTasks = enrichedTasks.filter((task) => task.daysUntilDue >= 0 && task.daysUntilDue <= 14).slice(0, 4)
   const overdueTasks = enrichedTasks.filter((task) => task.status === 'overdue').slice(0, 3)
-  const reminderQueue = reminders.filter((item) => item.status === 'remind' || item.status === 'overdue').slice(0, 6)
   const recentCompletions = completions.slice(0, 12)
   const recentReminderHistory = sentReminderHistory.slice(0, 8)
   const activeShoppingList = lists.find((list) => list.id === activeShoppingListId) ?? lists[0]
@@ -96,10 +94,6 @@ function App() {
   const shoppingCompletion = activeShoppingItems.length ? Math.round((checkedShoppingItems.length / activeShoppingItems.length) * 100) : 0
 
   const statusCardFilterActive = selectedStatus !== 'All' || selectedCategory !== 'All'
-  const plannerHeadline = statusCardFilterActive ? 'Filtered maintenance schedule' : 'Today’s maintenance rhythm'
-  const plannerSubcopy = statusCardFilterActive
-    ? `${filteredTasks.length} task${filteredTasks.length === 1 ? '' : 's'} match your current filters.`
-    : `${summary.overdue} overdue, ${summary.remind} in the reminder window, and ${dueSoonTasks.length} due soon.`
 
   const calendarSections = useMemo(() => {
     const buckets = new Map()
@@ -122,6 +116,11 @@ function App() {
     major: enrichedTasks.filter((task) => task.major).length,
     weekly: enrichedTasks.filter((task) => task.frequency === 'Weekly').length,
   }
+
+  const plannerHeadline = statusCardFilterActive ? 'Filtered maintenance schedule' : 'Today’s maintenance rhythm'
+  const plannerSubcopy = statusCardFilterActive
+    ? `${filteredTasks.length} task${filteredTasks.length === 1 ? '' : 's'} match your current filters.`
+    : `${summary.overdue} overdue, ${summary.remind} in the reminder window, and ${dueSoonTasks.length} due soon.`
 
   function openTaskModal(task) { setSelectedTask(task) }
   function closeTaskModal() { setSelectedTask(null) }

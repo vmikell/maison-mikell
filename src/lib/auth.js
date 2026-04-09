@@ -15,14 +15,11 @@ function toPlainEnglishAuthError(error) {
 
 export function useAuthState() {
   const [user, setUser] = useState(null)
-  const [authLoading, setAuthLoading] = useState(hasFirebaseConfig)
+  const [authLoading, setAuthLoading] = useState(() => Boolean(hasFirebaseConfig && auth))
   const [authError, setAuthError] = useState('')
 
   useEffect(() => {
-    if (!hasFirebaseConfig || !auth) {
-      setAuthLoading(false)
-      return
-    }
+    if (!hasFirebaseConfig || !auth) return
 
     getRedirectResult(auth)
       .then(() => {})
