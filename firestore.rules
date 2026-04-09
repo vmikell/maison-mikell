@@ -13,51 +13,40 @@ service cloud.firestore {
       return householdDoc(householdId).data.members;
     }
 
-    function memberMatches(householdId, role) {
-      return householdMembers(householdId).hasAny([
-        {
-          id: request.auth.uid,
-          email: request.auth.token.email,
-          name: request.auth.token.name,
-          role: role,
-          joinedAt: householdMembers(householdId)[0].joinedAt,
-        },
-        {
-          id: request.auth.uid,
-          email: request.auth.token.email,
-          name: request.auth.token.email,
-          role: role,
-          joinedAt: householdMembers(householdId)[0].joinedAt,
-        }
-      ])
-      || householdMembers(householdId).hasAny([
-        {
-          id: request.auth.uid,
-          email: request.auth.token.email,
-          name: request.auth.token.name,
-          role: role,
-          joinedAt: householdMembers(householdId)[1].joinedAt,
-        },
-        {
-          id: request.auth.uid,
-          email: request.auth.token.email,
-          name: request.auth.token.email,
-          role: role,
-          joinedAt: householdMembers(householdId)[1].joinedAt,
-        }
-      ]);
+    function memberEmailAt(householdId, index) {
+      return householdMembers(householdId).size() > index
+        ? householdMembers(householdId)[index].email
+        : null;
+    }
+
+    function memberRoleAt(householdId, index) {
+      return householdMembers(householdId).size() > index
+        ? householdMembers(householdId)[index].role
+        : null;
     }
 
     function isHouseholdMember(householdId) {
       return signedIn()
         && request.auth.token.email != null
-        && (memberMatches(householdId, 'owner') || memberMatches(householdId, 'member'));
+        && (
+          memberEmailAt(householdId, 0) == request.auth.token.email
+          || memberEmailAt(householdId, 1) == request.auth.token.email
+          || memberEmailAt(householdId, 2) == request.auth.token.email
+          || memberEmailAt(householdId, 3) == request.auth.token.email
+          || memberEmailAt(householdId, 4) == request.auth.token.email
+        );
     }
 
     function isOwner(householdId) {
       return signedIn()
         && request.auth.token.email != null
-        && memberMatches(householdId, 'owner');
+        && (
+          (memberEmailAt(householdId, 0) == request.auth.token.email && memberRoleAt(householdId, 0) == 'owner')
+          || (memberEmailAt(householdId, 1) == request.auth.token.email && memberRoleAt(householdId, 1) == 'owner')
+          || (memberEmailAt(householdId, 2) == request.auth.token.email && memberRoleAt(householdId, 2) == 'owner')
+          || (memberEmailAt(householdId, 3) == request.auth.token.email && memberRoleAt(householdId, 3) == 'owner')
+          || (memberEmailAt(householdId, 4) == request.auth.token.email && memberRoleAt(householdId, 4) == 'owner')
+        );
     }
 
     function isSelfJoiningExistingHousehold(householdId) {
