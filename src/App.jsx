@@ -90,8 +90,16 @@ function App() {
   const recentCompletions = completions.slice(0, 12)
   const recentReminderHistory = sentReminderHistory.slice(0, 8)
   const activeShoppingList = lists.find((list) => list.id === activeShoppingListId) ?? lists[0]
+  const activeShoppingItems = activeShoppingList?.items ?? []
+  const openShoppingItems = activeShoppingItems.filter((item) => !item.checked)
+  const checkedShoppingItems = activeShoppingItems.filter((item) => item.checked)
+  const shoppingCompletion = activeShoppingItems.length ? Math.round((checkedShoppingItems.length / activeShoppingItems.length) * 100) : 0
 
   const statusCardFilterActive = selectedStatus !== 'All' || selectedCategory !== 'All'
+  const plannerHeadline = statusCardFilterActive ? 'Filtered maintenance schedule' : 'Today’s maintenance rhythm'
+  const plannerSubcopy = statusCardFilterActive
+    ? `${filteredTasks.length} task${filteredTasks.length === 1 ? '' : 's'} match your current filters.`
+    : `${summary.overdue} overdue, ${summary.remind} in the reminder window, and ${dueSoonTasks.length} due soon.`
 
   const calendarSections = useMemo(() => {
     const buckets = new Map()
@@ -114,13 +122,6 @@ function App() {
     major: enrichedTasks.filter((task) => task.major).length,
     weekly: enrichedTasks.filter((task) => task.frequency === 'Weekly').length,
   }
-
-  const scopeRecommendations = [
-    'Shared household auth for Victor + Riah.',
-    'A reminder worker that turns queued reminder records into actual email / push sends.',
-    'Completion history and seasonal dashboard views.',
-    'Calendar mode and room-by-room checklist mode.',
-  ]
 
   function openTaskModal(task) { setSelectedTask(task) }
   function closeTaskModal() { setSelectedTask(null) }
@@ -338,8 +339,8 @@ function App() {
       ) : null}
 
       <header className="hero-card">
-        <div><p className="eyebrow">Maison Mikell</p><h1>{activeTab === 'shopping' ? 'Maison Restock' : 'Maison Reset'}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your two-level home and 4-head mini split setup.</p></div>
-        <div className="hero-note"><strong>{activeTab === 'shopping' ? 'All your shopping lists, together in one place.' : `${houseProfile.reminderRules.majorLeadDays} days for large maintenance · ${houseProfile.reminderRules.standardLeadDays} days for everything else`}</strong><span>{houseProfile.lastReminderRunAt ? `Last reminder run: ${new Date(houseProfile.lastReminderRunAt).toLocaleString()}${houseProfile.lastReminderChannel ? ` via ${houseProfile.lastReminderChannel}` : ''}` : 'Last reminder run: not recorded yet'}</span></div>
+        <div><p className="eyebrow">Maison Mikell</p><h1>{activeTab === 'shopping' ? 'Maison Restock' : activeTab === 'calendar' ? 'Maison Calendar' : 'Maison Reset'}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your two-level home and 4-head mini split setup.</p></div>
+        <div className="hero-note"><strong>{activeTab === 'shopping' ? `${openShoppingItems.length} open item${openShoppingItems.length === 1 ? '' : 's'} across ${lists.length} list${lists.length === 1 ? '' : 's'}` : activeTab === 'calendar' ? `${calendarSections.length} day${calendarSections.length === 1 ? '' : 's'} with scheduled care in the next month` : `${houseProfile.reminderRules.majorLeadDays} days for large maintenance · ${houseProfile.reminderRules.standardLeadDays} days for everything else`}</strong><span>{activeTab === 'shopping' ? `${checkedShoppingItems.length} checked off · ${shoppingCompletion}% complete on this list` : houseProfile.lastReminderRunAt ? `Last reminder run: ${new Date(houseProfile.lastReminderRunAt).toLocaleString()}${houseProfile.lastReminderChannel ? ` via ${houseProfile.lastReminderChannel}` : ''}` : 'Last reminder run: not recorded yet'}</span></div>
       </header>
 
       {activeTab === 'planner' ? (
@@ -353,7 +354,21 @@ function App() {
 
       {activeTab === 'planner' ? (
         <>
-          {statusCardFilterActive ? <section className="panel filtered-results-panel"><div className="section-head"><div><p className="panel-label">Filtered maintenance schedule</p><h2>{filteredTasks.length} tasks in view</h2></div></div><div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div></section> : null}
+          <section className="panel planner-overview-panel">
+            <div className="section-head planner-overview-head">
+              <div>
+                <p className="panel-label">Planner overview</p>
+                <h2>{plannerHeadline}</h2>
+                <p className="hero-copy">{plannerSubcopy}</p>
+              </div>
+              <div className="planner-actions">
+                {statusCardFilterActive ? <button className="secondary-button" onClick={() => { setSelectedCategory('All'); setSelectedStatus('All') }}>Clear filters</button> : null}
+                <button className="secondary-button" onClick={() => setTaskEditorOpen((open) => !open)}>{taskEditorOpen ? 'Hide task editor' : 'Add or edit tasks'}</button>
+              </div>
+            </div>
+            {statusCardFilterActive ? <div className="active-filter-row"><span className="count-pill">Category: {selectedCategory}</span><span className="count-pill">Status: {selectedStatus}</span></div> : null}
+            {statusCardFilterActive ? <div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div> : null}
+          </section>
 
           <section className="spotlight-grid">
             <section className="panel spotlight-panel overdue-panel"><p className="panel-label">Needs attention first</p><h2>{overdueTasks.length ? 'Overdue tasks' : 'Nothing overdue right now'}</h2><div className="spotlight-list">{overdueTasks.length ? overdueTasks.map((task) => (<button key={task.id} className="spotlight-item" onClick={() => openTaskModal(task)}><strong>{task.title}</strong><span>{task.area} · overdue by {Math.abs(task.daysUntilDue)} day{Math.abs(task.daysUntilDue) === 1 ? '' : 's'}</span></button>)) : <p className="empty-copy">The house is in decent shape here — nothing has slipped past due.</p>}</div></section>
@@ -380,13 +395,18 @@ function App() {
       ) : activeTab === 'calendar' ? (
         <>
           <section className="panel calendar-summary-panel">
-            <div className="section-head">
+            <div className="section-head calendar-summary-head">
               <div>
                 <p className="panel-label">Calendar view</p>
                 <h2>Next 30 days of home care</h2>
+                <p className="hero-copy">A mobile-friendly agenda of what’s due and when, with overdue tasks still visible so nothing quietly vanishes after a missed date.</p>
+              </div>
+              <div className="calendar-summary-stats">
+                <div className="ops-stat"><span>Days scheduled</span><strong>{calendarSections.length}</strong></div>
+                <div className="ops-stat"><span>Tasks due</span><strong>{enrichedTasks.filter((task) => task.daysUntilDue >= -7 && task.daysUntilDue <= 30).length}</strong></div>
+                <div className="ops-stat"><span>Overdue still visible</span><strong>{summary.overdue}</strong></div>
               </div>
             </div>
-            <p className="hero-copy">A mobile-friendly agenda of what’s due and when, with overdue tasks still visible so nothing quietly vanishes after a missed date.</p>
           </section>
 
           <section className="calendar-agenda">
@@ -456,7 +476,8 @@ function App() {
           </section> : null}
         </>
       ) : (
-        <section className="panel"><div className="section-head"><div><p className="panel-label">Shopping lists</p><h2>Household errands by store</h2></div></div><div className="shopping-tabs">{lists.map((list) => (<button key={list.id} className={`shopping-tab ${activeShoppingList?.id === list.id ? 'active' : ''}`} onClick={() => setActiveShoppingListId(list.id)}>{list.title}</button>))}</div>{activeShoppingList ? <article className={`shopping-card ${activeShoppingList.tone}`}><div className="shopping-top"><div><p className="task-meta">Store list</p><h3>{activeShoppingList.id === 'other' ? (activeShoppingList.storeName || 'Other') : activeShoppingList.title}</h3></div><span className="count-pill">{activeShoppingList.items.filter((item) => !item.checked).length} open</span></div>{activeShoppingList.id === 'other' ? <label className="shopping-store-field"><span>Store name</span><input placeholder="Store name" value={activeShoppingList.storeName || ''} onChange={(e) => handleSaveShoppingListMeta(activeShoppingList.id, { storeName: e.target.value })} /></label> : null}<form className="shopping-form" onSubmit={(event) => submitShoppingForm(event, activeShoppingList.id)}><input placeholder="Item name" value={getShoppingForm(activeShoppingList.id).name} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), name: e.target.value })} required /><input placeholder="Qty" value={getShoppingForm(activeShoppingList.id).qty} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), qty: e.target.value })} /><input placeholder="Aisle / note" value={getShoppingForm(activeShoppingList.id).aisleHint} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), aisleHint: e.target.value })} /><div className="form-actions"><button className="primary-button" type="submit">{editingShopping[activeShoppingList.id] ? 'Save item' : 'Add item'}</button>{editingShopping[activeShoppingList.id] ? <button className="secondary-button" type="button" onClick={() => resetShoppingForm(activeShoppingList.id)}>Cancel</button> : null}</div></form><div className="shopping-items">{activeShoppingList.items.map((item) => (<div key={item.id} className={`shopping-item ${item.checked ? 'checked' : ''}`}><input type="checkbox" checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span></div><div className="shopping-item-actions"><button className="inline-action" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>))}</div></article> : null}</section>
+        <section className="panel shopping-panel">
+          <div className="section-head shopping-section-head"><div><p className="panel-label">Shopping lists</p><h2>Household errands by store</h2><p className="hero-copy">Keep the open items easy to scan, and let checked items fall to a separate bucket instead of cluttering the main list.</p></div><div className="shopping-summary"><div className="ops-stat"><span>Open items</span><strong>{openShoppingItems.length}</strong></div><div className="ops-stat"><span>Checked</span><strong>{checkedShoppingItems.length}</strong></div><div className="ops-stat"><span>Progress</span><strong>{shoppingCompletion}%</strong></div></div></div><div className="shopping-tabs">{lists.map((list) => (<button key={list.id} className={`shopping-tab ${activeShoppingList?.id === list.id ? 'active' : ''}`} onClick={() => setActiveShoppingListId(list.id)}>{list.title}</button>))}</div>{activeShoppingList ? <article className={`shopping-card ${activeShoppingList.tone}`}><div className="shopping-top"><div><p className="task-meta">Store list</p><h3>{activeShoppingList.id === 'other' ? (activeShoppingList.storeName || 'Other') : activeShoppingList.title}</h3><p className="shopping-progress-copy">{activeShoppingItems.length ? `${openShoppingItems.length} to grab, ${checkedShoppingItems.length} already handled.` : 'Start the list by adding your first item.'}</p></div><span className="count-pill">{openShoppingItems.length} open</span></div>{activeShoppingList.id === 'other' ? <label className="shopping-store-field"><span>Store name</span><input placeholder="Store name" value={activeShoppingList.storeName || ''} onChange={(e) => handleSaveShoppingListMeta(activeShoppingList.id, { storeName: e.target.value })} /></label> : null}<form className="shopping-form" onSubmit={(event) => submitShoppingForm(event, activeShoppingList.id)}><input placeholder="Item name" value={getShoppingForm(activeShoppingList.id).name} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), name: e.target.value })} required /><input placeholder="Qty" value={getShoppingForm(activeShoppingList.id).qty} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), qty: e.target.value })} /><input placeholder="Aisle / note" value={getShoppingForm(activeShoppingList.id).aisleHint} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), aisleHint: e.target.value })} /><div className="form-actions"><button className="primary-button" type="submit">{editingShopping[activeShoppingList.id] ? 'Save item' : 'Add item'}</button>{editingShopping[activeShoppingList.id] ? <button className="secondary-button" type="button" onClick={() => resetShoppingForm(activeShoppingList.id)}>Cancel</button> : null}</div></form><div className="shopping-group"><div className="shopping-group-head"><p className="panel-label">To grab now</p><span className="count-pill">{openShoppingItems.length}</span></div><div className="shopping-items">{openShoppingItems.length ? openShoppingItems.map((item) => (<div key={item.id} className="shopping-item"><input type="checkbox" checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span></div><div className="shopping-item-actions"><button className="inline-action" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>)) : <p className="empty-copy">Nothing open on this list right now.</p>}</div></div>{checkedShoppingItems.length ? <div className="shopping-group checked-group"><div className="shopping-group-head"><p className="panel-label">Already grabbed</p><span className="count-pill">{checkedShoppingItems.length}</span></div><div className="shopping-items">{checkedShoppingItems.map((item) => (<div key={item.id} className="shopping-item checked"><input type="checkbox" checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span></div><div className="shopping-item-actions"><button className="inline-action" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>))}</div></div> : null}</article> : null}</section>
       )}
 
     </div>
