@@ -11,7 +11,9 @@
     "reminders:dry-run": "node scripts/send_due_reminders.mjs --dry-run",
     "reminders:send": "node scripts/send_due_reminders.mjs",
     "calendar:preview": "node scripts/export_calendar_sync_preview.mjs",
-    "calendar:sync": "bash scripts/run_calendar_sync.sh"
+    "calendar:members": "node scripts/export_household_members.mjs",
+    "calendar:sync": "bash scripts/run_calendar_sync.sh",
+    "join:test": "node --env-file=.env.local scripts/test_join_flow.mjs"
   },
   "dependencies": {
     "firebase": "^11.6.1",

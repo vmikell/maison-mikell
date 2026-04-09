@@ -17,10 +17,29 @@ service cloud.firestore {
       return signedIn() && householdDoc(householdId).data.members.where(member, member.email == request.auth.token.email && member.role == 'owner').size() > 0;
     }
 
+    function isSelfJoiningExistingHousehold(householdId) {
+      return signedIn()
+        && !isHouseholdMember(householdId)
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['members', 'updatedAt'])
+        && request.resource.data.inviteCode == resource.data.inviteCode
+        && request.resource.data.members.size() == resource.data.members.size() + 1
+        && request.resource.data.members.hasAll(resource.data.members)
+        && request.resource.data.members.hasAny([
+          {
+            id: request.auth.uid,
+            email: request.auth.token.email,
+            name: request.auth.token.name != null ? request.auth.token.name : request.auth.token.email,
+            role: 'member',
+            joinedAt: request.resource.data.members[request.resource.data.members.size() - 1].joinedAt,
+          }
+        ]);
+    }
+
     match /households/{householdId} {
       allow read: if true;
       allow create: if signedIn();
       allow update: if isOwner(householdId)
+        || isSelfJoiningExistingHousehold(householdId)
         || (isHouseholdMember(householdId)
           && request.resource.data.diff(resource.data).changedKeys().hasOnly(['lastReminderRunAt', 'lastReminderChannel', 'updatedAt']));
       allow delete: if isOwner(householdId);
