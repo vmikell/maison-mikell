@@ -61,11 +61,15 @@ export function usePlannerState(currentUser = null) {
 
     if (!currentUser) {
       setMembership(null)
+      setJoinError('')
+      setJoinSuccess('')
       setIsRemoteLoaded(false)
       setIsRemoteLoading(false)
       setRemoteError(null)
       return () => {}
     }
+
+    setMembership(null)
 
     async function loadRemote() {
       setIsRemoteLoading(true)
