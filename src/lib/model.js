@@ -147,6 +147,7 @@ export function normalizeShoppingItemInput(input) {
     name: input.name?.trim() || 'Untitled item',
     qty: input.qty?.trim() || '1',
     aisleHint: input.aisleHint?.trim() || 'Household',
+    url: input.url?.trim() || '',
     checked: Boolean(input.checked),
   }
 }
