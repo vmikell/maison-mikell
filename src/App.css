@@ -3,6 +3,12 @@
 .auth-landing-card { min-height: 70vh; align-items: center; }
 .auth-landing-actions { display: grid; gap: 12px; }
 .auth-landing-note { display: grid; gap: 6px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,0.06); color: #e6ddf4; }
+.onboarding-card { position: relative; overflow: hidden; }
+.onboarding-card::after { content: ''; position: absolute; inset: auto -60px -80px auto; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255,142,207,0.18), transparent 68%); pointer-events: none; }
+.onboarding-actions { position: relative; z-index: 1; }
+.onboarding-note-card { border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.05); }
+.onboarding-bullet-list { display: grid; gap: 8px; margin-top: 14px; }
+.onboarding-bullet-list span { padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,0.05); color: #efe7fb; border: 1px solid rgba(255,255,255,0.06); }
 .auth-landing-note strong { color: #fff; }
 .top-bar-row { display: flex; align-items: center; justify-content: space-between; gap: 12px; position: sticky; top: 10px; z-index: 21; }
 .top-tabs { display: grid; gap: 10px; position: sticky; top: 72px; z-index: 20; }

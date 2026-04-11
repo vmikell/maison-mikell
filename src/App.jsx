@@ -174,17 +174,17 @@ function App() {
   if (!user) {
     return (
       <div className="shell auth-shell">
-        <section className="hero-card auth-landing-card">
+        <section className="hero-card auth-landing-card onboarding-card">
           <div>
             <p className="eyebrow">Maison Mikell</p>
             <h1>Welcome home.</h1>
-            <p className="hero-copy">Sign in first to access your shared home care dashboard, calendar, reminders, shopping lists, and household admin tools.</p>
+            <p className="hero-copy">A calmer way to run your home, with maintenance, shopping, reminders, and shared household coordination in one place.</p>
             <p className="hero-copy">If the Google popup gets blocked or seems to do nothing, use the full-page sign-in button instead.</p>
             <p className="hero-copy">If your session has expired, just sign in again and you’ll land back in the household flow.</p>
             {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
             {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
           </div>
-          <div className="auth-landing-actions">
+          <div className="auth-landing-actions onboarding-actions">
             <button className="primary-button" onClick={async () => {
               setInviteChoice(false)
               const result = await signInWithGoogle()
@@ -205,9 +205,9 @@ function App() {
               setAuthErrorCode('')
               await signInWithGoogleRedirect()
             }}>Use full-page sign-in</button>
-            <div className="auth-landing-note">
+            <div className="auth-landing-note onboarding-note-card">
               <strong>Private household access</strong>
-              <span>After sign-in, non-members will need a valid invite code from an owner before they can join this household.</span>
+              <span>After sign-in, non-members can either create their own household or join one with a valid invite code from an owner.</span>
             </div>
           </div>
         </section>
@@ -248,15 +248,16 @@ function App() {
       <div className="shell auth-shell">
         <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
         <SignedInPill user={user} membership={membership} />
-        <section className="hero-card auth-landing-card">
+        <section className="hero-card auth-landing-card onboarding-card">
           <div>
             <p className="eyebrow">Maison Mikell</p>
             <h1>Start your household</h1>
-            <p className="hero-copy">Create your home base, then invite your partner to join. If you already have an invite code, you can switch to the join flow instead.</p>
+            <p className="hero-copy">Create your home base first, then bring your partner in with a simple invite code.</p>
+            <div className="onboarding-bullet-list"><span>Set up your shared home in under a minute</span><span>Become the owner automatically</span><span>Invite your partner right after creation</span></div>
             {createHouseholdSuccess ? <p className="auth-help success">{createHouseholdSuccess}</p> : null}
             {createHouseholdError ? <p className="auth-help error">{createHouseholdError}</p> : null}
           </div>
-          <form className="auth-landing-actions" onSubmit={async (event) => {
+          <form className="auth-landing-actions onboarding-actions" onSubmit={async (event) => {
             event.preventDefault()
             await handleCreateHousehold({ name: householdNameInput })
           }}>
@@ -280,16 +281,16 @@ function App() {
       <div className="shell auth-shell">
         <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
         <SignedInPill user={user} membership={membership} />
-        <section className="hero-card auth-landing-card">
+        <section className="hero-card auth-landing-card onboarding-card">
           <div>
             <p className="eyebrow">Maison Mikell</p>
             <h1>Join your household</h1>
-            <p className="hero-copy">Enter the invite code your partner shared with you to join your shared home.</p>
-            <p className="hero-copy">Invite codes are case-insensitive here, and you can safely sign out if you reached the wrong account.</p>
+            <p className="hero-copy">Use the invite code your partner shared with you to step into your shared home.</p>
+            <div className="onboarding-bullet-list"><span>Invite codes are case-insensitive</span><span>You can switch accounts at any time</span><span>You’ll land right in the app after joining</span></div>
             {joinSuccess ? <p className="auth-help success">{joinSuccess}</p> : null}
             {joinError ? <p className="auth-help error">{joinError}</p> : null}
           </div>
-          <form className="auth-landing-actions" onSubmit={async (event) => {
+          <form className="auth-landing-actions onboarding-actions" onSubmit={async (event) => {
             event.preventDefault()
             const joined = await handleJoinHousehold(inviteCodeInput)
             if (joined) setInviteCodeInput('')
