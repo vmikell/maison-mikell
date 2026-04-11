@@ -166,6 +166,7 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
 .shopping-grid { grid-template-columns: 1fr; }
 .shopping-tabs + .shopping-card { border-top-left-radius: 0; }
 .shopping-panel { background: linear-gradient(180deg, rgba(31, 37, 67, 0.96), rgba(17, 18, 33, 0.92)); }
+.remote-warning-panel { background: linear-gradient(180deg, rgba(71, 47, 20, 0.96), rgba(34, 24, 14, 0.92)); }
 .shopping-progress-copy { color: #d9cef1; margin-top: 6px; }
 .shopping-group { display: grid; gap: 12px; margin-top: 18px; }
 .shopping-group.checked-group { margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.08); }

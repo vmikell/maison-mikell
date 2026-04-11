@@ -8,13 +8,18 @@ Move Maison Mikell from "works for our household" to "safe to sell to other hous
 
 ### Must complete
 - [ ] Verify the sign-in flow on the real deployed app, especially the join-screen flash issue.
-- [ ] Audit all loading, empty, and error states across planner, calendar, shopping, admin, and join flows.
+- [x] Add a dedicated signed-in loading state before membership resolution completes.
+- [x] Add a subtle loading animation so the signed-in loading state feels intentional.
+- [x] Audit and polish the main loading, empty, and error states across planner, calendar, shopping, admin, signed-out, and join flows.
 - [ ] Add crash/error tracking (recommended: Sentry).
 - [ ] Add product analytics for core events.
 - [ ] Confirm Firestore rules cover all intended household actions safely.
+- [ ] Verify write scenarios explicitly by role: owner settings, invite generation, member join, shopping writes, planner writes.
 - [ ] Review reminder flows for duplicate sends, partial failures, and silent failures.
 - [ ] Add a clear recovery path for failed writes and offline/reconnect edge cases.
-- [ ] Make sign-out, session expiry, and membership transitions predictable.
+- [x] Standardize write-failure user feedback across planner, shopping, and admin actions.
+- [x] Remove or hide consumer-visible debug detail before launch.
+- [x] Make sign-out, session expiry, and membership transitions more predictable at the UI level.
 
 ### Core analytics events
 - [ ] account_created
@@ -31,8 +36,7 @@ Move Maison Mikell from "works for our household" to "safe to sell to other hous
 
 ### Must complete
 - [ ] Define backup/export strategy for household data.
-- [ ] Add an internal admin/debug checklist for production incidents.
-- [ ] Remove or hide any consumer-visible debug text before launch.
+- [x] Add an internal admin/debug checklist for production incidents.
 - [ ] Document Netlify deployment recovery steps, since auto-deploy is currently unreliable.
 - [ ] Repair Git-based Netlify deployment configuration or replace it with a trusted deploy workflow.
 
