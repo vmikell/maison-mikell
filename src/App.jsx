@@ -58,6 +58,7 @@ function App() {
     createHouseholdError,
     createHouseholdSuccess,
     freshInviteCode,
+    showInvitePanel,
     settingsMessage,
     settingsTone,
     shoppingMessage,
@@ -89,6 +90,7 @@ function App() {
     handleCreateHousehold,
     handleJoinHousehold,
     setInviteChoice,
+    setShowInvitePanel,
   } = usePlannerState(user)
 
   const categories = useMemo(() => ['All', ...new Set(enrichedTasks.map((task) => task.category))], [enrichedTasks])
@@ -427,7 +429,7 @@ function App() {
         </section>
       ) : null}
 
-      {createHouseholdSuccess && freshInviteCode && membership?.role === 'owner' ? <section className="panel remote-warning-panel"><p className="panel-label">Invite your partner</p><h2>Your household is ready</h2><p className="hero-copy">Share this invite code with your partner so they can join the household.</p><p className="hero-copy"><strong>{freshInviteCode}</strong></p></section> : null}
+      {showInvitePanel && freshInviteCode && membership?.role === 'owner' ? <section className="panel remote-warning-panel"><div className="section-head"><div><p className="panel-label">Invite your partner</p><h2>Your household is ready</h2><p className="hero-copy">Share this invite code with your partner so they can join the household, then continue into the planner once you’re ready.</p></div><div className="planner-actions"><button className="secondary-button" onClick={() => navigator?.clipboard?.writeText(freshInviteCode)}>Copy code</button><button className="secondary-button" onClick={() => setShowInvitePanel(false)}>Continue to app</button></div></div><p className="hero-copy"><strong>{freshInviteCode}</strong></p></section> : null}
       <header className="hero-card">
         <div><p className="eyebrow">Maison Mikell</p><h1>{activeTab === 'shopping' ? 'Maison Restock' : activeTab === 'calendar' ? 'Maison Calendar' : 'Maison Reset'}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your two-level home and 4-head mini split setup.</p></div>
         <div className="hero-note"><strong>{activeTab === 'shopping' ? `${openShoppingItems.length} open item${openShoppingItems.length === 1 ? '' : 's'} across ${lists.length} list${lists.length === 1 ? '' : 's'}` : activeTab === 'calendar' ? `${calendarSections.length} day${calendarSections.length === 1 ? '' : 's'} with scheduled care in the next month` : `${houseProfile.reminderRules.majorLeadDays} days for large maintenance · ${houseProfile.reminderRules.standardLeadDays} days for everything else`}</strong><span>{activeTab === 'shopping' ? `${checkedShoppingItems.length} checked off · ${shoppingCompletion}% complete on this list` : houseProfile.lastReminderRunAt ? `Last reminder run: ${new Date(houseProfile.lastReminderRunAt).toLocaleString()}${houseProfile.lastReminderChannel ? ` via ${houseProfile.lastReminderChannel}` : ''}` : 'Last reminder run: not recorded yet'}</span></div>

@@ -50,6 +50,7 @@ export function usePlannerState(currentUser = null) {
   const [createHouseholdError, setCreateHouseholdError] = useState('')
   const [createHouseholdSuccess, setCreateHouseholdSuccess] = useState('')
   const [freshInviteCode, setFreshInviteCode] = useState('')
+  const [showInvitePanel, setShowInvitePanel] = useState(false)
   const [settingsMessage, setSettingsMessage] = useState('')
   const [settingsTone, setSettingsTone] = useState('success')
   const [shoppingMessage, setShoppingMessage] = useState('')
@@ -76,6 +77,7 @@ export function usePlannerState(currentUser = null) {
       setCreateHouseholdError('')
       setCreateHouseholdSuccess('')
       setFreshInviteCode('')
+      setShowInvitePanel(false)
       setIsRemoteLoaded(false)
       setIsRemoteLoading(false)
       setRemoteError(null)
@@ -413,7 +415,9 @@ export function usePlannerState(currentUser = null) {
         return false
       }
       setMembership(result.membership)
+      setInviteChoice(false)
       setFreshInviteCode(result.inviteCode || '')
+      setShowInvitePanel(true)
       setCreateHouseholdSuccess(result.created ? 'Your household is ready. Invite your partner next.' : 'Your household is already ready.')
       return true
     } catch (error) {
@@ -445,7 +449,8 @@ export function usePlannerState(currentUser = null) {
         return false
       }
       setMembership(result.membership)
-      setInviteChoice(true)
+      setInviteChoice(false)
+      setShowInvitePanel(false)
       setJoinSuccess('You joined the household successfully.')
       return true
     } catch (error) {
@@ -467,6 +472,7 @@ export function usePlannerState(currentUser = null) {
     createHouseholdError,
     createHouseholdSuccess,
     freshInviteCode,
+    showInvitePanel,
     settingsMessage,
     settingsTone,
     shoppingMessage,
@@ -500,5 +506,6 @@ export function usePlannerState(currentUser = null) {
     handleCreateHousehold,
     handleJoinHousehold,
     setInviteChoice,
+    setShowInvitePanel,
   }
 }
