@@ -44,7 +44,6 @@ function App() {
   const [editingShopping, setEditingShopping] = useState({})
   const [activeShoppingListId, setActiveShoppingListId] = useState('home-depot')
   const [authMessage, setAuthMessage] = useState('')
-  const [authErrorDetail, setAuthErrorDetail] = useState('')
   const [inviteCodeInput, setInviteCodeInput] = useState('')
   const { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode } = useAuthState()
   const {
@@ -54,8 +53,11 @@ function App() {
     joinError,
     joinSuccess,
     settingsMessage,
-    settingsErrorDetail,
-    shoppingErrorDetail,
+    settingsTone,
+    shoppingMessage,
+    shoppingTone,
+    plannerMessage,
+    plannerTone,
     isJoiningHousehold,
     resolvedActorName,
     lists,
@@ -122,6 +124,9 @@ function App() {
   }
 
   const plannerHeadline = statusCardFilterActive ? 'Filtered maintenance schedule' : 'Today’s maintenance rhythm'
+  const plannerMessageClass = plannerTone === 'error' ? 'error' : 'success'
+  const shoppingMessageClass = shoppingTone === 'error' ? 'error' : 'success'
+  const settingsMessageClass = settingsTone === 'error' ? 'error' : 'success'
   const plannerSubcopy = statusCardFilterActive
     ? `${filteredTasks.length} task${filteredTasks.length === 1 ? '' : 's'} match your current filters.`
     : `${summary.overdue} overdue, ${summary.remind} in the reminder window, and ${dueSoonTasks.length} due soon.`
@@ -166,8 +171,6 @@ function App() {
             <p className="hero-copy">If the Google popup gets blocked or seems to do nothing, use the full-page sign-in button instead.</p>
             {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
             {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
-            {authErrorCode ? <p className="auth-help error">Debug code: {authErrorCode}</p> : null}
-            {authErrorDetail ? <p className="auth-help error">Debug detail: {authErrorDetail}</p> : null}
           </div>
           <div className="auth-landing-actions">
             <button className="primary-button" onClick={async () => {
@@ -176,19 +179,16 @@ function App() {
                 setAuthMessage(result.error)
                 setAuthError(result.error)
                 setAuthErrorCode(result.rawCode || '')
-                setAuthErrorDetail(result.rawMessage || '')
               } else {
                 setAuthMessage('')
                 setAuthError('')
                 setAuthErrorCode('')
-                setAuthErrorDetail('')
               }
             }}>Sign in or sign up with Google</button>
             <button className="secondary-button" onClick={async () => {
               setAuthMessage('Redirecting you to Google sign-in…')
               setAuthError('')
               setAuthErrorCode('')
-              setAuthErrorDetail('')
               await signInWithGoogleRedirect()
             }}>Use full-page sign-in</button>
             <div className="auth-landing-note">
@@ -211,6 +211,18 @@ function App() {
             <p className="eyebrow">Maison Mikell</p>
             <h1>Getting your household ready</h1>
             <p className="hero-copy">One second, I’m checking your household access and loading the latest home data.</p>
+            <div className="house-loading-wrap" aria-label="Loading" role="status">
+              <div className="house-puzzle-loading premium-house-loading" aria-hidden="true">
+                <div className="puzzle-piece piece-roof-left"></div>
+                <div className="puzzle-piece piece-roof-right"></div>
+                <div className="puzzle-piece piece-wall-left"></div>
+                <div className="puzzle-piece piece-wall-right"></div>
+                <div className="puzzle-piece piece-bottom-left"></div>
+                <div className="puzzle-piece piece-bottom-right"></div>
+                <div className="house-outline"></div>
+              </div>
+              <span className="loading-pulse-label">Loading your home…</span>
+            </div>
           </div>
         </section>
       </div>
@@ -396,6 +408,7 @@ function App() {
                 <button className="secondary-button" onClick={() => setTaskEditorOpen((open) => !open)}>{taskEditorOpen ? 'Hide task editor' : 'Add or edit tasks'}</button>
               </div>
             </div>
+            {plannerMessage ? <p className={`auth-help ${plannerMessageClass}`}>{plannerMessage}</p> : null}
             {statusCardFilterActive ? <div className="active-filter-row"><span className="count-pill">Category: {selectedCategory}</span><span className="count-pill">Status: {selectedStatus}</span></div> : null}
             {statusCardFilterActive ? <div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div> : null}
           </section>
@@ -477,8 +490,7 @@ function App() {
               <p className="hero-copy">Role: {membership?.role || 'guest'} · Household members: {householdMembers.map((member) => `${member.name} (${member.role})`).join(' · ')}</p>
               <p className="hero-copy">Invite code: {houseProfile.inviteCode || 'Not generated yet'}</p>
               <p className="hero-copy">Share this code with a household member after they sign in, then they can join from the invite screen.</p>
-              {settingsMessage ? <p className={`auth-help ${settingsMessage.includes('Could not') ? 'error' : 'success'}`}>{settingsMessage}</p> : null}
-              {settingsErrorDetail ? <p className="auth-help error">Debug: {settingsErrorDetail}</p> : null}
+              {settingsMessage ? <p className={`auth-help ${settingsMessageClass}`}>{settingsMessage}</p> : null}
               <p className="hero-copy">Signed in as: {user?.email || 'unknown'} {membership?.role ? `· role: ${membership.role}` : ''}</p>
             </div>
             <div className="auth-actions">
@@ -487,7 +499,7 @@ function App() {
             </div>
           </section>
 
-          {membership?.role === 'owner' ? <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2></div></div><div className="completion-list">{householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>)}</div></section> : <section className="panel"><p className="empty-copy">Only owners can manage household roles and invite codes.</p></section>}
+          {membership?.role === 'owner' ? <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2>{settingsMessage ? <p className={`auth-help ${settingsMessageClass}`}>{settingsMessage}</p> : null}</div></div><div className="completion-list">{householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>)}</div></section> : <section className="panel"><p className="empty-copy">Only owners can manage household roles and invite codes.</p></section>}
 
           {membership?.role === 'owner' ? <section className="panel reminder-panel">
             <div className="section-head"><div><p className="panel-label">Reminder operations</p><h2>Delivery queue and history</h2></div></div>
@@ -510,8 +522,7 @@ function App() {
         </>
       ) : (
         <section className="panel shopping-panel">
-          {shoppingErrorDetail ? <p className="auth-help error">Shopping debug: {shoppingErrorDetail}</p> : null}
-          <div className="section-head shopping-section-head"><div><p className="panel-label">Shopping lists</p><h2>Household errands by store</h2><p className="hero-copy">Keep the open items easy to scan, and let checked items fall to a separate bucket instead of cluttering the main list.</p></div><div className="shopping-summary"><div className="ops-stat"><span>Open items</span><strong>{openShoppingItems.length}</strong></div><div className="ops-stat"><span>Checked</span><strong>{checkedShoppingItems.length}</strong></div><div className="ops-stat"><span>Progress</span><strong>{shoppingCompletion}%</strong></div></div></div><div className="shopping-tabs">{lists.map((list) => (<button key={list.id} className={`shopping-tab ${activeShoppingList?.id === list.id ? 'active' : ''}`} onClick={() => setActiveShoppingListId(list.id)}>{list.title}</button>))}</div>{activeShoppingList ? <article className={`shopping-card ${activeShoppingList.tone}`}><div className="shopping-top"><div><p className="task-meta">Store list</p><h3>{activeShoppingList.id === 'other' ? (activeShoppingList.storeName || 'Other') : activeShoppingList.title}</h3><p className="shopping-progress-copy">{activeShoppingItems.length ? `${openShoppingItems.length} to grab, ${checkedShoppingItems.length} already handled.` : 'Start the list by adding your first item.'}</p></div><span className="count-pill">{openShoppingItems.length} open</span></div>{activeShoppingList.id === 'other' ? <label className="shopping-store-field"><span>Store name</span><input placeholder="Store name" value={activeShoppingList.storeName || ''} onChange={(e) => handleSaveShoppingListMeta(activeShoppingList.id, { storeName: e.target.value })} /></label> : null}<form className="shopping-form" onSubmit={(event) => submitShoppingForm(event, activeShoppingList.id)}><input placeholder="Item name" value={getShoppingForm(activeShoppingList.id).name} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), name: e.target.value })} required /><input placeholder="Qty" value={getShoppingForm(activeShoppingList.id).qty} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), qty: e.target.value })} /><input placeholder="Aisle / note" value={getShoppingForm(activeShoppingList.id).aisleHint} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), aisleHint: e.target.value })} /><input placeholder="Product URL" value={getShoppingForm(activeShoppingList.id).url || ''} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), url: e.target.value })} /><div className="form-actions"><button className="primary-button" type="submit">{editingShopping[activeShoppingList.id] ? 'Save item' : 'Add item'}</button>{editingShopping[activeShoppingList.id] ? <button className="secondary-button" type="button" onClick={() => resetShoppingForm(activeShoppingList.id)}>Cancel</button> : null}</div></form><div className="shopping-group"><div className="shopping-group-head"><p className="panel-label">To grab now</p><span className="count-pill">{openShoppingItems.length}</span></div><div className="shopping-items">{openShoppingItems.length ? openShoppingItems.map((item) => (<div key={item.id} className="shopping-item"><input type="checkbox" checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span>{item.url ? <a className="shopping-link" href={item.url} target="_blank" rel="noreferrer">Open link</a> : null}</div><div className="shopping-item-actions"><button className="inline-action" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>)) : <p className="empty-copy">Nothing open on this list right now.</p>}</div></div>{checkedShoppingItems.length ? <div className="shopping-group checked-group"><div className="shopping-group-head"><p className="panel-label">Already grabbed</p><span className="count-pill">{checkedShoppingItems.length}</span></div><div className="shopping-items">{checkedShoppingItems.map((item) => (<div key={item.id} className="shopping-item checked"><input type="checkbox" checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span>{item.url ? <a className="shopping-link" href={item.url} target="_blank" rel="noreferrer">Open link</a> : null}</div><div className="shopping-item-actions"><button className="inline-action" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>))}</div></div> : null}</article> : null}</section>
+          <div className="section-head shopping-section-head"><div><p className="panel-label">Shopping lists</p><h2>Household errands by store</h2><p className="hero-copy">Keep the open items easy to scan, and let checked items fall to a separate bucket instead of cluttering the main list.</p>{shoppingMessage ? <p className={`auth-help ${shoppingMessageClass}`}>{shoppingMessage}</p> : null}</div><div className="shopping-summary"><div className="ops-stat"><span>Open items</span><strong>{openShoppingItems.length}</strong></div><div className="ops-stat"><span>Checked</span><strong>{checkedShoppingItems.length}</strong></div><div className="ops-stat"><span>Progress</span><strong>{shoppingCompletion}%</strong></div></div></div><div className="shopping-tabs">{lists.map((list) => (<button key={list.id} className={`shopping-tab ${activeShoppingList?.id === list.id ? 'active' : ''}`} onClick={() => setActiveShoppingListId(list.id)}>{list.title}</button>))}</div>{activeShoppingList ? <article className={`shopping-card ${activeShoppingList.tone}`}><div className="shopping-top"><div><p className="task-meta">Store list</p><h3>{activeShoppingList.id === 'other' ? (activeShoppingList.storeName || 'Other') : activeShoppingList.title}</h3><p className="shopping-progress-copy">{activeShoppingItems.length ? `${openShoppingItems.length} to grab, ${checkedShoppingItems.length} already handled.` : 'Start the list by adding your first item.'}</p></div><span className="count-pill">{openShoppingItems.length} open</span></div>{activeShoppingList.id === 'other' ? <label className="shopping-store-field"><span>Store name</span><input placeholder="Store name" value={activeShoppingList.storeName || ''} onChange={(e) => handleSaveShoppingListMeta(activeShoppingList.id, { storeName: e.target.value })} /></label> : null}<form className="shopping-form" onSubmit={(event) => submitShoppingForm(event, activeShoppingList.id)}><input placeholder="Item name" value={getShoppingForm(activeShoppingList.id).name} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), name: e.target.value })} required /><input placeholder="Qty" value={getShoppingForm(activeShoppingList.id).qty} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), qty: e.target.value })} /><input placeholder="Aisle / note" value={getShoppingForm(activeShoppingList.id).aisleHint} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), aisleHint: e.target.value })} /><input placeholder="Product URL" value={getShoppingForm(activeShoppingList.id).url || ''} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), url: e.target.value })} /><div className="form-actions"><button className="primary-button" type="submit">{editingShopping[activeShoppingList.id] ? 'Save item' : 'Add item'}</button>{editingShopping[activeShoppingList.id] ? <button className="secondary-button" type="button" onClick={() => resetShoppingForm(activeShoppingList.id)}>Cancel</button> : null}</div></form><div className="shopping-group"><div className="shopping-group-head"><p className="panel-label">To grab now</p><span className="count-pill">{openShoppingItems.length}</span></div><div className="shopping-items">{openShoppingItems.length ? openShoppingItems.map((item) => (<div key={item.id} className="shopping-item"><input type="checkbox" checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span>{item.url ? <a className="shopping-link" href={item.url} target="_blank" rel="noreferrer">Open link</a> : null}</div><div className="shopping-item-actions"><button className="inline-action" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>)) : <p className="empty-copy">Nothing open on this list right now.</p>}</div></div>{checkedShoppingItems.length ? <div className="shopping-group checked-group"><div className="shopping-group-head"><p className="panel-label">Already grabbed</p><span className="count-pill">{checkedShoppingItems.length}</span></div><div className="shopping-items">{checkedShoppingItems.map((item) => (<div key={item.id} className="shopping-item checked"><input type="checkbox" checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span>{item.url ? <a className="shopping-link" href={item.url} target="_blank" rel="noreferrer">Open link</a> : null}</div><div className="shopping-item-actions"><button className="inline-action" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>))}</div></div> : null}</article> : null}</section>
       )}
 
     </div>
