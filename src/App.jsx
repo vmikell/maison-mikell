@@ -141,7 +141,7 @@ function App() {
   const plannerSubcopy = statusCardFilterActive
     ? `${filteredTasks.length} task${filteredTasks.length === 1 ? '' : 's'} match your current filters.`
     : `${summary.overdue} overdue, ${summary.remind} in the reminder window, and ${dueSoonTasks.length} due soon.`
-  const isResolvingSignedInState = Boolean(user) && (authLoading || isRemoteLoading || (hasFirebaseConfig && membership === null && !joinError && !joinSuccess))
+  const isResolvingSignedInState = Boolean(user) && (authLoading || isRemoteLoading)
 
   function openTaskModal(task) { setSelectedTask(task) }
   function closeTaskModal() { setSelectedTask(null) }
