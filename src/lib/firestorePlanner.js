@@ -106,6 +106,40 @@ export async function ensureHouseholdMembership(currentUser) {
   return existing ?? null
 }
 
+export async function createHouseholdForCurrentUser(currentUser, options = {}) {
+  if (!hasFirebaseConfig || !firestore || !currentUser) return { ok: false, error: 'Sign in first to create a household.' }
+
+  const snap = await getDoc(householdRef())
+  const current = snap.exists() ? snap.data() : {}
+  const members = current.members ?? []
+  const existing = members.find((member) => member.email === currentUser.email)
+  if (existing) return { ok: true, membership: existing, inviteCode: current.inviteCode || buildInviteCode(), created: false }
+  if (members.length > 0) return { ok: false, error: 'This household already exists. Use an invite code to join it instead.' }
+
+  const nextMember = {
+    id: currentUser.uid,
+    email: currentUser.email,
+    name: currentUser.displayName || currentUser.email,
+    role: 'owner',
+    joinedAt: new Date().toISOString(),
+  }
+
+  const inviteCode = buildInviteCode()
+  const nextHouseholdName = (options.name || '').trim() || current.name || houseProfile.name
+
+  await setDoc(householdRef(), {
+    ...houseProfile,
+    ...current,
+    name: nextHouseholdName,
+    inviteCode,
+    members: [nextMember],
+    createdAt: current.createdAt || serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  }, { merge: true })
+
+  return { ok: true, membership: nextMember, inviteCode, created: true }
+}
+
 export async function joinHouseholdWithInviteCode(currentUser, inviteCode) {
   if (!hasFirebaseConfig || !firestore || !currentUser) return { ok: false, error: 'Sign in first to join the household.' }
   await ensurePlannerSeeded()

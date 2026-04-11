@@ -45,6 +45,7 @@ function App() {
   const [activeShoppingListId, setActiveShoppingListId] = useState('home-depot')
   const [authMessage, setAuthMessage] = useState('')
   const [inviteCodeInput, setInviteCodeInput] = useState('')
+  const [householdNameInput, setHouseholdNameInput] = useState('')
   const { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode } = useAuthState()
   const {
     houseProfile,
@@ -52,6 +53,11 @@ function App() {
     membership,
     joinError,
     joinSuccess,
+    inviteChoice,
+    isCreatingHousehold,
+    createHouseholdError,
+    createHouseholdSuccess,
+    freshInviteCode,
     settingsMessage,
     settingsTone,
     shoppingMessage,
@@ -80,7 +86,9 @@ function App() {
     handleMarkReminderSent,
     handleGenerateInviteCode,
     handlePromoteMember,
+    handleCreateHousehold,
     handleJoinHousehold,
+    setInviteChoice,
   } = usePlannerState(user)
 
   const categories = useMemo(() => ['All', ...new Set(enrichedTasks.map((task) => task.category))], [enrichedTasks])
@@ -176,6 +184,7 @@ function App() {
           </div>
           <div className="auth-landing-actions">
             <button className="primary-button" onClick={async () => {
+              setInviteChoice(false)
               const result = await signInWithGoogle()
               if (result?.error) {
                 setAuthMessage(result.error)
@@ -187,6 +196,7 @@ function App() {
                 setAuthErrorCode('')
               }
             }}>Sign in or sign up with Google</button>
+            <button className="secondary-button" onClick={() => setInviteChoice(true)}>I already have an invite code</button>
             <button className="secondary-button" onClick={async () => {
               setAuthMessage('Redirecting you to Google sign-in…')
               setAuthError('')
@@ -231,7 +241,7 @@ function App() {
     )
   }
 
-  if (user && !membership) {
+  if (user && !membership && !inviteChoice) {
     return (
       <div className="shell auth-shell">
         <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
@@ -239,8 +249,40 @@ function App() {
         <section className="hero-card auth-landing-card">
           <div>
             <p className="eyebrow">Maison Mikell</p>
-            <h1>Join this household</h1>
-            <p className="hero-copy">You’re signed in, but you are not part of this household yet. Enter the invite code from an owner to continue.</p>
+            <h1>Start your household</h1>
+            <p className="hero-copy">Create your home base, then invite your partner to join. If you already have an invite code, you can switch to the join flow instead.</p>
+            {createHouseholdSuccess ? <p className="auth-help success">{createHouseholdSuccess}</p> : null}
+            {createHouseholdError ? <p className="auth-help error">{createHouseholdError}</p> : null}
+          </div>
+          <form className="auth-landing-actions" onSubmit={async (event) => {
+            event.preventDefault()
+            await handleCreateHousehold({ name: householdNameInput })
+          }}>
+            <input
+              className="invite-code-input"
+              placeholder="Household name (optional)"
+              value={householdNameInput}
+              onChange={(event) => setHouseholdNameInput(event.target.value)}
+            />
+            <button className="primary-button" type="submit" disabled={isCreatingHousehold}>{isCreatingHousehold ? 'Creating…' : 'Create household'}</button>
+            <button className="secondary-button" type="button" onClick={() => setInviteChoice(true)}>I already have an invite code</button>
+            <button className="secondary-button" type="button" onClick={() => signOutUser()}>Use a different Google account</button>
+          </form>
+        </section>
+      </div>
+    )
+  }
+
+  if (user && !membership && inviteChoice) {
+    return (
+      <div className="shell auth-shell">
+        <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
+        <SignedInPill user={user} membership={membership} />
+        <section className="hero-card auth-landing-card">
+          <div>
+            <p className="eyebrow">Maison Mikell</p>
+            <h1>Join your household</h1>
+            <p className="hero-copy">Enter the invite code your partner shared with you to join your shared home.</p>
             <p className="hero-copy">Invite codes are case-insensitive here, and you can safely sign out if you reached the wrong account.</p>
             {joinSuccess ? <p className="auth-help success">{joinSuccess}</p> : null}
             {joinError ? <p className="auth-help error">{joinError}</p> : null}
@@ -260,7 +302,8 @@ function App() {
               spellCheck="false"
             />
             <button className="primary-button" type="submit" disabled={isJoiningHousehold}>{isJoiningHousehold ? 'Joining…' : 'Join household'}</button>
-            <button className="secondary-button" type="button" onClick={() => signOutUser()}>Sign out</button>
+            <button className="secondary-button" type="button" onClick={() => setInviteChoice(false)}>Create household instead</button>
+            <button className="secondary-button" type="button" onClick={() => signOutUser()}>Use a different Google account</button>
           </form>
         </section>
       </div>
@@ -384,6 +427,7 @@ function App() {
         </section>
       ) : null}
 
+      {createHouseholdSuccess && freshInviteCode && membership?.role === 'owner' ? <section className="panel remote-warning-panel"><p className="panel-label">Invite your partner</p><h2>Your household is ready</h2><p className="hero-copy">Share this invite code with your partner so they can join the household.</p><p className="hero-copy"><strong>{freshInviteCode}</strong></p></section> : null}
       <header className="hero-card">
         <div><p className="eyebrow">Maison Mikell</p><h1>{activeTab === 'shopping' ? 'Maison Restock' : activeTab === 'calendar' ? 'Maison Calendar' : 'Maison Reset'}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your two-level home and 4-head mini split setup.</p></div>
         <div className="hero-note"><strong>{activeTab === 'shopping' ? `${openShoppingItems.length} open item${openShoppingItems.length === 1 ? '' : 's'} across ${lists.length} list${lists.length === 1 ? '' : 's'}` : activeTab === 'calendar' ? `${calendarSections.length} day${calendarSections.length === 1 ? '' : 's'} with scheduled care in the next month` : `${houseProfile.reminderRules.majorLeadDays} days for large maintenance · ${houseProfile.reminderRules.standardLeadDays} days for everything else`}</strong><span>{activeTab === 'shopping' ? `${checkedShoppingItems.length} checked off · ${shoppingCompletion}% complete on this list` : houseProfile.lastReminderRunAt ? `Last reminder run: ${new Date(houseProfile.lastReminderRunAt).toLocaleString()}${houseProfile.lastReminderChannel ? ` via ${houseProfile.lastReminderChannel}` : ''}` : 'Last reminder run: not recorded yet'}</span></div>

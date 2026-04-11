@@ -5,6 +5,7 @@ import {
   deleteShoppingItem,
   deleteTask,
   ensureHouseholdMembership,
+  createHouseholdForCurrentUser,
   joinHouseholdWithInviteCode,
   markReminderSent,
   markTaskCompleted,
@@ -44,6 +45,11 @@ export function usePlannerState(currentUser = null) {
   const [membership, setMembership] = useState(null)
   const [joinError, setJoinError] = useState('')
   const [joinSuccess, setJoinSuccess] = useState('')
+  const [inviteChoice, setInviteChoice] = useState(false)
+  const [isCreatingHousehold, setIsCreatingHousehold] = useState(false)
+  const [createHouseholdError, setCreateHouseholdError] = useState('')
+  const [createHouseholdSuccess, setCreateHouseholdSuccess] = useState('')
+  const [freshInviteCode, setFreshInviteCode] = useState('')
   const [settingsMessage, setSettingsMessage] = useState('')
   const [settingsTone, setSettingsTone] = useState('success')
   const [shoppingMessage, setShoppingMessage] = useState('')
@@ -66,6 +72,10 @@ export function usePlannerState(currentUser = null) {
       setMembership(null)
       setJoinError('')
       setJoinSuccess('')
+      setInviteChoice(false)
+      setCreateHouseholdError('')
+      setCreateHouseholdSuccess('')
+      setFreshInviteCode('')
       setIsRemoteLoaded(false)
       setIsRemoteLoading(false)
       setRemoteError(null)
@@ -382,6 +392,38 @@ export function usePlannerState(currentUser = null) {
     setSettingsMessage('Member promoted locally.')
   }
 
+  async function handleCreateHousehold(options = {}) {
+    if (!currentUser) {
+      setCreateHouseholdError('Sign in first, then create your household.')
+      setCreateHouseholdSuccess('')
+      return false
+    }
+    if (!hasFirebaseConfig) {
+      setCreateHouseholdError('Household creation needs live Firebase data. The app is in local fallback mode right now.')
+      setCreateHouseholdSuccess('')
+      return false
+    }
+    setIsCreatingHousehold(true)
+    setCreateHouseholdError('')
+    setCreateHouseholdSuccess('')
+    try {
+      const result = await createHouseholdForCurrentUser(currentUser, options)
+      if (!result.ok) {
+        setCreateHouseholdError(result.error || 'Could not create the household right now.')
+        return false
+      }
+      setMembership(result.membership)
+      setFreshInviteCode(result.inviteCode || '')
+      setCreateHouseholdSuccess(result.created ? 'Your household is ready. Invite your partner next.' : 'Your household is already ready.')
+      return true
+    } catch (error) {
+      setCreateHouseholdError(error instanceof Error ? error.message : 'Could not create the household right now.')
+      return false
+    } finally {
+      setIsCreatingHousehold(false)
+    }
+  }
+
   async function handleJoinHousehold(inviteCode) {
     if (!currentUser) {
       setJoinError('Sign in first, then enter the household invite code.')
@@ -403,6 +445,7 @@ export function usePlannerState(currentUser = null) {
         return false
       }
       setMembership(result.membership)
+      setInviteChoice(true)
       setJoinSuccess('You joined the household successfully.')
       return true
     } catch (error) {
@@ -419,6 +462,11 @@ export function usePlannerState(currentUser = null) {
     membership,
     joinError,
     joinSuccess,
+    inviteChoice,
+    isCreatingHousehold,
+    createHouseholdError,
+    createHouseholdSuccess,
+    freshInviteCode,
     settingsMessage,
     settingsTone,
     shoppingMessage,
@@ -449,6 +497,8 @@ export function usePlannerState(currentUser = null) {
     handleMarkReminderSent,
     handleGenerateInviteCode,
     handlePromoteMember,
+    handleCreateHousehold,
     handleJoinHousehold,
+    setInviteChoice,
   }
 }
