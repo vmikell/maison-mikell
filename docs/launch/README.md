@@ -16,6 +16,10 @@ This folder is the operating base for turning Maison Mikell from a working house
 - `app-store-packaging-roadmap.md`
 - `pricing-and-offer.md`
 - `marketing-plan.md`
+- `ops-recovery-runbook.md`
+- `reliability-audit-2026-04-11.md`
+- `write-scenario-matrix-2026-04-11.md`
+- `write-verification-checklist-2026-04-11.md`
 
 ## Current product snapshot
 
@@ -30,4 +34,10 @@ That is enough to treat the app as a viable MVP.
 
 ## Immediate recommendation
 
-Freeze major feature expansion for now. Focus the next cycle on quality, packaging, onboarding, billing, and positioning.
+Freeze major feature expansion for now. Focus the next cycle on quality, packaging, onboarding, billing, positioning, and live verification discipline.
+
+## Current operational note
+
+Until live owner/member write verification is completed in a real authenticated browser context, treat the launch docs as:
+- reliable for deployed UI and code-path status
+- not yet final proof of live write reliability by role
