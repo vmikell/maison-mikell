@@ -18,6 +18,7 @@ This folder is the operating base for turning Maison Mikell from a working house
 - `marketing-plan.md`
 - `ops-recovery-runbook.md`
 - `onboarding-flow-spec.md`
+- `onboarding-implementation-plan.md`
 - `reliability-audit-2026-04-11.md`
 - `write-scenario-matrix-2026-04-11.md`
 - `write-verification-checklist-2026-04-11.md`
