@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { GoogleAuthProvider, getRedirectResult, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth'
+import { GoogleAuthProvider, deleteUser, getRedirectResult, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth'
 import { auth, hasFirebaseConfig } from './firebase'
 
 const provider = new GoogleAuthProvider()
@@ -63,4 +63,19 @@ export async function signInWithGoogleRedirect() {
 export async function signOutUser() {
   if (!auth) return
   await signOut(auth)
+}
+
+export async function deleteSignedInAuthUser() {
+  if (!auth?.currentUser) return { ok: false, error: 'No signed-in user.' }
+  try {
+    await deleteUser(auth.currentUser)
+    return { ok: true }
+  } catch (error) {
+    return {
+      ok: false,
+      error: error?.code?.includes('requires-recent-login')
+        ? 'For security, sign in again before deleting your account.'
+        : (error?.message || 'Could not delete the signed-in account.'),
+    }
+  }
 }

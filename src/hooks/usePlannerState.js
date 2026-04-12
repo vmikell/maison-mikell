@@ -18,6 +18,7 @@ import {
   toggleShoppingItemChecked,
   updateHouseholdMembership,
   completeHouseholdSetup,
+  deleteCurrentUserData,
 } from '../lib/firestorePlanner'
 import {
   buildCompletionRecord,
@@ -62,6 +63,9 @@ export function usePlannerState(currentUser = null) {
   const [isCompletingSetup, setIsCompletingSetup] = useState(false)
   const [setupError, setSetupError] = useState('')
   const [setupSuccess, setSetupSuccess] = useState('')
+  const [isDeletingAccount, setIsDeletingAccount] = useState(false)
+  const [deleteAccountError, setDeleteAccountError] = useState('')
+  const [deleteAccountSuccess, setDeleteAccountSuccess] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -84,6 +88,8 @@ export function usePlannerState(currentUser = null) {
       setShowInvitePanel(false)
       setSetupError('')
       setSetupSuccess('')
+      setDeleteAccountError('')
+      setDeleteAccountSuccess('')
       setIsRemoteLoaded(false)
       setIsRemoteLoading(false)
       setRemoteError(null)
@@ -490,6 +496,36 @@ export function usePlannerState(currentUser = null) {
     }
   }
 
+  async function handleDeleteCurrentAccount() {
+    if (!currentUser || !membership) {
+      setDeleteAccountError('Sign in first before deleting your account.')
+      setDeleteAccountSuccess('')
+      return false
+    }
+    if (!hasFirebaseConfig) {
+      setDeleteAccountError('Account deletion needs live Firebase data. The app is in local fallback mode right now.')
+      setDeleteAccountSuccess('')
+      return false
+    }
+    setIsDeletingAccount(true)
+    setDeleteAccountError('')
+    setDeleteAccountSuccess('')
+    try {
+      const result = await deleteCurrentUserData(currentUser, membership)
+      if (!result.ok) {
+        setDeleteAccountError(result.error || 'Could not delete this account right now.')
+        return false
+      }
+      setDeleteAccountSuccess(result.deletedHousehold ? 'Your account and household were deleted.' : 'Your account was removed from the household.')
+      return true
+    } catch (error) {
+      setDeleteAccountError(error instanceof Error ? error.message : 'Could not delete this account right now.')
+      return false
+    } finally {
+      setIsDeletingAccount(false)
+    }
+  }
+
   async function handleJoinHousehold(inviteCode) {
     if (!currentUser) {
       setJoinError('Sign in first, then enter the household invite code.')
@@ -538,6 +574,9 @@ export function usePlannerState(currentUser = null) {
     isCompletingSetup,
     setupError,
     setupSuccess,
+    isDeletingAccount,
+    deleteAccountError,
+    deleteAccountSuccess,
     settingsMessage,
     settingsTone,
     shoppingMessage,
@@ -571,6 +610,7 @@ export function usePlannerState(currentUser = null) {
     handleCreateHousehold,
     handleJoinHousehold,
     handleCompleteSetup,
+    handleDeleteCurrentAccount,
     setInviteChoice,
     setShowInvitePanel,
   }

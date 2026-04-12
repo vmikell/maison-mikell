@@ -375,3 +375,46 @@ export async function saveShoppingListMeta(householdId, listId, patch) {
   await updateDoc(listDoc(householdId, listId), { ...patch, updatedAt: serverTimestamp() })
   return true
 }
+
+export async function deleteCurrentUserData(currentUser, membership) {
+  if (!hasFirebaseConfig || !firestore || !currentUser || !membership?.householdId) {
+    return { ok: false, error: 'Missing account or household context.' }
+  }
+
+  const householdId = membership.householdId
+  const householdSnap = await getDoc(householdRef(householdId))
+  if (!householdSnap.exists()) {
+    await deleteDoc(userMembershipRef(currentUser.uid))
+    return { ok: true, deletedHousehold: false }
+  }
+
+  const household = householdSnap.data()
+  const members = household.members ?? []
+  const remainingMembers = members.filter((member) => member.id !== currentUser.uid)
+
+  if (remainingMembers.length === 0) {
+    const reminderSnaps = await getDocs(remindersRef(householdId))
+    const completionSnaps = await getDocs(completionsRef(householdId))
+    const taskSnaps = await getDocs(tasksRef(householdId))
+    const listSnaps = await getDocs(listsRef(householdId))
+
+    await Promise.all(reminderSnaps.docs.map((snap) => deleteDoc(reminderDoc(householdId, snap.id))))
+    await Promise.all(completionSnaps.docs.map((snap) => deleteDoc(completionDoc(householdId, snap.id))))
+    await Promise.all(taskSnaps.docs.map((snap) => deleteDoc(taskDoc(householdId, snap.id))))
+    for (const listSnap of listSnaps.docs) {
+      const itemSnaps = await getDocs(listItemsRef(householdId, listSnap.id))
+      await Promise.all(itemSnaps.docs.map((snap) => deleteDoc(listItemDoc(householdId, listSnap.id, snap.id))))
+      await deleteDoc(listDoc(householdId, listSnap.id))
+    }
+    await deleteDoc(householdRef(householdId))
+    await deleteDoc(userMembershipRef(currentUser.uid))
+    return { ok: true, deletedHousehold: true }
+  }
+
+  await updateDoc(householdRef(householdId), {
+    members: remainingMembers,
+    updatedAt: serverTimestamp(),
+  })
+  await deleteDoc(userMembershipRef(currentUser.uid))
+  return { ok: true, deletedHousehold: false }
+}

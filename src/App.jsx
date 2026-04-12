@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import './App.css'
 import { formatDate, addDays } from './lib/model'
 import { usePlannerState } from './hooks/usePlannerState'
-import { signInWithGoogle, signInWithGoogleRedirect, signOutUser, useAuthState } from './lib/auth'
+import { deleteSignedInAuthUser, signInWithGoogle, signInWithGoogleRedirect, signOutUser, useAuthState } from './lib/auth'
 
 const emptyTaskForm = {
   id: '', title: '', area: '', category: 'Cleaning', room: '', system: '', assetName: '', vendor: '', supplyNote: '', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
@@ -63,6 +63,9 @@ function App() {
     isCompletingSetup,
     setupError,
     setupSuccess,
+    isDeletingAccount,
+    deleteAccountError,
+    deleteAccountSuccess,
     settingsMessage,
     settingsTone,
     shoppingMessage,
@@ -94,6 +97,7 @@ function App() {
     handleCreateHousehold,
     handleJoinHousehold,
     handleCompleteSetup,
+    handleDeleteCurrentAccount,
     setInviteChoice,
     setShowInvitePanel,
   } = usePlannerState(user)
@@ -369,6 +373,8 @@ function App() {
       </div>
       <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
       {showRemoteWarning ? <section className="panel remote-warning-panel"><p className="panel-label">Live sync issue</p><h2>Some household data may be stale</h2><p className="hero-copy">Maison Mikell had trouble reaching the live household data just now. You can keep browsing, but if something looks off, refresh or sign out and back in before making decisions.</p></section> : null}
+      {deleteAccountError ? <section className="panel remote-warning-panel"><p className="panel-label">Account deletion</p><h2>Could not delete account</h2><p className="hero-copy">{deleteAccountError}</p></section> : null}
+      {deleteAccountSuccess ? <section className="panel remote-warning-panel"><p className="panel-label">Account deletion</p><h2>Account removed</h2><p className="hero-copy">{deleteAccountSuccess}</p></section> : null}
       <nav className="top-tabs">
         <div className="top-tabs-left">
           <button className={`top-tab ${activeTab === 'planner' ? 'active' : ''}`} onClick={() => { setActiveTab('planner'); setFiltersOpen(false) }}>Planner</button>
@@ -599,7 +605,7 @@ function App() {
             </div>
           </section>
 
-          {membership?.role === 'owner' ? <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2>{settingsMessage ? <p className={`auth-help ${settingsMessageClass}`}>{settingsMessage}</p> : null}</div></div><div className="completion-list">{householdMembers.length ? householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>) : <p className="empty-copy">No household members are listed yet.</p>}</div></section> : <section className="panel"><p className="empty-copy">Only owners can manage household roles and invite codes.</p></section>}
+          {membership?.role === 'owner' ? <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2>{settingsMessage ? <p className={`auth-help ${settingsMessageClass}`}>{settingsMessage}</p> : null}</div></div><div className="completion-list">{householdMembers.length ? householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>) : <p className="empty-copy">No household members are listed yet.</p>}</div><div className="form-actions" style={{ marginTop: 16 }}><button className="danger-button" onClick={async () => { const confirmed = window.confirm('Delete your Maison account? This cannot be undone.'); if (!confirmed) return; const ok = await handleDeleteCurrentAccount(); if (!ok) return; const authResult = await deleteSignedInAuthUser(); if (!authResult.ok) { window.alert(authResult.error); return; } await signOutUser(); }} disabled={isDeletingAccount}>{isDeletingAccount ? 'Deleting account…' : 'Delete my account'}</button></div></section> : <section className="panel"><p className="empty-copy">Only owners can manage household roles and invite codes.</p></section>}
 
           {membership?.role === 'owner' ? <section className="panel reminder-panel">
             <div className="section-head"><div><p className="panel-label">Reminder operations</p><h2>Delivery queue and history</h2></div></div>
