@@ -411,7 +411,11 @@ export function usePlannerState(currentUser = null) {
     try {
       const result = await createHouseholdForCurrentUser(currentUser, options)
       if (!result.ok) {
-        setCreateHouseholdError(result.error || 'Could not create the household right now.')
+        const nextError = result.error || 'Could not create the household right now.'
+        setCreateHouseholdError(nextError)
+        if (nextError === 'This household already exists. Use an invite code to join it instead.') {
+          setInviteChoice(true)
+        }
         return false
       }
       setMembership(result.membership)

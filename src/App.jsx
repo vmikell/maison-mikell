@@ -268,7 +268,7 @@ function App() {
               onChange={(event) => setHouseholdNameInput(event.target.value)}
             />
             <button className="primary-button" type="submit" disabled={isCreatingHousehold}>{isCreatingHousehold ? 'Creating…' : 'Create household'}</button>
-            <button className="secondary-button" type="button" onClick={() => setInviteChoice(true)}>I already have an invite code</button>
+            <button className="secondary-button" type="button" onClick={() => setInviteChoice(true)}>{createHouseholdError === 'This household already exists. Use an invite code to join it instead.' ? 'Enter invite code' : 'I already have an invite code'}</button>
             <button className="secondary-button" type="button" onClick={() => signOutUser()}>Use a different Google account</button>
           </form>
         </section>
