@@ -78,6 +78,7 @@ async function readCompletions(householdId) {
 
 export async function ensurePlannerSeeded(householdId, overrides = {}) {
   if (!hasFirebaseConfig || !firestore || !householdId) return false
+  if (householdId !== houseProfile.id) return false
   return seedHouseholdIfNeeded(householdId, overrides)
 }
 
