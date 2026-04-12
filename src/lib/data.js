@@ -17,6 +17,24 @@ export const houseProfile = {
   },
 }
 
+export const starterHouseProfile = {
+  name: '',
+  homeType: '',
+  sizeSqFt: '',
+  levels: '',
+  bedrooms: '',
+  bathrooms: '',
+  hvac: {
+    system: '',
+    heads: '',
+  },
+  reminderRules: {
+    majorLeadDays: 30,
+    standardLeadDays: 7,
+  },
+  setupCompleted: false,
+}
+
 export const maintenanceTasks = [
   { id: 'bathroom-refresh', title: 'Clean full bathroom', area: 'Bathroom', category: 'Cleaning', room: 'Main bathroom', system: 'Bathroom surfaces', assetName: 'Tub + vanity + toilet', vendor: '', supplyNote: 'Bathroom cleaner, microfiber cloths, toilet cleaner', frequency: 'Weekly', cadenceDays: 7, reminderLeadDays: 7, effort: '30 min', season: 'All year', priority: 'Routine', notes: 'Toilet, sink, mirror, shower/tub, counters, and floor.', lastDone: '2026-03-29', major: false },
   { id: 'half-bath-refresh', title: 'Clean half bath / powder room', area: 'Half bath', category: 'Cleaning', frequency: 'Weekly', cadenceDays: 7, reminderLeadDays: 7, effort: '15 min', season: 'All year', priority: 'Routine', notes: 'Toilet, sink, mirror, counters, and floor.', lastDone: '2026-03-30', major: false },

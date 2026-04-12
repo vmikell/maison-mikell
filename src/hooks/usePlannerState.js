@@ -17,6 +17,7 @@ import {
   subscribePlannerState,
   toggleShoppingItemChecked,
   updateHouseholdMembership,
+  completeHouseholdSetup,
 } from '../lib/firestorePlanner'
 import {
   buildCompletionRecord,
@@ -58,6 +59,9 @@ export function usePlannerState(currentUser = null) {
   const [plannerMessage, setPlannerMessage] = useState('')
   const [plannerTone, setPlannerTone] = useState('success')
   const [isJoiningHousehold, setIsJoiningHousehold] = useState(false)
+  const [isCompletingSetup, setIsCompletingSetup] = useState(false)
+  const [setupError, setSetupError] = useState('')
+  const [setupSuccess, setSetupSuccess] = useState('')
 
   useEffect(() => {
     let cancelled = false
@@ -78,6 +82,8 @@ export function usePlannerState(currentUser = null) {
       setCreateHouseholdSuccess('')
       setFreshInviteCode('')
       setShowInvitePanel(false)
+      setSetupError('')
+      setSetupSuccess('')
       setIsRemoteLoaded(false)
       setIsRemoteLoading(false)
       setRemoteError(null)
@@ -431,14 +437,56 @@ export function usePlannerState(currentUser = null) {
       setMembership(result.membership)
       setInviteChoice(false)
       setFreshInviteCode(result.inviteCode || '')
-      setShowInvitePanel(true)
-      setCreateHouseholdSuccess(result.created ? 'Your household is ready. Invite your partner next.' : 'Your household is already ready.')
+      setShowInvitePanel(false)
+      setCreateHouseholdSuccess(result.created ? 'Your household is ready. Set up your home next.' : 'Your household is already ready.')
+      setSetupError('')
+      setSetupSuccess('')
       return true
     } catch (error) {
       setCreateHouseholdError(error instanceof Error ? error.message : 'Could not create the household right now.')
       return false
     } finally {
       setIsCreatingHousehold(false)
+    }
+  }
+
+  async function handleCompleteSetup(setupInput) {
+    if (!membership?.householdId) {
+      setSetupError('Create or join a household first.')
+      setSetupSuccess('')
+      return false
+    }
+    if (!hasFirebaseConfig) {
+      setSetupError('Household setup needs live Firebase data. The app is in local fallback mode right now.')
+      setSetupSuccess('')
+      return false
+    }
+    setIsCompletingSetup(true)
+    setSetupError('')
+    setSetupSuccess('')
+    try {
+      const result = await completeHouseholdSetup(membership.householdId, setupInput)
+      if (!result.ok) {
+        setSetupError(result.error || 'Could not save your home setup right now.')
+        return false
+      }
+      setHouseProfile((current) => ({
+        ...current,
+        ...setupInput,
+        hvac: {
+          system: setupInput.hvac?.system || '',
+          heads: setupInput.hvac?.heads || '',
+        },
+        setupCompleted: true,
+      }))
+      setSetupSuccess('Your home setup is saved.')
+      setShowInvitePanel(true)
+      return true
+    } catch (error) {
+      setSetupError(error instanceof Error ? error.message : 'Could not save your home setup right now.')
+      return false
+    } finally {
+      setIsCompletingSetup(false)
     }
   }
 
@@ -487,6 +535,9 @@ export function usePlannerState(currentUser = null) {
     createHouseholdSuccess,
     freshInviteCode,
     showInvitePanel,
+    isCompletingSetup,
+    setupError,
+    setupSuccess,
     settingsMessage,
     settingsTone,
     shoppingMessage,
@@ -519,6 +570,7 @@ export function usePlannerState(currentUser = null) {
     handlePromoteMember,
     handleCreateHousehold,
     handleJoinHousehold,
+    handleCompleteSetup,
     setInviteChoice,
     setShowInvitePanel,
   }

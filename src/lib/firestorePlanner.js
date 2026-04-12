@@ -13,7 +13,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore'
 import { firestore, hasFirebaseConfig } from './firebase'
-import { houseProfile, maintenanceTasks, shoppingLists } from './data'
+import { houseProfile, starterHouseProfile } from './data'
 import { buildCompletionRecord, buildReminderRecord, completeTask, normalizeShoppingItemInput, normalizeTaskInput } from './model'
 
 function householdsRef() { return collection(firestore, 'households') }
@@ -44,20 +44,11 @@ async function seedHouseholdIfNeeded(householdId, overrides = {}) {
 
   if (!homeSnap.exists()) {
     batch.set(householdRef(householdId), {
-      ...houseProfile,
+      ...starterHouseProfile,
       id: householdId,
       ...overrides,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
-    })
-    maintenanceTasks.forEach((task) => {
-      batch.set(doc(tasksRef(householdId), task.id), { ...task, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
-      const reminder = buildReminderRecord(task)
-      batch.set(reminderDoc(householdId, reminder.id), { ...reminder, createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
-    })
-    shoppingLists.forEach((list) => {
-      batch.set(doc(listsRef(householdId), list.id), { id: list.id, title: list.title, tone: list.tone, storeName: list.storeName ?? '', createdAt: serverTimestamp(), updatedAt: serverTimestamp() })
-      list.items.forEach((item) => batch.set(doc(listItemsRef(householdId, list.id), item.id), { ...item, createdAt: serverTimestamp(), updatedAt: serverTimestamp() }))
     })
     await batch.commit()
     return true
@@ -132,22 +123,17 @@ export async function createHouseholdForCurrentUser(currentUser, options = {}) {
   }
 
   await setDoc(householdRef(householdId), {
-    ...houseProfile,
+    ...starterHouseProfile,
     id: householdId,
     name: nextHouseholdName,
     inviteCode,
     members: [nextMember],
+    setupCompleted: false,
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
 
   await setDoc(userMembershipRef(currentUser.uid), { ...nextMember, inviteCode }, { merge: true })
-
-  await ensurePlannerSeeded(householdId, {
-    name: nextHouseholdName,
-    inviteCode,
-    members: [nextMember],
-  })
 
   return { ok: true, membership: nextMember, inviteCode, created: true }
 }
@@ -185,6 +171,43 @@ export async function joinHouseholdWithInviteCode(currentUser, inviteCode) {
   await setDoc(userMembershipRef(currentUser.uid), nextMember, { merge: true })
 
   return { ok: true, membership: nextMember }
+}
+
+export async function completeHouseholdSetup(householdId, setupInput = {}) {
+  if (!hasFirebaseConfig || !firestore || !householdId) return { ok: false, error: 'Firebase is not configured.' }
+
+  const normalizedProfile = {
+    name: (setupInput.name || '').trim(),
+    homeType: (setupInput.homeType || '').trim(),
+    sizeSqFt: Number(setupInput.sizeSqFt || 0) || '',
+    levels: Number(setupInput.levels || 0) || '',
+    bedrooms: Number(setupInput.bedrooms || 0) || '',
+    bathrooms: Number(setupInput.bathrooms || 0) || '',
+    hvac: {
+      system: (setupInput.hvac?.system || '').trim(),
+      heads: Number(setupInput.hvac?.heads || 0) || '',
+    },
+    reminderRules: {
+      majorLeadDays: 30,
+      standardLeadDays: 7,
+    },
+    setupCompleted: true,
+  }
+
+  try {
+    await updateDoc(householdRef(householdId), {
+      ...normalizedProfile,
+      updatedAt: serverTimestamp(),
+    })
+    return { ok: true }
+  } catch (error) {
+    console.error('Failed to complete household setup', error)
+    return {
+      ok: false,
+      error: error?.message || 'Failed to save household setup.',
+      code: error?.code || null,
+    }
+  }
 }
 
 export async function updateHouseholdMembership(householdId, patch) {

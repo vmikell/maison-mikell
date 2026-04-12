@@ -46,6 +46,7 @@ function App() {
   const [authMessage, setAuthMessage] = useState('')
   const [inviteCodeInput, setInviteCodeInput] = useState('')
   const [householdNameInput, setHouseholdNameInput] = useState('')
+  const [setupForm, setSetupForm] = useState({ name: '', homeType: '', sizeSqFt: '', levels: '', bedrooms: '', bathrooms: '', hvacSystem: '', hvacHeads: '' })
   const { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode } = useAuthState()
   const {
     houseProfile,
@@ -59,6 +60,9 @@ function App() {
     createHouseholdSuccess,
     freshInviteCode,
     showInvitePanel,
+    isCompletingSetup,
+    setupError,
+    setupSuccess,
     settingsMessage,
     settingsTone,
     shoppingMessage,
@@ -89,6 +93,7 @@ function App() {
     handlePromoteMember,
     handleCreateHousehold,
     handleJoinHousehold,
+    handleCompleteSetup,
     setInviteChoice,
     setShowInvitePanel,
   } = usePlannerState(user)
@@ -270,6 +275,49 @@ function App() {
             <button className="primary-button" type="submit" disabled={isCreatingHousehold}>{isCreatingHousehold ? 'Creating…' : 'Create household'}</button>
             <button className="secondary-button" type="button" onClick={() => setInviteChoice(true)}>{createHouseholdError === 'This household already exists. Use an invite code to join it instead.' ? 'Enter invite code' : 'I already have an invite code'}</button>
             <button className="secondary-button" type="button" onClick={() => signOutUser()}>Use a different Google account</button>
+          </form>
+        </section>
+      </div>
+    )
+  }
+
+  if (user && membership && membership.role === 'owner' && houseProfile.setupCompleted === false) {
+    return (
+      <div className="shell auth-shell">
+        <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
+        <SignedInPill user={user} membership={membership} />
+        <section className="hero-card auth-landing-card onboarding-card">
+          <div>
+            <p className="eyebrow">Maison Mikell</p>
+            <h1>Set up your home</h1>
+            <p className="hero-copy">Let’s shape Maison around the home you actually have, instead of dropping you into someone else’s routine.</p>
+            <div className="onboarding-bullet-list"><span>No inherited Victor-only household data</span><span>Start with your actual home details</span><span>You can invite your partner right after setup</span></div>
+            {createHouseholdSuccess ? <p className="auth-help success">{createHouseholdSuccess}</p> : null}
+            {setupSuccess ? <p className="auth-help success">{setupSuccess}</p> : null}
+            {setupError ? <p className="auth-help error">{setupError}</p> : null}
+          </div>
+          <form className="auth-landing-actions onboarding-actions setup-form-grid" onSubmit={async (event) => {
+            event.preventDefault()
+            await handleCompleteSetup({
+              name: setupForm.name,
+              homeType: setupForm.homeType,
+              sizeSqFt: setupForm.sizeSqFt,
+              levels: setupForm.levels,
+              bedrooms: setupForm.bedrooms,
+              bathrooms: setupForm.bathrooms,
+              hvac: {
+                system: setupForm.hvacSystem,
+                heads: setupForm.hvacHeads,
+              },
+            })
+          }}>
+            <input className="invite-code-input" placeholder="Home name" value={setupForm.name} onChange={(event) => setSetupForm((current) => ({ ...current, name: event.target.value }))} />
+            <input className="invite-code-input" placeholder="Home type (apartment, condo, house)" value={setupForm.homeType} onChange={(event) => setSetupForm((current) => ({ ...current, homeType: event.target.value }))} />
+            <input className="invite-code-input" placeholder="Square feet" value={setupForm.sizeSqFt} onChange={(event) => setSetupForm((current) => ({ ...current, sizeSqFt: event.target.value }))} />
+            <div className="setup-form-split"><input className="invite-code-input" placeholder="Levels" value={setupForm.levels} onChange={(event) => setSetupForm((current) => ({ ...current, levels: event.target.value }))} /><input className="invite-code-input" placeholder="Bedrooms" value={setupForm.bedrooms} onChange={(event) => setSetupForm((current) => ({ ...current, bedrooms: event.target.value }))} /></div>
+            <div className="setup-form-split"><input className="invite-code-input" placeholder="Bathrooms" value={setupForm.bathrooms} onChange={(event) => setSetupForm((current) => ({ ...current, bathrooms: event.target.value }))} /><input className="invite-code-input" placeholder="HVAC system" value={setupForm.hvacSystem} onChange={(event) => setSetupForm((current) => ({ ...current, hvacSystem: event.target.value }))} /></div>
+            <input className="invite-code-input" placeholder="HVAC heads / zones (optional)" value={setupForm.hvacHeads} onChange={(event) => setSetupForm((current) => ({ ...current, hvacHeads: event.target.value }))} />
+            <button className="primary-button" type="submit" disabled={isCompletingSetup}>{isCompletingSetup ? 'Saving…' : 'Save home setup'}</button>
           </form>
         </section>
       </div>
