@@ -66,6 +66,7 @@ function App() {
     isDeletingAccount,
     deleteAccountError,
     deleteAccountSuccess,
+    deletedAccountSummary,
     settingsMessage,
     settingsTone,
     shoppingMessage,
@@ -151,6 +152,7 @@ function App() {
     ? `${filteredTasks.length} task${filteredTasks.length === 1 ? '' : 's'} match your current filters.`
     : `${summary.overdue} overdue, ${summary.remind} in the reminder window, and ${dueSoonTasks.length} due soon.`
   const isResolvingSignedInState = Boolean(user) && (authLoading || isRemoteLoading)
+  const showDeletedAccountView = !user && Boolean(deletedAccountSummary)
 
   function openTaskModal(task) { setSelectedTask(task) }
   function closeTaskModal() { setSelectedTask(null) }
@@ -183,17 +185,30 @@ function App() {
   if (!user) {
     return (
       <div className="shell auth-shell">
-        <section className="hero-card auth-landing-card onboarding-card">
+        <section className="hero-card auth-landing-card onboarding-card goodbye-card">
           <div>
             <p className="eyebrow">Maison Mikell</p>
-            <h1>Welcome home.</h1>
-            <p className="hero-copy">A calmer way to run your home, with maintenance, shopping, reminders, and shared household coordination in one place.</p>
-            <p className="hero-copy">If the Google popup gets blocked or seems to do nothing, use the full-page sign-in button instead.</p>
-            <p className="hero-copy">If your session has expired, just sign in again and you’ll land back in the household flow.</p>
+            <h1>{showDeletedAccountView ? 'Goodbye for now.' : 'Welcome home.'}</h1>
+            {showDeletedAccountView ? (
+              <>
+                <p className="hero-copy">{deletedAccountSummary.message}</p>
+                <p className="hero-copy">Your Maison session has been closed cleanly, so you should not see a blank screen here anymore.</p>
+                {deletedAccountSummary.deletedHousehold
+                  ? <p className="hero-copy">That home is fully gone. If you come back later, you’ll be starting fresh.</p>
+                  : <p className="hero-copy">If you ever come back, you can sign in again and either join a household with an invite code or create a new one.</p>}
+              </>
+            ) : (
+              <>
+                <p className="hero-copy">A calmer way to run your home, with maintenance, shopping, reminders, and shared household coordination in one place.</p>
+                <p className="hero-copy">If the Google popup gets blocked or seems to do nothing, use the full-page sign-in button instead.</p>
+                <p className="hero-copy">If your session has expired, just sign in again and you’ll land back in the household flow.</p>
+              </>
+            )}
             {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
             {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
           </div>
           <div className="auth-landing-actions onboarding-actions">
+            {showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card goodbye-note"><strong>Signed out cleanly</strong><span>{deletedAccountSummary.email || 'This account'} has been removed, and Maison is now back at a safe resting state.</span></div> : null}
             <button className="primary-button" onClick={async () => {
               setInviteChoice(false)
               const result = await signInWithGoogle()
@@ -206,7 +221,7 @@ function App() {
                 setAuthError('')
                 setAuthErrorCode('')
               }
-            }}>Sign in or sign up with Google</button>
+            }}>{showDeletedAccountView ? 'Sign in again with Google' : 'Sign in or sign up with Google'}</button>
             <button className="secondary-button" onClick={() => setInviteChoice(true)}>I already have an invite code</button>
             <button className="secondary-button" onClick={async () => {
               setAuthMessage('Redirecting you to Google sign-in…')
@@ -214,10 +229,10 @@ function App() {
               setAuthErrorCode('')
               await signInWithGoogleRedirect()
             }}>Use full-page sign-in</button>
-            <div className="auth-landing-note onboarding-note-card">
+            {!showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
               <strong>Private household access</strong>
               <span>After sign-in, non-members can either create their own household or join one with a valid invite code from an owner.</span>
-            </div>
+            </div> : null}
           </div>
         </section>
       </div>

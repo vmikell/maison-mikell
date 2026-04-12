@@ -66,6 +66,7 @@ export function usePlannerState(currentUser = null) {
   const [isDeletingAccount, setIsDeletingAccount] = useState(false)
   const [deleteAccountError, setDeleteAccountError] = useState('')
   const [deleteAccountSuccess, setDeleteAccountSuccess] = useState('')
+  const [deletedAccountSummary, setDeletedAccountSummary] = useState(null)
 
   useEffect(() => {
     let cancelled = false
@@ -90,6 +91,7 @@ export function usePlannerState(currentUser = null) {
       setSetupSuccess('')
       setDeleteAccountError('')
       setDeleteAccountSuccess('')
+      setDeletedAccountSummary(null)
       setIsRemoteLoaded(false)
       setIsRemoteLoading(false)
       setRemoteError(null)
@@ -516,7 +518,13 @@ export function usePlannerState(currentUser = null) {
         setDeleteAccountError(result.error || 'Could not delete this account right now.')
         return false
       }
-      setDeleteAccountSuccess(result.deletedHousehold ? 'Your account and household were deleted.' : 'Your account was removed from the household.')
+      const successMessage = result.deletedHousehold ? 'Your account and household were deleted.' : 'Your account was removed from the household.'
+      setDeleteAccountSuccess(successMessage)
+      setDeletedAccountSummary({
+        deletedHousehold: Boolean(result.deletedHousehold),
+        message: successMessage,
+        email: currentUser.email || '',
+      })
       return true
     } catch (error) {
       setDeleteAccountError(error instanceof Error ? error.message : 'Could not delete this account right now.')
@@ -577,6 +585,7 @@ export function usePlannerState(currentUser = null) {
     isDeletingAccount,
     deleteAccountError,
     deleteAccountSuccess,
+    deletedAccountSummary,
     settingsMessage,
     settingsTone,
     shoppingMessage,

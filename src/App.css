@@ -5,6 +5,8 @@
 .auth-landing-note { display: grid; gap: 6px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,0.06); color: #e6ddf4; }
 .onboarding-card { position: relative; overflow: hidden; }
 .onboarding-card::after { content: ''; position: absolute; inset: auto -60px -80px auto; width: 220px; height: 220px; background: radial-gradient(circle, rgba(255,142,207,0.18), transparent 68%); pointer-events: none; }
+.goodbye-card { background: linear-gradient(145deg, rgba(34,22,48,0.96), rgba(18,22,39,0.9)); }
+.goodbye-note { background: rgba(255,255,255,0.07); }
 .onboarding-actions { position: relative; z-index: 1; }
 .onboarding-note-card { border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.05); }
 .onboarding-bullet-list { display: grid; gap: 8px; margin-top: 14px; }
