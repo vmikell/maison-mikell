@@ -9,6 +9,10 @@ service cloud.firestore {
       return get(/databases/$(database)/documents/households/$(householdId));
     }
 
+    function userMembershipDoc(userId) {
+      return get(/databases/$(database)/documents/users/$(userId)/meta/membership);
+    }
+
     function householdMembers(householdId) {
       return householdDoc(householdId).data.members;
     }
@@ -27,26 +31,15 @@ service cloud.firestore {
 
     function isHouseholdMember(householdId) {
       return signedIn()
-        && request.auth.token.email != null
-        && (
-          memberEmailAt(householdId, 0) == request.auth.token.email
-          || memberEmailAt(householdId, 1) == request.auth.token.email
-          || memberEmailAt(householdId, 2) == request.auth.token.email
-          || memberEmailAt(householdId, 3) == request.auth.token.email
-          || memberEmailAt(householdId, 4) == request.auth.token.email
-        );
+        && request.auth.uid != null
+        && userMembershipDoc(request.auth.uid).data.householdId == householdId;
     }
 
     function isOwner(householdId) {
       return signedIn()
-        && request.auth.token.email != null
-        && (
-          (memberEmailAt(householdId, 0) == request.auth.token.email && memberRoleAt(householdId, 0) == 'owner')
-          || (memberEmailAt(householdId, 1) == request.auth.token.email && memberRoleAt(householdId, 1) == 'owner')
-          || (memberEmailAt(householdId, 2) == request.auth.token.email && memberRoleAt(householdId, 2) == 'owner')
-          || (memberEmailAt(householdId, 3) == request.auth.token.email && memberRoleAt(householdId, 3) == 'owner')
-          || (memberEmailAt(householdId, 4) == request.auth.token.email && memberRoleAt(householdId, 4) == 'owner')
-        );
+        && request.auth.uid != null
+        && userMembershipDoc(request.auth.uid).data.householdId == householdId
+        && userMembershipDoc(request.auth.uid).data.role == 'owner';
     }
 
     function isSelfJoiningExistingHousehold(householdId) {
@@ -112,6 +105,12 @@ service cloud.firestore {
         allow create: if isHouseholdMember(householdId);
         allow update, delete: if isOwner(householdId);
       }
+    }
+
+    match /users/{userId}/meta/{docId} {
+      allow read: if signedIn() && request.auth.uid == userId;
+      allow create, update: if signedIn() && request.auth.uid == userId;
+      allow delete: if false;
     }
   }
 }

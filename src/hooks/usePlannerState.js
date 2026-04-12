@@ -94,7 +94,17 @@ export function usePlannerState(currentUser = null) {
         if (cancelled) return
         setMembership(nextMembership)
 
-        const state = await readPlannerState()
+        if (!nextMembership?.householdId) {
+          setHouseProfile(seedHouseProfile)
+          setTaskState(seedTasks)
+          setLists(seedLists)
+          setReminders(seedTasks.map(buildReminderRecord))
+          setCompletions([])
+          setIsRemoteLoaded(false)
+          return
+        }
+
+        const state = await readPlannerState(nextMembership.householdId)
         if (!cancelled && state) {
           setHouseProfile(state.houseProfile)
           setTaskState(state.maintenanceTasks)
@@ -104,7 +114,7 @@ export function usePlannerState(currentUser = null) {
           setIsRemoteLoaded(true)
         }
 
-        unsubscribe = await subscribePlannerState((nextState) => {
+        unsubscribe = await subscribePlannerState(nextMembership.householdId, (nextState) => {
           if (cancelled || !nextState) return
           setHouseProfile(nextState.houseProfile)
           setTaskState(nextState.maintenanceTasks)
@@ -144,7 +154,7 @@ export function usePlannerState(currentUser = null) {
     if (!currentTask) return
     setPlannerMessage('')
     if (hasFirebaseConfig) {
-      const ok = await markTaskCompleted(taskId, TODAY, actor)
+      const ok = await markTaskCompleted(membership?.householdId, taskId, TODAY, actor)
       if (ok) {
         setPlannerTone('success')
         setPlannerMessage('Task marked complete.')
@@ -167,7 +177,7 @@ export function usePlannerState(currentUser = null) {
     const normalized = normalizeTaskInput(input)
     setPlannerMessage('')
     if (hasFirebaseConfig) {
-      const ok = await saveTask(normalized)
+      const ok = await saveTask(membership?.householdId, normalized)
       if (ok) {
         setPlannerTone('success')
         setPlannerMessage('Task saved.')
@@ -191,7 +201,7 @@ export function usePlannerState(currentUser = null) {
   async function handleDeleteTask(taskId) {
     setPlannerMessage('')
     if (hasFirebaseConfig) {
-      const ok = await deleteTask(taskId)
+      const ok = await deleteTask(membership?.householdId, taskId)
       if (ok) {
         setPlannerTone('success')
         setPlannerMessage('Task deleted.')
@@ -217,7 +227,7 @@ export function usePlannerState(currentUser = null) {
     setLists((current) => upsertShoppingItem(current, listId, optimisticItem))
 
     if (hasFirebaseConfig) {
-      const result = await saveShoppingItem(listId, normalizedInput)
+      const result = await saveShoppingItem(membership?.householdId, listId, normalizedInput)
       if (result?.ok) {
         setShoppingTone('success')
         setShoppingMessage('Shopping item saved.')
@@ -240,7 +250,7 @@ export function usePlannerState(currentUser = null) {
     const revertSnapshot = lists
     setLists((current) => updateShoppingListMeta(current, listId, patch))
     if (hasFirebaseConfig) {
-      const ok = await saveShoppingListMeta(listId, patch)
+      const ok = await saveShoppingListMeta(membership?.householdId, listId, patch)
       if (ok) {
         setShoppingTone('success')
         setShoppingMessage('Shopping list updated.')
@@ -260,7 +270,7 @@ export function usePlannerState(currentUser = null) {
     const revertSnapshot = lists
     setLists((current) => removeShoppingItem(current, listId, itemId))
     if (hasFirebaseConfig) {
-      const ok = await deleteShoppingItem(listId, itemId)
+      const ok = await deleteShoppingItem(membership?.householdId, listId, itemId)
       if (ok) {
         setShoppingTone('success')
         setShoppingMessage('Shopping item deleted.')
@@ -288,7 +298,7 @@ export function usePlannerState(currentUser = null) {
       items: entry.items.map((listItem) => (listItem.id === itemId ? { ...listItem, checked: nextChecked } : listItem)),
     }))
     if (hasFirebaseConfig) {
-      const ok = await toggleShoppingItemChecked(listId, itemId, nextChecked)
+      const ok = await toggleShoppingItemChecked(membership?.householdId, listId, itemId, nextChecked)
       if (ok) {
         setShoppingTone('success')
         setShoppingMessage(nextChecked ? 'Shopping item checked off.' : 'Shopping item moved back to open.')
@@ -310,7 +320,7 @@ export function usePlannerState(currentUser = null) {
     const currentTask = taskState.find((task) => task.id === taskId)
     if (!currentTask) return
     if (hasFirebaseConfig) {
-      const ok = await setTaskClaim(taskId, actor)
+      const ok = await setTaskClaim(membership?.householdId, taskId, actor)
       if (ok) {
         setPlannerTone('success')
         setPlannerMessage(actor ? `Task claimed for ${actor}.` : 'Task claim cleared.')
@@ -331,7 +341,7 @@ export function usePlannerState(currentUser = null) {
   async function handleMarkReminderSent(reminderId) {
     setSettingsMessage('')
     if (hasFirebaseConfig) {
-      const ok = await markReminderSent(reminderId, 'email')
+      const ok = await markReminderSent(membership?.householdId, reminderId, 'email')
       if (ok) {
         setSettingsTone('success')
         setSettingsMessage('Reminder marked delivered.')
@@ -357,7 +367,7 @@ export function usePlannerState(currentUser = null) {
     const nextCode = Math.random().toString(36).slice(2, 8).toUpperCase()
     setSettingsMessage('')
     if (hasFirebaseConfig) {
-      const result = await updateHouseholdMembership({ inviteCode: nextCode })
+      const result = await updateHouseholdMembership(membership?.householdId, { inviteCode: nextCode })
       if (result?.ok) {
         setHouseProfile((current) => ({ ...current, inviteCode: nextCode }))
         setSettingsTone('success')
@@ -378,7 +388,7 @@ export function usePlannerState(currentUser = null) {
     setSettingsMessage('')
     const nextMembers = householdMembers.map((member) => member.id === memberId ? { ...member, role: 'owner' } : member)
     if (hasFirebaseConfig) {
-      const result = await updateHouseholdMembership({ members: nextMembers })
+      const result = await updateHouseholdMembership(membership?.householdId, { members: nextMembers })
       if (result?.ok) {
         setHouseProfile((current) => ({ ...current, members: nextMembers }))
         setSettingsTone('success')
