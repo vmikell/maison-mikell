@@ -27,6 +27,7 @@ import {
   clearTaskClaim,
   completeTask,
   enrichTask,
+  normalizeShoppingItemInput,
   normalizeTaskInput,
   removeTask,
   upsertShoppingItem,
