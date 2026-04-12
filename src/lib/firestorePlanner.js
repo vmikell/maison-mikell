@@ -131,13 +131,23 @@ export async function createHouseholdForCurrentUser(currentUser, options = {}) {
     householdId,
   }
 
+  await setDoc(householdRef(householdId), {
+    ...houseProfile,
+    id: householdId,
+    name: nextHouseholdName,
+    inviteCode,
+    members: [nextMember],
+    createdAt: serverTimestamp(),
+    updatedAt: serverTimestamp(),
+  })
+
+  await setDoc(userMembershipRef(currentUser.uid), { ...nextMember, inviteCode }, { merge: true })
+
   await ensurePlannerSeeded(householdId, {
     name: nextHouseholdName,
     inviteCode,
     members: [nextMember],
   })
-
-  await setDoc(userMembershipRef(currentUser.uid), { ...nextMember, inviteCode }, { merge: true })
 
   return { ok: true, membership: nextMember, inviteCode, created: true }
 }
