@@ -47,6 +47,28 @@ function App() {
   const [inviteCodeInput, setInviteCodeInput] = useState('')
   const [householdNameInput, setHouseholdNameInput] = useState('')
   const [setupForm, setSetupForm] = useState({ name: '', homeType: '', sizeSqFt: '', levels: '', bedrooms: '', bathrooms: '', hvacSystem: '', hvacHeads: '' })
+
+  function buildSetupPreview(form = setupForm) {
+    const levels = Number(form.levels || 0)
+    const bedrooms = Number(form.bedrooms || 0)
+    const bathrooms = Number(form.bathrooms || 0)
+    const hvacHeads = Number(form.hvacHeads || 0)
+    const facts = []
+
+    if (form.homeType) facts.push(form.homeType)
+    if (levels) facts.push(`${levels}-level`)
+    if (bedrooms) facts.push(`${bedrooms} bedroom${bedrooms === 1 ? '' : 's'}`)
+    if (bathrooms) facts.push(`${bathrooms} bath${bathrooms === 1 ? '' : 's'}`)
+
+    const summary = facts.length ? facts.join(' · ') : 'Your home summary will show up here as you fill things in.'
+    const hvacSummary = form.hvacSystem
+      ? `${form.hvacSystem}${hvacHeads ? ` · ${hvacHeads} zone${hvacHeads === 1 ? '' : 's'}` : ''}`
+      : 'Add HVAC details if you want Maison tuned around your actual systems.'
+
+    return { summary, hvacSummary }
+  }
+
+  const setupPreview = buildSetupPreview()
   const { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode } = useAuthState()
   const {
     houseProfile,
@@ -288,14 +310,21 @@ function App() {
           </div>
           <form className="auth-landing-actions onboarding-actions" onSubmit={async (event) => {
             event.preventDefault()
-            await handleCreateHousehold({ name: householdNameInput })
+            const created = await handleCreateHousehold({ name: householdNameInput })
+            if (created) {
+              setSetupForm((current) => ({ ...current, name: householdNameInput.trim() }))
+            }
           }}>
             <input
-              className="invite-code-input"
+              className="invite-code-input no-caps-input"
               placeholder="Household name (optional)"
               value={householdNameInput}
               onChange={(event) => setHouseholdNameInput(event.target.value)}
             />
+            <div className="auth-landing-note onboarding-note-card">
+              <strong>What happens next</strong>
+              <span>Create the household first, then Maison immediately walks you into home setup and gives you an invite code for your partner.</span>
+            </div>
             <button className="primary-button" type="submit" disabled={isCreatingHousehold}>{isCreatingHousehold ? 'Creating…' : 'Create household'}</button>
             <button className="secondary-button" type="button" onClick={() => setInviteChoice(true)}>{createHouseholdError === 'This household already exists. Use an invite code to join it instead.' ? 'Enter invite code' : 'I already have an invite code'}</button>
             <button className="secondary-button" type="button" onClick={() => signOutUser()}>Use a different Google account</button>
@@ -335,12 +364,36 @@ function App() {
               },
             })
           }}>
-            <input className="invite-code-input" placeholder="Home name" value={setupForm.name} onChange={(event) => setSetupForm((current) => ({ ...current, name: event.target.value }))} />
-            <input className="invite-code-input" placeholder="Home type (apartment, condo, house)" value={setupForm.homeType} onChange={(event) => setSetupForm((current) => ({ ...current, homeType: event.target.value }))} />
-            <input className="invite-code-input" placeholder="Square feet" value={setupForm.sizeSqFt} onChange={(event) => setSetupForm((current) => ({ ...current, sizeSqFt: event.target.value }))} />
-            <div className="setup-form-split"><input className="invite-code-input" placeholder="Levels" value={setupForm.levels} onChange={(event) => setSetupForm((current) => ({ ...current, levels: event.target.value }))} /><input className="invite-code-input" placeholder="Bedrooms" value={setupForm.bedrooms} onChange={(event) => setSetupForm((current) => ({ ...current, bedrooms: event.target.value }))} /></div>
-            <div className="setup-form-split"><input className="invite-code-input" placeholder="Bathrooms" value={setupForm.bathrooms} onChange={(event) => setSetupForm((current) => ({ ...current, bathrooms: event.target.value }))} /><input className="invite-code-input" placeholder="HVAC system" value={setupForm.hvacSystem} onChange={(event) => setSetupForm((current) => ({ ...current, hvacSystem: event.target.value }))} /></div>
-            <input className="invite-code-input" placeholder="HVAC heads / zones (optional)" value={setupForm.hvacHeads} onChange={(event) => setSetupForm((current) => ({ ...current, hvacHeads: event.target.value }))} />
+            <div className="onboarding-section-block">
+              <div>
+                <p className="panel-label">Step 1</p>
+                <h3>Home basics</h3>
+                <p className="hero-copy">Give Maison the shape of the home so the planner feels like yours from day one.</p>
+              </div>
+              <input className="invite-code-input no-caps-input" placeholder="Home name" value={setupForm.name} onChange={(event) => setSetupForm((current) => ({ ...current, name: event.target.value }))} />
+              <input className="invite-code-input no-caps-input" placeholder="Home type (apartment, condo, house)" value={setupForm.homeType} onChange={(event) => setSetupForm((current) => ({ ...current, homeType: event.target.value }))} />
+              <input className="invite-code-input no-caps-input" inputMode="numeric" placeholder="Square feet" value={setupForm.sizeSqFt} onChange={(event) => setSetupForm((current) => ({ ...current, sizeSqFt: event.target.value.replace(/[^0-9]/g, '') }))} />
+              <div className="setup-form-split"><input className="invite-code-input no-caps-input" inputMode="numeric" placeholder="Levels" value={setupForm.levels} onChange={(event) => setSetupForm((current) => ({ ...current, levels: event.target.value.replace(/[^0-9]/g, '') }))} /><input className="invite-code-input no-caps-input" inputMode="numeric" placeholder="Bedrooms" value={setupForm.bedrooms} onChange={(event) => setSetupForm((current) => ({ ...current, bedrooms: event.target.value.replace(/[^0-9]/g, '') }))} /></div>
+              <input className="invite-code-input no-caps-input" inputMode="decimal" placeholder="Bathrooms" value={setupForm.bathrooms} onChange={(event) => setSetupForm((current) => ({ ...current, bathrooms: event.target.value.replace(/[^0-9.]/g, '') }))} />
+            </div>
+            <div className="onboarding-section-block">
+              <div>
+                <p className="panel-label">Step 2</p>
+                <h3>Systems and routine fit</h3>
+                <p className="hero-copy">Optional, but worth it. This helps Maison recommend tasks that match your actual place.</p>
+              </div>
+              <input className="invite-code-input no-caps-input" placeholder="HVAC system" value={setupForm.hvacSystem} onChange={(event) => setSetupForm((current) => ({ ...current, hvacSystem: event.target.value }))} />
+              <input className="invite-code-input no-caps-input" inputMode="numeric" placeholder="HVAC heads / zones (optional)" value={setupForm.hvacHeads} onChange={(event) => setSetupForm((current) => ({ ...current, hvacHeads: event.target.value.replace(/[^0-9]/g, '') }))} />
+            </div>
+            <div className="auth-landing-note onboarding-note-card onboarding-preview-card">
+              <strong>{setupForm.name?.trim() || householdNameInput.trim() || 'Your home'}</strong>
+              <span>{setupPreview.summary}</span>
+              <span>{setupPreview.hvacSummary}</span>
+            </div>
+            <div className="auth-landing-note onboarding-note-card">
+              <strong>What happens after setup</strong>
+              <span>Maison saves the home, keeps your starter planner in place, and then gives you the invite code so your partner can join cleanly.</span>
+            </div>
             <button className="primary-button" type="submit" disabled={isCompletingSetup}>{isCompletingSetup ? 'Saving…' : 'Save home setup'}</button>
           </form>
         </section>
@@ -504,7 +557,7 @@ function App() {
         </section>
       ) : null}
 
-      {showInvitePanel && freshInviteCode && membership?.role === 'owner' ? <section className="panel remote-warning-panel"><div className="section-head"><div><p className="panel-label">Invite your partner</p><h2>Your household is ready</h2><p className="hero-copy">Share this invite code with your partner so they can join the household, then continue into the planner once you’re ready.</p></div><div className="planner-actions"><button className="secondary-button" onClick={() => navigator?.clipboard?.writeText(freshInviteCode)}>Copy code</button><button className="secondary-button" onClick={() => setShowInvitePanel(false)}>Continue to app</button></div></div><p className="hero-copy"><strong>{freshInviteCode}</strong></p></section> : null}
+      {showInvitePanel && freshInviteCode && membership?.role === 'owner' ? <section className="panel remote-warning-panel"><div className="section-head"><div><p className="panel-label">Invite your partner</p><h2>Your household is ready</h2><p className="hero-copy">Share this invite code with your partner so they can join the household, then continue into the planner once you’re ready.</p></div><div className="planner-actions"><button className="secondary-button" onClick={() => navigator?.clipboard?.writeText(freshInviteCode)}>Copy code</button><button className="secondary-button" onClick={() => setShowInvitePanel(false)}>Continue to app</button></div></div><div className="invite-code-panel"><p className="hero-copy"><strong>{freshInviteCode}</strong></p><div className="onboarding-bullet-list compact"><span>Partner signs in with Google</span><span>They tap “I already have an invite code”</span><span>They enter this code and land in your shared home</span></div></div></section> : null}
       <header className="hero-card">
         <div><p className="eyebrow">Maison Mikell</p><h1>{activeTab === 'shopping' ? 'Maison Restock' : activeTab === 'calendar' ? 'Maison Calendar' : 'Maison Reset'}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your two-level home and 4-head mini split setup.</p></div>
         <div className="hero-note"><strong>{activeTab === 'shopping' ? `${openShoppingItems.length} open item${openShoppingItems.length === 1 ? '' : 's'} across ${lists.length} list${lists.length === 1 ? '' : 's'}` : activeTab === 'calendar' ? `${calendarSections.length} day${calendarSections.length === 1 ? '' : 's'} with scheduled care in the next month` : `${houseProfile.reminderRules.majorLeadDays} days for large maintenance · ${houseProfile.reminderRules.standardLeadDays} days for everything else`}</strong><span>{activeTab === 'shopping' ? `${checkedShoppingItems.length} checked off · ${shoppingCompletion}% complete on this list` : houseProfile.lastReminderRunAt ? `Last reminder run: ${new Date(houseProfile.lastReminderRunAt).toLocaleString()}${houseProfile.lastReminderChannel ? ` via ${houseProfile.lastReminderChannel}` : ''}` : 'Last reminder run: not recorded yet'}</span></div>
