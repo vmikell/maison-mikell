@@ -71,11 +71,19 @@ export async function deleteSignedInAuthUser() {
     await deleteUser(auth.currentUser)
     return { ok: true }
   } catch (error) {
+    const code = error?.code || ''
+    if (code.includes('requires-recent-login')) {
+      try {
+        await signOut(auth)
+      } catch {}
+      return {
+        ok: false,
+        error: 'For security, Google needs a fresh sign-in before it can fully delete this account. You have been signed out, so if you sign in again you can retry deletion immediately.',
+      }
+    }
     return {
       ok: false,
-      error: error?.code?.includes('requires-recent-login')
-        ? 'For security, sign in again before deleting your account.'
-        : (error?.message || 'Could not delete the signed-in account.'),
+      error: error?.message || 'Could not delete the signed-in account.',
     }
   }
 }

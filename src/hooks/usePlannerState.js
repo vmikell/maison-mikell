@@ -547,6 +547,15 @@ export function usePlannerState(currentUser = null) {
         return false
       }
       const successMessage = result.deletedHousehold ? 'Your account and household were deleted.' : 'Your account was removed from the household.'
+      setMembership(null)
+      setHouseProfile(seedHouseProfile)
+      setTaskState(seedTasks)
+      setLists(seedLists)
+      setReminders(seedTasks.map(buildReminderRecord))
+      setCompletions([])
+      setInviteChoice(false)
+      setFreshInviteCode('')
+      setShowInvitePanel(false)
       setDeleteAccountSuccess(successMessage)
       setDeletedAccountSummary({
         deletedHousehold: Boolean(result.deletedHousehold),
