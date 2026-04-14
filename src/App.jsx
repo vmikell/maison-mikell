@@ -303,8 +303,8 @@ function App() {
           <div>
             <p className="eyebrow">Maison Mikell</p>
             <h1>Start your household</h1>
-            <p className="hero-copy">Create your home base first, then bring your partner in with a simple invite code.</p>
-            <div className="onboarding-bullet-list"><span>Set up your shared home in under a minute</span><span>Become the owner automatically</span><span>Invite your partner right after creation</span></div>
+            <p className="hero-copy">Create the household first, then Maison walks you straight into setup and partner invite handoff.</p>
+            <div className="onboarding-bullet-list"><span>Create the household in one step</span><span>Finish setup right after, without losing momentum</span><span>Invite your partner as soon as the home is ready</span></div>
             {createHouseholdSuccess ? <p className="auth-help success">{createHouseholdSuccess}</p> : null}
             {createHouseholdError ? <p className="auth-help error">{createHouseholdError}</p> : null}
           </div>
@@ -343,8 +343,8 @@ function App() {
           <div>
             <p className="eyebrow">Maison Mikell</p>
             <h1>Set up your home</h1>
-            <p className="hero-copy">Let’s shape Maison around the home you actually have, instead of dropping you into someone else’s routine.</p>
-            <div className="onboarding-bullet-list"><span>No inherited Victor-only household data</span><span>Start with your actual home details</span><span>You can invite your partner right after setup</span></div>
+            <p className="hero-copy">Shape Maison around the real home, so the planner starts feeling useful immediately.</p>
+            <div className="onboarding-bullet-list"><span>Home profile first</span><span>Starter planner already waiting behind it</span><span>Invite your partner right after setup</span></div>
             {createHouseholdSuccess ? <p className="auth-help success">{createHouseholdSuccess}</p> : null}
             {setupSuccess ? <p className="auth-help success">{setupSuccess}</p> : null}
             {setupError ? <p className="auth-help error">{setupError}</p> : null}
@@ -380,7 +380,7 @@ function App() {
               <div>
                 <p className="panel-label">Step 2</p>
                 <h3>Systems and routine fit</h3>
-                <p className="hero-copy">Optional, but worth it. This helps Maison recommend tasks that match your actual place.</p>
+                <p className="hero-copy">Optional, but worth it. This helps Maison fit the planner to the systems you actually live with.</p>
               </div>
               <input className="invite-code-input no-caps-input" placeholder="HVAC system" value={setupForm.hvacSystem} onChange={(event) => setSetupForm((current) => ({ ...current, hvacSystem: event.target.value }))} />
               <input className="invite-code-input no-caps-input" inputMode="numeric" placeholder="HVAC heads / zones (optional)" value={setupForm.hvacHeads} onChange={(event) => setSetupForm((current) => ({ ...current, hvacHeads: event.target.value.replace(/[^0-9]/g, '') }))} />
@@ -410,8 +410,8 @@ function App() {
           <div>
             <p className="eyebrow">Maison Mikell</p>
             <h1>Join your household</h1>
-            <p className="hero-copy">Use the invite code your partner shared with you to step into your shared home.</p>
-            <div className="onboarding-bullet-list"><span>Invite codes are case-insensitive</span><span>You can switch accounts at any time</span><span>You’ll land right in the app after joining</span></div>
+            <p className="hero-copy">Use the code your partner shared, and Maison will drop you straight into the shared home.</p>
+            <div className="onboarding-bullet-list"><span>Invite codes are case-insensitive</span><span>Switch accounts anytime if you picked the wrong Google login</span><span>You’ll land directly inside the household</span></div>
             {joinSuccess ? <p className="auth-help success">{joinSuccess}</p> : null}
             {joinError ? <p className="auth-help error">{joinError}</p> : null}
           </div>

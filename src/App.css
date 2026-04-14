@@ -1,6 +1,6 @@
 .shell { padding: 20px 16px 48px; display: grid; gap: 16px; }
 .auth-shell { min-height: 100vh; align-items: center; }
-.auth-landing-card { min-height: 70vh; align-items: center; }
+.auth-landing-card { min-height: 70vh; align-items: center; padding: 24px 20px; }
 .auth-landing-actions { display: grid; gap: 12px; }
 .auth-landing-note { display: grid; gap: 6px; padding: 14px; border-radius: 18px; background: rgba(255,255,255,0.06); color: #e6ddf4; }
 .onboarding-card { position: relative; overflow: hidden; }
@@ -209,6 +209,15 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
 .nice-list { margin: 12px 0 0; padding-left: 18px; display: grid; gap: 10px; }
 @media (max-width: 819px) {
   .planner-overview-head,.shopping-section-head,.calendar-summary-head { flex-direction: column; }
+  .shell { padding: 16px 14px 40px; gap: 14px; }
+  .auth-shell { align-items: stretch; }
+  .auth-landing-card { min-height: auto; border-radius: 24px; padding: 20px 16px; gap: 16px; }
+  .auth-landing-actions { gap: 10px; }
+  .onboarding-bullet-list { gap: 6px; margin-top: 12px; }
+  .onboarding-bullet-list span,.auth-landing-note,.onboarding-section-block { padding: 12px; border-radius: 16px; }
+  .setup-form-split { grid-template-columns: 1fr; }
+  .invite-code-input { padding: 13px 14px; }
+  h1 { font-size: clamp(2.1rem, 10vw, 3rem); }
 }
 
 @media (min-width: 820px) {
