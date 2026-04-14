@@ -70,9 +70,10 @@ function App() {
 
   const setupPreview = buildSetupPreview()
   const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile.name || 'our Maison home'
-  const inviteMessage = `Join my Maison household, ${inviteHomeName}, with invite code: ${freshInviteCode}`
-  const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join my Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\nOpen Maison, sign in with Google, tap “I already have an invite code,” and enter the code.`)}`
-  const textInviteHref = `sms:?&body=${encodeURIComponent(inviteMessage)}`
+  const inviteMessage = `Hey, I set up our Maison household, ${inviteHomeName}. Use invite code ${freshInviteCode} to join it.`
+  const inviteInstructions = 'Open Maison, sign in with Google, tap “I already have an invite code,” and enter the code.'
+  const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join our Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\n${inviteInstructions}`)}`
+  const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
   const { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode } = useAuthState()
   const {
     houseProfile,
