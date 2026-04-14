@@ -94,15 +94,7 @@ export async function ensureHouseholdMembership(currentUser) {
     }
   }
 
-  const legacySnap = await getDoc(doc(firestore, 'households', houseProfile.id))
-  if (!legacySnap.exists()) return null
-  const legacyData = legacySnap.data()
-  const existing = (legacyData.members ?? []).find((member) => member.email === currentUser.email)
-  if (!existing) return null
-
-  const membership = { ...existing, householdId: houseProfile.id }
-  await setDoc(userMembershipRef(currentUser.uid), membership, { merge: true })
-  return membership
+  return null
 }
 
 export async function createHouseholdForCurrentUser(currentUser, options = {}) {
