@@ -69,6 +69,16 @@ function App() {
   }
 
   const setupPreview = buildSetupPreview()
+  function deriveMaisonLabel() {
+    const rawName = (setupForm.name?.trim() || houseProfile.name || householdNameInput.trim() || '').trim()
+    if (!rawName) return 'Maison'
+    const parts = rawName.split(/\s+/).filter(Boolean)
+    const lastWord = parts[parts.length - 1]
+    if (!lastWord) return 'Maison'
+    const cleaned = lastWord.replace(/[^a-zA-Z'-]/g, '')
+    return cleaned ? `Maison ${cleaned}` : 'Maison'
+  }
+  const maisonLabel = deriveMaisonLabel()
   const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile.name || 'our Maison home'
   const inviteMessage = `Hey, I set up our Maison household, ${inviteHomeName}. Use invite code ${freshInviteCode} to join it.`
   const inviteInstructions = 'Open Maison, sign in with Google, tap “I already have an invite code,” and enter the code.'
@@ -220,7 +230,7 @@ function App() {
       <div className="shell auth-shell">
         <section className="hero-card auth-landing-card onboarding-card goodbye-card">
           <div>
-            <p className="eyebrow">Maison Mikell</p>
+            <p className="eyebrow">{maisonLabel}</p>
             <h1>{showDeletedAccountView ? 'Goodbye for now.' : 'Welcome home.'}</h1>
             {showDeletedAccountView ? (
               <>
@@ -279,7 +289,7 @@ function App() {
         <SignedInPill user={user} membership={membership} />
         <section className="hero-card auth-landing-card">
           <div>
-            <p className="eyebrow">Maison Mikell</p>
+            <p className="eyebrow">{maisonLabel}</p>
             <h1>Getting your household ready</h1>
             <p className="hero-copy">One second, I’m checking your household access and loading the latest home data.</p>
             <div className="house-loading-wrap" aria-label="Loading" role="status">
@@ -307,7 +317,7 @@ function App() {
         <SignedInPill user={user} membership={membership} />
         <section className="hero-card auth-landing-card onboarding-card">
           <div>
-            <p className="eyebrow">Maison Mikell</p>
+            <p className="eyebrow">{maisonLabel}</p>
             <h1>Start your household</h1>
             <p className="hero-copy">Create the household first, then Maison walks you straight into setup and partner invite handoff.</p>
             <div className="onboarding-bullet-list"><span>Create the household in one step</span><span>Finish setup right after, without losing momentum</span><span>Invite your partner as soon as the home is ready</span></div>
@@ -347,7 +357,7 @@ function App() {
         <SignedInPill user={user} membership={membership} />
         <section className="hero-card auth-landing-card onboarding-card">
           <div>
-            <p className="eyebrow">Maison Mikell</p>
+            <p className="eyebrow">{maisonLabel}</p>
             <h1>Set up your home</h1>
             <p className="hero-copy">Shape Maison around the real home, so the planner starts feeling useful immediately.</p>
             <div className="onboarding-bullet-list"><span>Home profile first</span><span>Starter planner already waiting behind it</span><span>Invite your partner right after setup</span></div>
@@ -414,7 +424,7 @@ function App() {
         <SignedInPill user={user} membership={membership} />
         <section className="hero-card auth-landing-card onboarding-card">
           <div>
-            <p className="eyebrow">Maison Mikell</p>
+            <p className="eyebrow">{maisonLabel}</p>
             <h1>Join your household</h1>
             <p className="hero-copy">Use the code your partner shared, and Maison will drop you straight into the shared home.</p>
             <div className="onboarding-bullet-list"><span>Invite codes are case-insensitive</span><span>Switch accounts anytime if you picked the wrong Google login</span><span>You’ll land directly inside the household</span></div>
@@ -450,8 +460,8 @@ function App() {
         <SignedInPill user={user} membership={membership} />
         {activeTab === 'planner' ? <button className="menu-button" onClick={() => setFiltersOpen((open) => !open)} aria-label="Open filters">☰</button> : null}
       </div>
-      <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
-      {showRemoteWarning ? <section className="panel remote-warning-panel"><p className="panel-label">Live sync issue</p><h2>Some household data may be stale</h2><p className="hero-copy">Maison Mikell had trouble reaching the live household data just now. You can keep browsing, but if something looks off, refresh or sign out and back in before making decisions.</p></section> : null}
+      <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} maisonLabel={maisonLabel} />
+      {showRemoteWarning ? <section className="panel remote-warning-panel"><p className="panel-label">Live sync issue</p><h2>Some household data may be stale</h2><p className="hero-copy">{maisonLabel} had trouble reaching the live household data just now. You can keep browsing, but if something looks off, refresh or sign out and back in before making decisions.</p></section> : null}
       {deleteAccountError ? <section className="panel remote-warning-panel"><p className="panel-label">Account deletion</p><h2>Could not delete account</h2><p className="hero-copy">{deleteAccountError}</p></section> : null}
       {deleteAccountSuccess ? <section className="panel remote-warning-panel"><p className="panel-label">Account deletion</p><h2>Account removed</h2><p className="hero-copy">{deleteAccountSuccess}</p></section> : null}
       <nav className="top-tabs">
@@ -566,7 +576,7 @@ function App() {
       {showInvitePanel && freshInviteCode && membership?.role === 'owner' ? <section className="panel remote-warning-panel"><div className="section-head"><div><p className="panel-label">Invite your partner</p><h2>Your household is ready</h2><p className="hero-copy">Share this invite code with your partner so they can join the household, then continue into the planner once you’re ready.</p></div><div className="planner-actions"><button className="secondary-button" onClick={() => navigator?.clipboard?.writeText(freshInviteCode)}>Copy code</button><a className="secondary-button invite-link-button" href={emailInviteHref}>Email invite</a><a className="secondary-button invite-link-button" href={textInviteHref}>Text invite</a><button className="secondary-button" onClick={() => setShowInvitePanel(false)}>Continue to app</button></div></div><div className="invite-code-panel"><p className="hero-copy"><strong>{freshInviteCode}</strong></p><div className="onboarding-bullet-list compact"><span>Partner signs in with Google</span><span>They tap “I already have an invite code”</span><span>They enter this code and land in your shared home</span></div></div></section> : null}
       {shouldShowJoinSuccessPanel ? <section className="panel remote-warning-panel"><div className="section-head"><div><p className="panel-label">You’re in</p><h2>Joined successfully</h2><p className="hero-copy">Maison connected you to the household and dropped you into the shared planner. You can start using the home right away.</p></div><div className="planner-actions"><button className="secondary-button" onClick={() => setActiveTab('planner')}>Open planner</button><button className="secondary-button" onClick={() => setActiveTab('shopping')}>Open shopping</button></div></div><div className="onboarding-bullet-list compact"><span>You’re inside the shared home now</span><span>Planner, shopping, and calendar are already connected</span><span>If something looks off, refresh once and it should settle</span></div></section> : null}
       <header className="hero-card">
-        <div><p className="eyebrow">Maison Mikell</p><h1>{activeTab === 'shopping' ? 'Maison Restock' : activeTab === 'calendar' ? 'Maison Calendar' : 'Maison Reset'}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your two-level home and 4-head mini split setup.</p></div>
+        <div><p className="eyebrow">{maisonLabel}</p><h1>{activeTab === 'shopping' ? `${maisonLabel} Restock` : activeTab === 'calendar' ? `${maisonLabel} Calendar` : `${maisonLabel} Reset`}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your home profile and systems.</p></div>
         <div className="hero-note"><strong>{activeTab === 'shopping' ? `${openShoppingItems.length} open item${openShoppingItems.length === 1 ? '' : 's'} across ${lists.length} list${lists.length === 1 ? '' : 's'}` : activeTab === 'calendar' ? `${calendarSections.length} day${calendarSections.length === 1 ? '' : 's'} with scheduled care in the next month` : `${houseProfile.reminderRules.majorLeadDays} days for large maintenance · ${houseProfile.reminderRules.standardLeadDays} days for everything else`}</strong><span>{activeTab === 'shopping' ? `${checkedShoppingItems.length} checked off · ${shoppingCompletion}% complete on this list` : houseProfile.lastReminderRunAt ? `Last reminder run: ${new Date(houseProfile.lastReminderRunAt).toLocaleString()}${houseProfile.lastReminderChannel ? ` via ${houseProfile.lastReminderChannel}` : ''}` : 'Last reminder run: not recorded yet'}</span></div>
       </header>
 
@@ -715,9 +725,9 @@ function App() {
   )
 }
 
-function StatusBanner({ hasFirebaseConfig, remoteError }) {
-  if (!hasFirebaseConfig) return <div className="status-banner local">Maison Mikell cannot reach Firebase right now, so it is using fallback local data.</div>
-  if (remoteError) return <div className="status-banner error">Maison Mikell had trouble reaching the live household data, so some information may be outdated right now.</div>
+function StatusBanner({ hasFirebaseConfig, remoteError, maisonLabel = 'Maison' }) {
+  if (!hasFirebaseConfig) return <div className="status-banner local">{maisonLabel} cannot reach Firebase right now, so it is using fallback local data.</div>
+  if (remoteError) return <div className="status-banner error">{maisonLabel} had trouble reaching the live household data, so some information may be outdated right now.</div>
   return null
 }
 function SignedInPill({ user, membership }) {
