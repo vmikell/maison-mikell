@@ -13,8 +13,8 @@ import {
   serverTimestamp,
 } from 'firebase/firestore'
 import { firestore, hasFirebaseConfig } from './firebase'
-import { houseProfile, starterHouseProfile, maintenanceTasks, shoppingLists } from './data'
-import { buildCompletionRecord, buildReminderRecord, completeTask, normalizeShoppingItemInput, normalizeTaskInput } from './model'
+import { houseProfile, starterHouseProfile, shoppingLists } from './data'
+import { buildCompletionRecord, buildReminderRecord, buildTasksFromSetup, completeTask, normalizeShoppingItemInput, normalizeTaskInput } from './model'
 
 function householdsRef() { return collection(firestore, 'households') }
 function householdRef(householdId) { return doc(firestore, 'households', householdId) }
@@ -135,14 +135,6 @@ export async function createHouseholdForCurrentUser(currentUser, options = {}) {
     updatedAt: serverTimestamp(),
   })
 
-  maintenanceTasks.forEach((task) => {
-    batch.set(taskDoc(householdId, task.id), {
-      ...task,
-      createdAt: serverTimestamp(),
-      updatedAt: serverTimestamp(),
-    })
-  })
-
   shoppingLists.forEach((list) => {
     const { items = [], ...listMeta } = list
     batch.set(listDoc(householdId, list.id), {
@@ -222,11 +214,26 @@ export async function completeHouseholdSetup(householdId, setupInput = {}) {
   }
 
   try {
-    await updateDoc(householdRef(householdId), {
+    const generatedTasks = buildTasksFromSetup(normalizedProfile)
+    const existingTaskSnaps = await getDocs(tasksRef(householdId))
+    const batch = writeBatch(firestore)
+
+    batch.update(householdRef(householdId), {
       ...normalizedProfile,
       updatedAt: serverTimestamp(),
     })
-    return { ok: true }
+
+    existingTaskSnaps.docs.forEach((snap) => batch.delete(snap.ref))
+    generatedTasks.forEach((task) => {
+      batch.set(taskDoc(householdId, task.id), {
+        ...task,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      })
+    })
+
+    await batch.commit()
+    return { ok: true, tasks: generatedTasks }
   } catch (error) {
     console.error('Failed to complete household setup', error)
     return {

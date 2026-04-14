@@ -57,34 +57,28 @@ export const maintenanceTasks = [
 
 export const shoppingLists = [
   {
-    id: 'home-depot',
-    title: 'Home Depot',
-    tone: 'violet',
-    items: [
-      { id: 'hd-1', name: 'Mini split coil cleaner', qty: '1', aisleHint: 'HVAC / cleaning', checked: false },
-      { id: 'hd-2', name: 'Caulk + caulk tool', qty: '1 set', aisleHint: 'Bath / plumbing', checked: false },
-      { id: 'hd-3', name: 'Drain hair catcher replacements', qty: '2', aisleHint: 'Plumbing', checked: true },
-    ],
-  },
-  {
     id: 'grocery',
     title: 'Grocery',
     tone: 'rose',
-    items: [
-      { id: 'gr-1', name: 'Paper towels', qty: '1', aisleHint: 'Cleaning', checked: false },
-      { id: 'gr-2', name: 'Dish soap', qty: '1', aisleHint: 'Cleaning', checked: false },
-      { id: 'gr-3', name: 'Toilet bowl cleaner', qty: '1', aisleHint: 'Cleaning', checked: false },
-    ],
+    items: [],
+  },
+  {
+    id: 'costco',
+    title: 'Costco',
+    tone: 'gold',
+    items: [],
+  },
+  {
+    id: 'home-depot',
+    title: 'Home Depot',
+    tone: 'violet',
+    items: [],
   },
   {
     id: 'amazon',
     title: 'Amazon',
     tone: 'teal',
-    items: [
-      { id: 'am-1', name: 'Plant fertilizer spikes', qty: '1 box', aisleHint: 'Plants', checked: false },
-      { id: 'am-2', name: 'Microfiber cleaning cloths', qty: '1 pack', aisleHint: 'Cleaning', checked: false },
-      { id: 'am-3', name: 'Replacement air purifier filters', qty: '1 set', aisleHint: 'Home', checked: false },
-    ],
+    items: [],
   },
   {
     id: 'other',
@@ -92,15 +86,5 @@ export const shoppingLists = [
     tone: 'violet',
     storeName: '',
     items: [],
-  },
-  {
-    id: 'costco',
-    title: 'Costco',
-    tone: 'gold',
-    items: [
-      { id: 'co-1', name: 'Trash bags', qty: '1 box', aisleHint: 'Household', checked: false },
-      { id: 'co-2', name: 'Laundry detergent', qty: '1', aisleHint: 'Laundry', checked: false },
-      { id: 'co-3', name: 'Replacement air fresheners / consumables', qty: '1', aisleHint: 'Household', checked: true },
-    ],
   },
 ]
