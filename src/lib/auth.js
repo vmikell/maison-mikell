@@ -10,6 +10,27 @@ function prefersRedirectSignIn() {
   return /iPhone|iPad|iPod|Mobile Safari/i.test(ua)
 }
 
+function launchFullPageGoogleSignIn() {
+  const authDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || ''
+  const apiKey = import.meta.env.VITE_FIREBASE_API_KEY || ''
+  const appName = import.meta.env.VITE_FIREBASE_APP_ID || ''
+  const currentUrl = window.location.href
+  if (!authDomain || !apiKey) return false
+
+  const params = new URLSearchParams({
+    apiKey,
+    appName,
+    authType: 'signInViaRedirect',
+    providerId: 'google.com',
+    redirectUrl: currentUrl,
+    v: '11.10.0',
+    eventId: crypto?.randomUUID?.() || `${Date.now()}`,
+  })
+
+  window.location.assign(`https://${authDomain}/__/auth/handler?${params.toString()}`)
+  return true
+}
+
 function toPlainEnglishAuthError(error) {
   const code = error?.code || ''
   if (code.includes('popup-blocked')) return 'Your browser blocked the Google sign-in popup. Try the full-page sign-in button instead.'
@@ -66,6 +87,7 @@ export async function signInWithGoogle() {
 
 export async function signInWithGoogleRedirect() {
   if (!auth) return null
+  if (launchFullPageGoogleSignIn()) return { redirected: true, forcedHandler: true }
   await signInWithRedirect(auth, provider)
   return { redirected: true }
 }
