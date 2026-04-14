@@ -176,6 +176,16 @@ export function removeShoppingItem(lists, listId, itemId) {
   })
 }
 
+export function removeCheckedShoppingItems(lists, listId) {
+  return lists.map((list) => {
+    if (list.id !== listId) return list
+    return {
+      ...list,
+      items: list.items.filter((item) => !item.checked),
+    }
+  })
+}
+
 export function collectionPlan() {
   return {
     household: 'households/{householdId}',

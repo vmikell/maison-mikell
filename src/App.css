@@ -181,6 +181,8 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
 .shopping-group { display: grid; gap: 12px; margin-top: 18px; }
 .shopping-group.checked-group { margin-top: 22px; padding-top: 18px; border-top: 1px solid rgba(255,255,255,0.08); }
 .shopping-group-head { display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.checked-group-copy { display: block; margin-top: 4px; color: #d9cef1; font-size: 0.82rem; }
+.checked-group-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .shopping-card.rose { background: linear-gradient(180deg, rgba(78, 26, 55, 0.92), rgba(28, 16, 30, 0.9)); }
 .shopping-card.gold { background: linear-gradient(180deg, rgba(84, 60, 22, 0.92), rgba(34, 25, 15, 0.9)); }
 .shopping-card.violet { background: linear-gradient(180deg, rgba(62, 31, 96, 0.92), rgba(25, 18, 43, 0.9)); }

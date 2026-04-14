@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { houseProfile as seedHouseProfile, maintenanceTasks as seedTasks, shoppingLists as seedLists, TODAY } from '../lib/data'
 import { hasFirebaseConfig } from '../lib/firebase'
 import {
+  deleteCheckedShoppingItems,
   deleteShoppingItem,
   deleteTask,
   ensureHouseholdMembership,
@@ -32,6 +33,7 @@ import {
   removeTask,
   upsertShoppingItem,
   upsertTask,
+  removeCheckedShoppingItems,
   removeShoppingItem,
   updateShoppingListMeta,
 } from '../lib/model'
@@ -329,6 +331,31 @@ export function usePlannerState(currentUser = null) {
     return true
   }
 
+  async function handleDeleteCheckedShoppingItems(listId) {
+    setShoppingMessage('')
+    const list = lists.find((entry) => entry.id === listId)
+    if (!list) return false
+    const checkedCount = list.items.filter((item) => item.checked).length
+    if (!checkedCount) return true
+    const revertSnapshot = lists
+    setLists((current) => removeCheckedShoppingItems(current, listId))
+    if (hasFirebaseConfig) {
+      const ok = await deleteCheckedShoppingItems(membership?.householdId, listId)
+      if (ok) {
+        setShoppingTone('success')
+        setShoppingMessage(checkedCount === 1 ? 'Checked item removed.' : `${checkedCount} checked items removed.`)
+        return true
+      }
+      setLists(revertSnapshot)
+      setShoppingTone('error')
+      setShoppingMessage('Could not clear the checked items right now.')
+      return false
+    }
+    setShoppingTone('success')
+    setShoppingMessage(checkedCount === 1 ? 'Checked item removed locally.' : `${checkedCount} checked items removed locally.`)
+    return true
+  }
+
 
   async function handleClaimTask(taskId, actor = null) {
     setPlannerMessage('')
@@ -614,6 +641,7 @@ export function usePlannerState(currentUser = null) {
     handleSaveShoppingListMeta,
     handleDeleteShoppingItem,
     handleToggleShoppingItem,
+    handleDeleteCheckedShoppingItems,
     handleMarkReminderSent,
     handleGenerateInviteCode,
     handlePromoteMember,

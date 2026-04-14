@@ -329,6 +329,16 @@ export async function deleteShoppingItem(householdId, listId, itemId) {
   return true
 }
 
+export async function deleteCheckedShoppingItems(householdId, listId) {
+  if (!hasFirebaseConfig || !firestore || !householdId) return false
+  const checkedSnaps = await getDocs(query(listItemsRef(householdId, listId), where('checked', '==', true)))
+  const batch = writeBatch(firestore)
+  checkedSnaps.docs.forEach((snap) => batch.delete(snap.ref))
+  batch.update(listDoc(householdId, listId), { updatedAt: serverTimestamp() })
+  await batch.commit()
+  return true
+}
+
 export async function toggleShoppingItemChecked(householdId, listId, itemId, checked) {
   if (!hasFirebaseConfig || !firestore || !householdId) return false
   await updateDoc(listItemDoc(householdId, listId, itemId), { checked, updatedAt: serverTimestamp() })
