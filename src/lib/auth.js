@@ -4,13 +4,19 @@ import { auth, hasFirebaseConfig } from './firebase'
 
 const provider = new GoogleAuthProvider()
 
+function prefersRedirectSignIn() {
+  if (typeof window === 'undefined') return false
+  const ua = window.navigator?.userAgent || ''
+  return /iPhone|iPad|iPod|Mobile Safari/i.test(ua)
+}
+
 function toPlainEnglishAuthError(error) {
   const code = error?.code || ''
   if (code.includes('popup-blocked')) return 'Your browser blocked the Google sign-in popup. Try the full-page sign-in button instead.'
   if (code.includes('popup-closed')) return 'The sign-in popup was closed before Google finished. Try again.'
   if (code.includes('unauthorized-domain')) return 'Google sign-in is not allowed on this site yet. Firebase needs this Netlify domain added as an authorized domain.'
   if (code.includes('operation-not-allowed')) return 'Google sign-in is not enabled in Firebase yet.'
-  return 'Sign-in did not finish. Check that Google sign-in is enabled in Firebase and that this Netlify domain is authorized.'
+  return 'Sign-in did not finish. On mobile, use the full-page sign-in button. If it still fails, Firebase likely needs this Netlify domain added as an authorized domain.'
 }
 
 export function useAuthState() {
@@ -45,6 +51,10 @@ export function useAuthState() {
 
 export async function signInWithGoogle() {
   if (!auth) return null
+  if (prefersRedirectSignIn()) {
+    await signInWithRedirect(auth, provider)
+    return { user: null, redirected: true, mobileRedirect: true }
+  }
   try {
     const result = await signInWithPopup(auth, provider)
     return { user: result.user, redirected: false }

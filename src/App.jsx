@@ -69,21 +69,7 @@ function App() {
   }
 
   const setupPreview = buildSetupPreview()
-  function deriveMaisonLabel() {
-    const rawName = (setupForm.name?.trim() || houseProfile.name || householdNameInput.trim() || '').trim()
-    if (!rawName) return 'Maison'
-    const parts = rawName.split(/\s+/).filter(Boolean)
-    const lastWord = parts[parts.length - 1]
-    if (!lastWord) return 'Maison'
-    const cleaned = lastWord.replace(/[^a-zA-Z'-]/g, '')
-    return cleaned ? `Maison ${cleaned}` : 'Maison'
-  }
-  const maisonLabel = deriveMaisonLabel()
-  const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile.name || 'our Maison home'
-  const inviteMessage = `Hey, I set up our Maison household, ${inviteHomeName}. Use invite code ${freshInviteCode} to join it.`
-  const inviteInstructions = 'Open Maison, sign in with Google, tap “I already have an invite code,” and enter the code.'
-  const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join our Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\n${inviteInstructions}`)}`
-  const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
+  const maisonLabel = 'Maison'
   const { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode } = useAuthState()
   const {
     houseProfile,
@@ -140,6 +126,12 @@ function App() {
     setInviteChoice,
     setShowInvitePanel,
   } = usePlannerState(user)
+
+  const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile?.name || 'our Maison home'
+  const inviteMessage = `Hey, I set up our Maison household, ${inviteHomeName}. Use invite code ${freshInviteCode} to join it.`
+  const inviteInstructions = 'Open Maison, sign in with Google, tap “I already have an invite code,” and enter the code.'
+  const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join our Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\n${inviteInstructions}`)}`
+  const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
 
   const categories = useMemo(() => ['All', ...new Set(enrichedTasks.map((task) => task.category))], [enrichedTasks])
   const filteredTasks = enrichedTasks.filter((task) => {
@@ -259,6 +251,10 @@ function App() {
                 setAuthMessage(result.error)
                 setAuthError(result.error)
                 setAuthErrorCode(result.rawCode || '')
+              } else if (result?.redirected) {
+                setAuthMessage(result.mobileRedirect ? 'Redirecting you to Google sign-in…' : '')
+                setAuthError('')
+                setAuthErrorCode('')
               } else {
                 setAuthMessage('')
                 setAuthError('')
