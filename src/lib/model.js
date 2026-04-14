@@ -1,4 +1,4 @@
-import { TODAY } from './data'
+import { TODAY } from './data.js'
 
 export function addDays(dateString, days) {
   const date = new Date(`${dateString}T12:00:00`)
