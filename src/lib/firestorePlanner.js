@@ -13,7 +13,7 @@ import {
   serverTimestamp,
 } from 'firebase/firestore'
 import { firestore, hasFirebaseConfig } from './firebase'
-import { houseProfile, starterHouseProfile } from './data'
+import { houseProfile, starterHouseProfile, maintenanceTasks, shoppingLists } from './data'
 import { buildCompletionRecord, buildReminderRecord, completeTask, normalizeShoppingItemInput, normalizeTaskInput } from './model'
 
 function householdsRef() { return collection(firestore, 'households') }
@@ -113,7 +113,7 @@ export async function createHouseholdForCurrentUser(currentUser, options = {}) {
 
   const householdId = buildHouseholdId()
   const inviteCode = buildInviteCode()
-  const nextHouseholdName = (options.name || '').trim() || houseProfile.name
+  const nextHouseholdName = (options.name || '').trim()
   const nextMember = {
     id: currentUser.uid,
     email: currentUser.email,
@@ -123,7 +123,8 @@ export async function createHouseholdForCurrentUser(currentUser, options = {}) {
     householdId,
   }
 
-  await setDoc(householdRef(householdId), {
+  const batch = writeBatch(firestore)
+  batch.set(householdRef(householdId), {
     ...starterHouseProfile,
     id: householdId,
     name: nextHouseholdName,
@@ -134,6 +135,31 @@ export async function createHouseholdForCurrentUser(currentUser, options = {}) {
     updatedAt: serverTimestamp(),
   })
 
+  maintenanceTasks.forEach((task) => {
+    batch.set(taskDoc(householdId, task.id), {
+      ...task,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    })
+  })
+
+  shoppingLists.forEach((list) => {
+    const { items = [], ...listMeta } = list
+    batch.set(listDoc(householdId, list.id), {
+      ...listMeta,
+      createdAt: serverTimestamp(),
+      updatedAt: serverTimestamp(),
+    })
+    items.forEach((item) => {
+      batch.set(listItemDoc(householdId, list.id, item.id), {
+        ...item,
+        createdAt: serverTimestamp(),
+        updatedAt: serverTimestamp(),
+      })
+    })
+  })
+
+  await batch.commit()
   await setDoc(userMembershipRef(currentUser.uid), { ...nextMember, inviteCode }, { merge: true })
 
   return { ok: true, membership: nextMember, inviteCode, created: true }
@@ -169,7 +195,7 @@ export async function joinHouseholdWithInviteCode(currentUser, inviteCode) {
     members: [...members, nextMember],
     updatedAt: serverTimestamp(),
   }, { merge: true })
-  await setDoc(userMembershipRef(currentUser.uid), nextMember, { merge: true })
+  await setDoc(userMembershipRef(currentUser.uid), { ...nextMember, inviteCode: household.inviteCode || normalizedCode }, { merge: true })
 
   return { ok: true, membership: nextMember }
 }

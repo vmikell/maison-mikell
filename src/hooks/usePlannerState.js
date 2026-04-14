@@ -473,7 +473,7 @@ export function usePlannerState(currentUser = null) {
       setMembership(result.membership)
       setInviteChoice(false)
       setFreshInviteCode(result.inviteCode || '')
-      setShowInvitePanel(false)
+      setShowInvitePanel(Boolean(result.created && result.inviteCode))
       setCreateHouseholdSuccess(result.created ? 'Your household is ready. Set up your home next.' : 'Your household is already ready.')
       setSetupError('')
       setSetupSuccess('')
