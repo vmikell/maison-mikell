@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { houseProfile as seedHouseProfile, maintenanceTasks as seedTasks, shoppingLists as seedLists, TODAY } from '../lib/data'
+import { houseProfile as seedHouseProfile, starterHouseProfile, maintenanceTasks as seedTasks, shoppingLists as seedLists, TODAY } from '../lib/data'
 import { hasFirebaseConfig } from '../lib/firebase'
 import {
   deleteCheckedShoppingItems,
@@ -70,6 +70,7 @@ export function usePlannerState(currentUser = null) {
   const [deleteAccountError, setDeleteAccountError] = useState('')
   const [deleteAccountSuccess, setDeleteAccountSuccess] = useState('')
   const [deletedAccountSummary, setDeletedAccountSummary] = useState(null)
+  const [householdRefreshKey, setHouseholdRefreshKey] = useState(0)
 
   useEffect(() => {
     let cancelled = false
@@ -154,7 +155,7 @@ export function usePlannerState(currentUser = null) {
       cancelled = true
       unsubscribe()
     }
-  }, [currentUser])
+  }, [currentUser, householdRefreshKey])
 
   const enrichedTasks = useMemo(() => taskState.map(enrichTask).sort((a, b) => a.daysUntilDue - b.daysUntilDue), [taskState])
   const sentReminderHistory = useMemo(() => reminders
@@ -470,7 +471,17 @@ export function usePlannerState(currentUser = null) {
         }
         return false
       }
+      setIsRemoteLoading(true)
       setMembership(result.membership)
+      setHouseProfile({
+        ...starterHouseProfile,
+        id: result.membership.householdId,
+        name: (options.name || '').trim(),
+        inviteCode: result.inviteCode || '',
+        members: [result.membership],
+        setupCompleted: false,
+      })
+      setHouseholdRefreshKey((current) => current + 1)
       setInviteChoice(false)
       setFreshInviteCode(result.inviteCode || '')
       setShowInvitePanel(Boolean(result.created && result.inviteCode))
@@ -591,7 +602,9 @@ export function usePlannerState(currentUser = null) {
         setJoinError(result.error || 'Could not join the household with that invite code.')
         return false
       }
+      setIsRemoteLoading(true)
       setMembership(result.membership)
+      setHouseholdRefreshKey((current) => current + 1)
       setInviteChoice(false)
       setShowInvitePanel(false)
       setJoinSuccess('You joined the household successfully.')
