@@ -95,13 +95,13 @@ export function usePlannerState(currentUser = null) {
       setSetupSuccess('')
       setDeleteAccountError('')
       setDeleteAccountSuccess('')
-      setDeletedAccountSummary(null)
       setIsRemoteLoaded(false)
       setIsRemoteLoading(false)
       setRemoteError(null)
       return () => {}
     }
 
+    setDeletedAccountSummary(null)
     setMembership(null)
 
     async function loadRemote() {

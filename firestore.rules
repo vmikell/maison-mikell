@@ -29,18 +29,6 @@ service cloud.firestore {
       return householdDoc(householdId).data.members;
     }
 
-    function memberEmailAt(householdId, index) {
-      return householdMembers(householdId).size() > index
-        ? householdMembers(householdId)[index].email
-        : null;
-    }
-
-    function memberRoleAt(householdId, index) {
-      return householdMembers(householdId).size() > index
-        ? householdMembers(householdId)[index].role
-        : null;
-    }
-
     function isHouseholdMember(householdId) {
       return signedIn()
         && request.auth.uid != null
@@ -63,17 +51,11 @@ service cloud.firestore {
         && (request.resource.data.role == 'owner' || request.resource.data.role == 'member');
     }
 
-    function membershipMatchesHouseholdAfter(userId) {
-      return getAfter(householdPath(request.resource.data.householdId)).data.members.hasAny([
-        {
-          id: userId,
-          email: request.resource.data.email,
-          name: request.resource.data.name,
-          role: request.resource.data.role,
-          joinedAt: request.resource.data.joinedAt,
-          householdId: request.resource.data.householdId,
-        }
-      ]);
+    function ownerMembershipMatchesExistingHousehold(userId) {
+      return householdDoc(request.resource.data.householdId).data.members.size() == 1
+        && householdDoc(request.resource.data.householdId).data.members[0].id == userId
+        && householdDoc(request.resource.data.householdId).data.members[0].email == request.auth.token.email
+        && householdDoc(request.resource.data.householdId).data.members[0].role == 'owner';
     }
 
     function selfMembershipCreateIsValid(userId) {
@@ -81,7 +63,7 @@ service cloud.firestore {
         && membershipPayloadLooksValid(userId)
         && request.resource.data.email == request.auth.token.email
         && (
-          (request.resource.data.role == 'owner' && membershipMatchesHouseholdAfter(userId))
+          (request.resource.data.role == 'owner' && ownerMembershipMatchesExistingHousehold(userId))
           || (
             request.resource.data.role == 'member'
             && request.resource.data.inviteCode is string
@@ -99,18 +81,14 @@ service cloud.firestore {
         && request.resource.data.email == resource.data.email
         && request.resource.data.joinedAt == resource.data.joinedAt
         && request.resource.data.diff(resource.data).changedKeys().hasOnly(['name', 'inviteCode', 'role'])
-        && (
-          request.resource.data.role == resource.data.role
-          || membershipMatchesHouseholdAfter(userId)
-        );
+        && request.resource.data.role == resource.data.role;
     }
 
     function ownerManagedMembershipWrite(userId) {
       return signedIn()
         && request.auth.uid != userId
         && membershipPayloadLooksValid(userId)
-        && isOwner(request.resource.data.householdId)
-        && membershipMatchesHouseholdAfter(userId);
+        && isOwner(request.resource.data.householdId);
     }
 
     function householdCreateIsValid(householdId) {
@@ -120,9 +98,7 @@ service cloud.firestore {
         && request.resource.data.members.size() == 1
         && request.resource.data.members[0].id == request.auth.uid
         && request.resource.data.members[0].email == request.auth.token.email
-        && request.resource.data.members[0].role == 'owner'
-        && getAfter(membershipDocPath(request.auth.uid)).data.householdId == householdId
-        && getAfter(membershipDocPath(request.auth.uid)).data.role == 'owner';
+        && request.resource.data.members[0].role == 'owner';
     }
 
     function isSelfSyncingHouseholdMembership(householdId) {
@@ -132,16 +108,12 @@ service cloud.firestore {
         && request.resource.data.diff(resource.data).changedKeys().hasOnly(['members', 'updatedAt'])
         && request.resource.data.members.size() == resource.data.members.size() + 1
         && request.resource.data.members.hasAll(resource.data.members)
-        && request.resource.data.members.hasAny([
-          {
-            id: request.auth.uid,
-            email: userMembershipDoc(request.auth.uid).data.email,
-            name: userMembershipDoc(request.auth.uid).data.name,
-            role: userMembershipDoc(request.auth.uid).data.role,
-            joinedAt: userMembershipDoc(request.auth.uid).data.joinedAt,
-            householdId: householdId,
-          }
-        ]);
+        && request.resource.data.members[request.resource.data.members.size() - 1].id == request.auth.uid
+        && request.resource.data.members[request.resource.data.members.size() - 1].email == userMembershipDoc(request.auth.uid).data.email
+        && request.resource.data.members[request.resource.data.members.size() - 1].name == userMembershipDoc(request.auth.uid).data.name
+        && request.resource.data.members[request.resource.data.members.size() - 1].role == userMembershipDoc(request.auth.uid).data.role
+        && request.resource.data.members[request.resource.data.members.size() - 1].joinedAt == userMembershipDoc(request.auth.uid).data.joinedAt
+        && request.resource.data.members[request.resource.data.members.size() - 1].householdId == householdId;
     }
 
     match /households/{householdId} {
