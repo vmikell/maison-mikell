@@ -3,18 +3,7 @@
   publish = "dist"
 
 [[redirects]]
-  from = "/__/auth/*"
-  to = "https://maison-reset.firebaseapp.com/__/auth/:splat"
-  status = 200
-  force = true
-
-[[redirects]]
-  from = "/__/firebase/init.json"
-  to = "https://maison-reset.firebaseapp.com/__/firebase/init.json"
-  status = 200
-  force = true
-
-[[redirects]]
   from = "/*"
-  to = "/index.html"
-  status = 200
+  to = "https://maison-reset.firebaseapp.com/:splat"
+  status = 302
+  force = true
