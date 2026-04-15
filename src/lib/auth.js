@@ -1,21 +1,56 @@
 import { useEffect, useState } from 'react'
-import { GoogleAuthProvider, deleteUser, getRedirectResult, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth'
+import {
+  GoogleAuthProvider,
+  createUserWithEmailAndPassword,
+  deleteUser,
+  getRedirectResult,
+  onAuthStateChanged,
+  signInWithEmailAndPassword,
+  signInWithRedirect,
+  signOut,
+  updateProfile,
+} from 'firebase/auth'
 import { auth, hasFirebaseConfig } from './firebase'
 
 const provider = new GoogleAuthProvider()
 
-function prefersRedirectSignIn() {
-  if (typeof window === 'undefined') return false
-  const ua = window.navigator?.userAgent || ''
-  return /iPhone|iPad|iPod/i.test(ua)
+function normalizeEmail(value = '') {
+  return value.trim().toLowerCase()
 }
 
-function toPlainEnglishAuthError(error) {
+function buildDisplayNameFallback(email = '') {
+  const localPart = normalizeEmail(email).split('@')[0] || 'Maison member'
+  return localPart
+    .replace(/[._-]+/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .replace(/\b\w/g, (match) => match.toUpperCase())
+}
+
+function toPlainEnglishAuthError(error, context = {}) {
   const code = error?.code || ''
-  if (code.includes('popup-blocked')) return 'Your browser blocked the Google sign-in popup. Try the full-page sign-in button instead.'
-  if (code.includes('popup-closed')) return 'The sign-in popup was closed before Google finished. Try again.'
+
+  if (code.includes('popup-blocked')) return 'Your browser blocked the Google sign-in popup. Maison now uses full-page Google sign-in instead, so try again.'
+  if (code.includes('popup-closed')) return 'The Google sign-in window closed before the login finished. Try again.'
   if (code.includes('unauthorized-domain')) return 'Google sign-in is not allowed on this site yet. Firebase needs this Netlify domain added as an authorized domain.'
-  if (code.includes('operation-not-allowed')) return 'Google sign-in is not enabled in Firebase yet.'
+  if (code.includes('operation-not-allowed')) {
+    return context.provider === 'email'
+      ? 'Email and password sign-in is not enabled in Firebase yet.'
+      : 'Google sign-in is not enabled in Firebase yet.'
+  }
+  if (code.includes('invalid-email')) return 'That email address does not look valid.'
+  if (code.includes('missing-password')) return 'Enter your password to continue.'
+  if (code.includes('weak-password')) return 'Use a stronger password, at least 6 characters.'
+  if (code.includes('email-already-in-use')) return 'That email already has an account. Try signing in instead.'
+  if (code.includes('invalid-credential') || code.includes('invalid-login-credentials') || code.includes('wrong-password') || code.includes('user-not-found')) {
+    return 'That email or password did not match an account.'
+  }
+  if (code.includes('too-many-requests')) return 'Too many sign-in attempts just now. Give it a minute and try again.'
+
+  if (context.provider === 'email') {
+    return 'Email sign-in did not finish. Check that email/password is enabled in Firebase and try again.'
+  }
+
   return 'Sign-in did not finish. Check that Google sign-in is enabled in Firebase and that this Netlify domain is authorized.'
 }
 
@@ -51,23 +86,42 @@ export function useAuthState() {
 
 export async function signInWithGoogle() {
   if (!auth) return null
-  if (prefersRedirectSignIn()) {
+  try {
     await signInWithRedirect(auth, provider)
     return { redirected: true }
-  }
-  try {
-    const result = await signInWithPopup(auth, provider)
-    return { user: result.user, redirected: false }
   } catch (error) {
     const message = toPlainEnglishAuthError(error)
-    return { user: null, redirected: false, error: message, rawCode: error?.code || '', rawMessage: error?.message || '' }
+    return { redirected: false, error: message, rawCode: error?.code || '', rawMessage: error?.message || '' }
   }
 }
 
-export async function signInWithGoogleRedirect() {
+export async function signInWithEmailPassword(input = {}) {
   if (!auth) return null
-  await signInWithRedirect(auth, provider)
-  return { redirected: true }
+  try {
+    const result = await signInWithEmailAndPassword(auth, normalizeEmail(input.email), input.password || '')
+    return { user: result.user }
+  } catch (error) {
+    const message = toPlainEnglishAuthError(error, { provider: 'email' })
+    return { user: null, error: message, rawCode: error?.code || '', rawMessage: error?.message || '' }
+  }
+}
+
+export async function createEmailPasswordAccount(input = {}) {
+  if (!auth) return null
+  try {
+    const normalizedEmail = normalizeEmail(input.email)
+    const result = await createUserWithEmailAndPassword(auth, normalizedEmail, input.password || '')
+    const displayName = (input.name || '').trim() || buildDisplayNameFallback(normalizedEmail)
+
+    if (displayName) {
+      await updateProfile(result.user, { displayName })
+    }
+
+    return { user: auth.currentUser ?? result.user, displayName }
+  } catch (error) {
+    const message = toPlainEnglishAuthError(error, { provider: 'email' })
+    return { user: null, error: message, rawCode: error?.code || '', rawMessage: error?.message || '' }
+  }
 }
 
 export async function signOutUser() {
@@ -88,7 +142,7 @@ export async function deleteSignedInAuthUser() {
       } catch {}
       return {
         ok: false,
-        error: 'For security, Google needs a fresh sign-in before it can fully delete this account. You have been signed out, so if you sign in again you can retry deletion immediately.',
+        error: 'For security, you need a fresh sign-in before Maison can fully delete this account. You have been signed out, so sign back in and retry deletion right away.',
       }
     }
     return {

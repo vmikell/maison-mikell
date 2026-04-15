@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import './App.css'
 import { formatDate, addDays } from './lib/model'
 import { usePlannerState } from './hooks/usePlannerState'
-import { deleteSignedInAuthUser, signInWithGoogle, signInWithGoogleRedirect, signOutUser, useAuthState } from './lib/auth'
+import { createEmailPasswordAccount, deleteSignedInAuthUser, signInWithEmailPassword, signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
 
 const emptyTaskForm = {
   id: '', title: '', area: '', category: 'Cleaning', room: '', system: '', assetName: '', vendor: '', supplyNote: '', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
@@ -47,6 +47,33 @@ function App() {
   const [inviteCodeInput, setInviteCodeInput] = useState('')
   const [householdNameInput, setHouseholdNameInput] = useState('')
   const [setupForm, setSetupForm] = useState({ name: '', homeType: '', sizeSqFt: '', levels: '', bedrooms: '', bathrooms: '', hvacSystem: '', hvacHeads: '' })
+  const [emailAuthMode, setEmailAuthMode] = useState('signin')
+  const [isEmailAuthLoading, setIsEmailAuthLoading] = useState(false)
+  const [emailAuthForm, setEmailAuthForm] = useState({ name: '', email: '', password: '' })
+
+  async function submitEmailAuth(event) {
+    event.preventDefault()
+    setIsEmailAuthLoading(true)
+    setAuthMessage('')
+    setAuthError('')
+    setAuthErrorCode('')
+
+    const result = emailAuthMode === 'signup'
+      ? await createEmailPasswordAccount(emailAuthForm)
+      : await signInWithEmailPassword(emailAuthForm)
+
+    if (result?.error) {
+      setAuthMessage(result.error)
+      setAuthError(result.error)
+      setAuthErrorCode(result.rawCode || '')
+      setIsEmailAuthLoading(false)
+      return
+    }
+
+    setAuthMessage(emailAuthMode === 'signup' ? 'Creating your account…' : 'Signing you in…')
+    setEmailAuthForm((current) => ({ ...current, password: '' }))
+    setIsEmailAuthLoading(false)
+  }
 
   function buildSetupPreview(form = setupForm) {
     const levels = Number(form.levels || 0)
@@ -70,7 +97,7 @@ function App() {
 
   const setupPreview = buildSetupPreview()
   const maisonLabel = 'Maison'
-  const { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode } = useAuthState()
+  const { user, authLoading, authError, setAuthError, setAuthErrorCode } = useAuthState()
   const {
     houseProfile,
     householdMembers,
@@ -129,7 +156,7 @@ function App() {
 
   const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile.name || 'our Maison home'
   const inviteMessage = `Hey, I set up our Maison household, ${inviteHomeName}. Use invite code ${freshInviteCode} to join it.`
-  const inviteInstructions = 'Open Maison, sign in with Google, tap “I already have an invite code,” and enter the code.'
+  const inviteInstructions = 'Open Maison, sign in or create an account, tap “I already have an invite code,” and enter the code.'
   const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join our Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\n${inviteInstructions}`)}`
   const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
 
@@ -235,7 +262,7 @@ function App() {
             ) : (
               <>
                 <p className="hero-copy">A calmer way to run your home, with maintenance, shopping, reminders, and shared household coordination in one place.</p>
-                <p className="hero-copy">If the Google popup gets blocked or seems to do nothing, use the full-page sign-in button instead.</p>
+                <p className="hero-copy">Google now uses a full-page sign-in flow, not a popup, and Maison also supports email and password accounts.</p>
                 <p className="hero-copy">If your session has expired, just sign in again and you’ll land back in the household flow.</p>
               </>
             )}
@@ -246,28 +273,38 @@ function App() {
             {showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card goodbye-note"><strong>Signed out cleanly</strong><span>{deletedAccountSummary.email || 'This account'} has been removed, and Maison is now back at a safe resting state.</span></div> : null}
             <button className="primary-button" onClick={async () => {
               setInviteChoice(false)
+              setAuthMessage('Redirecting you to Google sign-in…')
+              setAuthError('')
+              setAuthErrorCode('')
               const result = await signInWithGoogle()
               if (result?.error) {
                 setAuthMessage(result.error)
                 setAuthError(result.error)
                 setAuthErrorCode(result.rawCode || '')
-              } else if (result?.redirected) {
-                setAuthMessage('Redirecting you to Google sign-in…')
-                setAuthError('')
-                setAuthErrorCode('')
-              } else {
-                setAuthMessage('')
-                setAuthError('')
-                setAuthErrorCode('')
               }
-            }}>{showDeletedAccountView ? 'Sign in again with Google' : 'Sign in or sign up with Google'}</button>
+            }}>{showDeletedAccountView ? 'Sign in again with Google' : 'Continue with Google'}</button>
             <button className="secondary-button" onClick={() => setInviteChoice(true)}>I already have an invite code</button>
-            <button className="secondary-button" onClick={async () => {
-              setAuthMessage('Redirecting you to Google sign-in…')
-              setAuthError('')
-              setAuthErrorCode('')
-              await signInWithGoogleRedirect()
-            }}>Use full-page sign-in</button>
+            <div className="auth-divider"><span>or use email</span></div>
+            <form className="auth-email-form onboarding-section-block" onSubmit={submitEmailAuth}>
+              <div>
+                <p className="panel-label">Email and password</p>
+                <h3>{emailAuthMode === 'signup' ? 'Create your Maison account' : 'Sign in with email'}</h3>
+                <p className="hero-copy">{emailAuthMode === 'signup' ? 'Use email if you want a direct Maison login alongside Google.' : 'Use the email and password already tied to your Maison account.'}</p>
+              </div>
+              {emailAuthMode === 'signup' ? <input className="invite-code-input no-caps-input" type="text" placeholder="Your name" value={emailAuthForm.name} onChange={(event) => setEmailAuthForm((current) => ({ ...current, name: event.target.value }))} autoComplete="name" required /> : null}
+              <input className="invite-code-input no-caps-input" type="email" placeholder="Email address" value={emailAuthForm.email} onChange={(event) => setEmailAuthForm((current) => ({ ...current, email: event.target.value }))} autoComplete="email" required />
+              <input className="invite-code-input no-caps-input" type="password" placeholder="Password" value={emailAuthForm.password} onChange={(event) => setEmailAuthForm((current) => ({ ...current, password: event.target.value }))} autoComplete={emailAuthMode === 'signup' ? 'new-password' : 'current-password'} minLength={6} required />
+              <div className="form-actions">
+                <button className="primary-button" type="submit" disabled={isEmailAuthLoading}>{isEmailAuthLoading ? (emailAuthMode === 'signup' ? 'Creating…' : 'Signing in…') : (emailAuthMode === 'signup' ? 'Create email account' : 'Sign in with email')}</button>
+                <button className="secondary-button" type="button" onClick={() => {
+                  setEmailAuthMode((current) => current === 'signup' ? 'signin' : 'signup')
+                  setAuthMessage('')
+                  setAuthError('')
+                  setAuthErrorCode('')
+                  setEmailAuthForm((current) => ({ ...current, password: '' }))
+                }}>{emailAuthMode === 'signup' ? 'I already have an account' : 'Create an email account'}</button>
+              </div>
+            </form>
             {!showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
               <strong>Private household access</strong>
               <span>After sign-in, non-members can either create their own household or join one with a valid invite code from an owner.</span>
@@ -339,7 +376,7 @@ function App() {
             </div>
             <button className="primary-button" type="submit" disabled={isCreatingHousehold}>{isCreatingHousehold ? 'Creating…' : 'Create household'}</button>
             <button className="secondary-button" type="button" onClick={() => setInviteChoice(true)}>{createHouseholdError === 'This household already exists. Use an invite code to join it instead.' ? 'Enter invite code' : 'I already have an invite code'}</button>
-            <button className="secondary-button" type="button" onClick={() => signOutUser()}>Use a different Google account</button>
+            <button className="secondary-button" type="button" onClick={() => signOutUser()}>Use a different account</button>
           </form>
         </section>
       </div>
@@ -423,7 +460,7 @@ function App() {
             <p className="eyebrow">{maisonLabel}</p>
             <h1>Join your household</h1>
             <p className="hero-copy">Use the code your partner shared, and Maison will drop you straight into the shared home.</p>
-            <div className="onboarding-bullet-list"><span>Invite codes are case-insensitive</span><span>Switch accounts anytime if you picked the wrong Google login</span><span>You’ll land directly inside the household</span></div>
+            <div className="onboarding-bullet-list"><span>Invite codes are case-insensitive</span><span>Switch accounts anytime if you picked the wrong login</span><span>You’ll land directly inside the household</span></div>
             {joinSuccess ? <p className="auth-help success">{joinSuccess}</p> : null}
             {joinError ? <p className="auth-help error">{joinError}</p> : null}
           </div>
@@ -443,7 +480,7 @@ function App() {
             />
             <button className="primary-button" type="submit" disabled={isJoiningHousehold}>{isJoiningHousehold ? 'Joining…' : 'Join household'}</button>
             <button className="secondary-button" type="button" onClick={() => setInviteChoice(false)}>Create household instead</button>
-            <button className="secondary-button" type="button" onClick={() => signOutUser()}>Use a different Google account</button>
+            <button className="secondary-button" type="button" onClick={() => signOutUser()}>Use a different account</button>
           </form>
         </section>
       </div>
@@ -569,7 +606,7 @@ function App() {
         </section>
       ) : null}
 
-      {showInvitePanel && freshInviteCode && membership?.role === 'owner' ? <section className="panel remote-warning-panel"><div className="section-head"><div><p className="panel-label">Invite your partner</p><h2>Your household is ready</h2><p className="hero-copy">Share this invite code with your partner so they can join the household, then continue into the planner once you’re ready.</p></div><div className="planner-actions"><button className="secondary-button" onClick={() => navigator?.clipboard?.writeText(freshInviteCode)}>Copy code</button><a className="secondary-button invite-link-button" href={emailInviteHref}>Email invite</a><a className="secondary-button invite-link-button" href={textInviteHref}>Text invite</a><button className="secondary-button" onClick={() => setShowInvitePanel(false)}>Continue to app</button></div></div><div className="invite-code-panel"><p className="hero-copy"><strong>{freshInviteCode}</strong></p><div className="onboarding-bullet-list compact"><span>Partner signs in with Google</span><span>They tap “I already have an invite code”</span><span>They enter this code and land in your shared home</span></div></div></section> : null}
+      {showInvitePanel && freshInviteCode && membership?.role === 'owner' ? <section className="panel remote-warning-panel"><div className="section-head"><div><p className="panel-label">Invite your partner</p><h2>Your household is ready</h2><p className="hero-copy">Share this invite code with your partner so they can join the household, then continue into the planner once you’re ready.</p></div><div className="planner-actions"><button className="secondary-button" onClick={() => navigator?.clipboard?.writeText(freshInviteCode)}>Copy code</button><a className="secondary-button invite-link-button" href={emailInviteHref}>Email invite</a><a className="secondary-button invite-link-button" href={textInviteHref}>Text invite</a><button className="secondary-button" onClick={() => setShowInvitePanel(false)}>Continue to app</button></div></div><div className="invite-code-panel"><p className="hero-copy"><strong>{freshInviteCode}</strong></p><div className="onboarding-bullet-list compact"><span>Partner signs in or creates an account</span><span>They tap “I already have an invite code”</span><span>They enter this code and land in your shared home</span></div></div></section> : null}
       {shouldShowJoinSuccessPanel ? <section className="panel remote-warning-panel"><div className="section-head"><div><p className="panel-label">You’re in</p><h2>Joined successfully</h2><p className="hero-copy">Maison connected you to the household and dropped you into the shared planner. You can start using the home right away.</p></div><div className="planner-actions"><button className="secondary-button" onClick={() => setActiveTab('planner')}>Open planner</button><button className="secondary-button" onClick={() => setActiveTab('shopping')}>Open shopping</button></div></div><div className="onboarding-bullet-list compact"><span>You’re inside the shared home now</span><span>Planner, shopping, and calendar are already connected</span><span>If something looks off, refresh once and it should settle</span></div></section> : null}
       <header className="hero-card">
         <div><p className="eyebrow">{maisonLabel}</p><h1>{activeTab === 'shopping' ? `${maisonLabel} Restock` : activeTab === 'calendar' ? `${maisonLabel} Calendar` : `${maisonLabel} Reset`}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your home profile and systems.</p></div>
