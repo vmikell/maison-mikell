@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { formatDate, addDays } from './lib/model'
 import { usePlannerState } from './hooks/usePlannerState'
@@ -46,6 +46,7 @@ function App() {
   const [authMessage, setAuthMessage] = useState('')
   const [inviteCodeInput, setInviteCodeInput] = useState('')
   const [householdNameInput, setHouseholdNameInput] = useState('')
+  const [isInviteCodeVisible, setIsInviteCodeVisible] = useState(true)
   const [setupForm, setSetupForm] = useState({ name: '', homeType: '', sizeSqFt: '', levels: '', bedrooms: '', bathrooms: '', hvacSystem: '', hvacHeads: '' })
   const [emailAuthMode, setEmailAuthMode] = useState('signin')
   const [isEmailAuthLoading, setIsEmailAuthLoading] = useState(false)
@@ -161,6 +162,35 @@ function App() {
   const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
 
   const categories = useMemo(() => ['All', ...new Set(enrichedTasks.map((task) => task.category))], [enrichedTasks])
+  const currentInviteCode = houseProfile.inviteCode || freshInviteCode || ''
+  const inviteCodeVisibilityKey = membership?.householdId ? `maison:invite-code-visible:${membership.householdId}` : ''
+
+  useEffect(() => {
+    if (!inviteCodeVisibilityKey) {
+      setIsInviteCodeVisible(true)
+      return
+    }
+    try {
+      const savedVisibility = window.localStorage.getItem(inviteCodeVisibilityKey)
+      setIsInviteCodeVisible(savedVisibility !== 'hidden')
+    } catch {
+      setIsInviteCodeVisible(true)
+    }
+  }, [inviteCodeVisibilityKey])
+
+  useEffect(() => {
+    if (!inviteCodeVisibilityKey) return
+    try {
+      window.localStorage.setItem(inviteCodeVisibilityKey, isInviteCodeVisible ? 'visible' : 'hidden')
+    } catch {
+      // Ignore localStorage failures so invite controls still work.
+    }
+  }, [inviteCodeVisibilityKey, isInviteCodeVisible])
+
+  async function refreshInviteCode() {
+    const nextCode = await handleGenerateInviteCode()
+    if (nextCode) setIsInviteCodeVisible(true)
+  }
   const filteredTasks = enrichedTasks.filter((task) => {
     const categoryMatch = selectedCategory === 'All' || task.category === selectedCategory
     const statusMatch = selectedStatus === 'All' || task.status === selectedStatus
@@ -733,13 +763,15 @@ function App() {
               <h2>Admin controls</h2>
               <p className="hero-copy">Current member: {user ? (user.displayName || user.email) : authLoading ? 'Checking sign-in…' : 'Not signed in yet'}</p>
               <p className="hero-copy">Role: {membership?.role || 'guest'} · Household members: {householdMembers.map((member) => `${member.name} (${member.role})`).join(' · ')}</p>
-              <p className="hero-copy">Invite code: {houseProfile.inviteCode || 'Not generated yet'}</p>
-              <p className="hero-copy">Share this code with a household member after they sign in, then they can join from the invite screen.</p>
+              <p className="hero-copy">Invite code: {currentInviteCode ? (isInviteCodeVisible ? currentInviteCode : 'Hidden for now') : 'Not generated yet'}</p>
+              <p className="hero-copy">{currentInviteCode ? (isInviteCodeVisible ? 'Share this code with a household member after they sign in, then they can join from the invite screen.' : 'The invite code is hidden right now. Reveal it whenever you need to invite someone.') : 'Generate or refresh an invite code whenever you want someone else to join.'}</p>
               {settingsMessage ? <p className={`auth-help ${settingsMessageClass}`}>{settingsMessage}</p> : null}
               <p className="hero-copy">Signed in as: {user?.email || 'unknown'} {membership?.role ? `· role: ${membership.role}` : ''}</p>
             </div>
             <div className="auth-actions">
-              {membership?.role === 'owner' ? <button className="secondary-button" onClick={() => handleGenerateInviteCode()}>Refresh invite code</button> : null}
+              {membership?.role === 'owner' && currentInviteCode && isInviteCodeVisible ? <button className="secondary-button" onClick={() => navigator?.clipboard?.writeText(currentInviteCode)}>Copy invite code</button> : null}
+              {membership?.role === 'owner' && currentInviteCode ? <button className="secondary-button" onClick={() => setIsInviteCodeVisible((current) => !current)}>{isInviteCodeVisible ? 'Hide invite code' : 'Show invite code'}</button> : null}
+              {membership?.role === 'owner' ? <button className="secondary-button" onClick={() => refreshInviteCode()}>Refresh invite code</button> : null}
               <button className="secondary-button" onClick={() => signOutUser()}>Sign out</button>
             </div>
           </section>
