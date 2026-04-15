@@ -251,6 +251,10 @@ function App() {
                 setAuthMessage(result.error)
                 setAuthError(result.error)
                 setAuthErrorCode(result.rawCode || '')
+              } else if (result?.redirected) {
+                setAuthMessage('Redirecting you to Google sign-in…')
+                setAuthError('')
+                setAuthErrorCode('')
               } else {
                 setAuthMessage('')
                 setAuthError('')

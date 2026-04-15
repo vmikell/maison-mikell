@@ -4,6 +4,12 @@ import { auth, hasFirebaseConfig } from './firebase'
 
 const provider = new GoogleAuthProvider()
 
+function prefersRedirectSignIn() {
+  if (typeof window === 'undefined') return false
+  const ua = window.navigator?.userAgent || ''
+  return /iPhone|iPad|iPod/i.test(ua)
+}
+
 function toPlainEnglishAuthError(error) {
   const code = error?.code || ''
   if (code.includes('popup-blocked')) return 'Your browser blocked the Google sign-in popup. Try the full-page sign-in button instead.'
@@ -45,6 +51,10 @@ export function useAuthState() {
 
 export async function signInWithGoogle() {
   if (!auth) return null
+  if (prefersRedirectSignIn()) {
+    await signInWithRedirect(auth, provider)
+    return { redirected: true }
+  }
   try {
     const result = await signInWithPopup(auth, provider)
     return { user: result.user, redirected: false }
