@@ -4,32 +4,11 @@ import { auth, hasFirebaseConfig } from './firebase'
 
 const provider = new GoogleAuthProvider()
 
-function launchFullPageGoogleSignIn() {
-  const authDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || ''
-  const apiKey = import.meta.env.VITE_FIREBASE_API_KEY || ''
-  const appName = import.meta.env.VITE_FIREBASE_APP_ID || ''
-  const currentUrl = window.location.href
-  if (!authDomain || !apiKey) return false
-
-  const params = new URLSearchParams({
-    apiKey,
-    appName,
-    authType: 'signInViaRedirect',
-    providerId: 'google.com',
-    redirectUrl: currentUrl,
-    v: '11.10.0',
-    eventId: crypto?.randomUUID?.() || `${Date.now()}`,
-  })
-
-  window.location.assign(`https://${authDomain}/__/auth/handler?${params.toString()}`)
-  return true
-}
-
 function toPlainEnglishAuthError(error) {
   const code = error?.code || ''
   if (code.includes('unauthorized-domain')) return 'Google sign-in is not allowed on this site yet. Firebase needs this Netlify domain added as an authorized domain.'
   if (code.includes('operation-not-allowed')) return 'Google sign-in is not enabled in Firebase yet.'
-  return 'Sign-in did not finish. Firebase likely needs this Netlify domain added as an authorized domain, or Google sign-in is not fully enabled for this project yet.'
+  return 'Sign-in did not finish. If this is happening on the Netlify production domain, the auth helper domain may still need same-site proxying.'
 }
 
 export function useAuthState() {
@@ -64,7 +43,6 @@ export function useAuthState() {
 
 export async function signInWithGoogle() {
   if (!auth) return null
-  if (launchFullPageGoogleSignIn()) return { redirected: true, forcedHandler: true }
   await signInWithRedirect(auth, provider)
   return { redirected: true }
 }
