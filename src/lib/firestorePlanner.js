@@ -143,8 +143,8 @@ export async function createHouseholdForCurrentUser(currentUser, options = {}) {
     householdId,
   }
 
-  const batch = writeBatch(firestore)
-  batch.set(householdRef(householdId), {
+  const bootstrapBatch = writeBatch(firestore)
+  bootstrapBatch.set(householdRef(householdId), {
     ...starterHouseProfile,
     id: householdId,
     name: nextHouseholdName,
@@ -154,25 +154,26 @@ export async function createHouseholdForCurrentUser(currentUser, options = {}) {
     createdAt: serverTimestamp(),
     updatedAt: serverTimestamp(),
   })
+  bootstrapBatch.set(userMembershipRef(currentUser.uid), { ...nextMember, inviteCode }, { merge: true })
+  await bootstrapBatch.commit()
 
+  const seedBatch = writeBatch(firestore)
   shoppingLists.forEach((list) => {
     const { items = [], ...listMeta } = list
-    batch.set(listDoc(householdId, list.id), {
+    seedBatch.set(listDoc(householdId, list.id), {
       ...listMeta,
       createdAt: serverTimestamp(),
       updatedAt: serverTimestamp(),
     })
     items.forEach((item) => {
-      batch.set(listItemDoc(householdId, list.id, item.id), {
+      seedBatch.set(listItemDoc(householdId, list.id, item.id), {
         ...item,
         createdAt: serverTimestamp(),
         updatedAt: serverTimestamp(),
       })
     })
   })
-
-  await batch.commit()
-  await setDoc(userMembershipRef(currentUser.uid), { ...nextMember, inviteCode }, { merge: true })
+  await seedBatch.commit()
 
   return { ok: true, membership: nextMember, inviteCode, created: true }
 }
