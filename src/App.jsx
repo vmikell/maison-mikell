@@ -70,11 +70,6 @@ function App() {
 
   const setupPreview = buildSetupPreview()
   const maisonLabel = 'Maison'
-  const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile.name || 'our Maison home'
-  const inviteMessage = `Hey, I set up our Maison household, ${inviteHomeName}. Use invite code ${freshInviteCode} to join it.`
-  const inviteInstructions = 'Open Maison, sign in with Google, tap “I already have an invite code,” and enter the code.'
-  const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join our Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\n${inviteInstructions}`)}`
-  const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
   const { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode } = useAuthState()
   const {
     houseProfile,
@@ -131,6 +126,12 @@ function App() {
     setInviteChoice,
     setShowInvitePanel,
   } = usePlannerState(user)
+
+  const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile.name || 'our Maison home'
+  const inviteMessage = `Hey, I set up our Maison household, ${inviteHomeName}. Use invite code ${freshInviteCode} to join it.`
+  const inviteInstructions = 'Open Maison, sign in with Google, tap “I already have an invite code,” and enter the code.'
+  const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join our Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\n${inviteInstructions}`)}`
+  const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
 
   const categories = useMemo(() => ['All', ...new Set(enrichedTasks.map((task) => task.category))], [enrichedTasks])
   const filteredTasks = enrichedTasks.filter((task) => {
