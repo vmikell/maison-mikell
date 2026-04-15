@@ -15,6 +15,14 @@ import { auth, hasFirebaseConfig } from './firebase'
 
 const provider = new GoogleAuthProvider()
 
+function missingFirebaseConfigResult() {
+  return {
+    error: 'Maison auth is not configured in this live build yet. Firebase environment variables are missing, so sign-in cannot start.',
+    rawCode: 'maison/missing-firebase-config',
+    rawMessage: 'Firebase auth is unavailable because VITE_FIREBASE_* variables were not available at build time.',
+  }
+}
+
 function normalizeEmail(value = '') {
   return value.trim().toLowerCase()
 }
@@ -86,7 +94,7 @@ export function useAuthState() {
 }
 
 export async function signInWithGoogle() {
-  if (!auth) return null
+  if (!hasFirebaseConfig || !auth) return { redirected: false, ...missingFirebaseConfigResult() }
   try {
     await signInWithRedirect(auth, provider)
     return { redirected: true }
@@ -97,7 +105,7 @@ export async function signInWithGoogle() {
 }
 
 export async function signInWithEmailPassword(input = {}) {
-  if (!auth) return null
+  if (!hasFirebaseConfig || !auth) return { user: null, ...missingFirebaseConfigResult() }
   try {
     const result = await signInWithEmailAndPassword(auth, normalizeEmail(input.email), input.password || '')
     return { user: result.user }
@@ -108,7 +116,7 @@ export async function signInWithEmailPassword(input = {}) {
 }
 
 export async function createEmailPasswordAccount(input = {}) {
-  if (!auth) return null
+  if (!hasFirebaseConfig || !auth) return { user: null, ...missingFirebaseConfigResult() }
   try {
     const normalizedEmail = normalizeEmail(input.email)
     const result = await createUserWithEmailAndPassword(auth, normalizedEmail, input.password || '')

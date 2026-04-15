@@ -266,6 +266,7 @@ function App() {
                 <p className="hero-copy">If your session has expired, just sign in again and you’ll land back in the household flow.</p>
               </>
             )}
+            {!hasFirebaseConfig ? <p className="auth-help error">Maison auth is not configured in this live build yet, so sign-in and account creation cannot start until the Firebase build env is fixed.</p> : null}
             {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
             {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
           </div>
