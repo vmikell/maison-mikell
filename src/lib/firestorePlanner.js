@@ -18,6 +18,7 @@ import { buildCompletionRecord, buildReminderRecord, buildTasksFromSetup, comple
 
 function householdsRef() { return collection(firestore, 'households') }
 function householdRef(householdId) { return doc(firestore, 'households', householdId) }
+function inviteCodeRef(inviteCode) { return doc(firestore, 'inviteCodes', inviteCode) }
 function tasksRef(householdId) { return collection(firestore, 'households', householdId, 'maintenanceTasks') }
 function taskDoc(householdId, taskId) { return doc(firestore, 'households', householdId, 'maintenanceTasks', taskId) }
 function listsRef(householdId) { return collection(firestore, 'households', householdId, 'shoppingLists') }
@@ -29,6 +30,32 @@ function reminderDoc(householdId, reminderId) { return doc(firestore, 'household
 function completionsRef(householdId) { return collection(firestore, 'households', householdId, 'completions') }
 function completionDoc(householdId, completionId) { return doc(firestore, 'households', householdId, 'completions', completionId) }
 function userMembershipRef(userId) { return doc(firestore, 'users', userId, 'meta', 'membership') }
+
+function getInviteCodeOwnerId(members = []) {
+  return members.find((member) => member.role === 'owner')?.id || members[0]?.id || null
+}
+
+async function syncInviteCodeRecord(batch, householdId, inviteCode, members = []) {
+  const normalizedCode = (inviteCode || '').trim().toUpperCase()
+  if (!normalizedCode) return
+  const ownerUid = getInviteCodeOwnerId(members)
+  if (!ownerUid) return
+  batch.set(inviteCodeRef(normalizedCode), {
+    householdId,
+    ownerUid,
+    updatedAt: serverTimestamp(),
+    createdAt: serverTimestamp(),
+  }, { merge: true })
+}
+
+function syncMemberRecords(batch, members = [], inviteCode = '') {
+  members.forEach((member) => {
+    batch.set(userMembershipRef(member.id), {
+      ...member,
+      inviteCode,
+    }, { merge: true })
+  })
+}
 
 function buildHouseholdId() {
   return `household-${Math.random().toString(36).slice(2, 10)}`
@@ -155,6 +182,7 @@ export async function createHouseholdForCurrentUser(currentUser, options = {}) {
     updatedAt: serverTimestamp(),
   })
   bootstrapBatch.set(userMembershipRef(currentUser.uid), { ...nextMember, inviteCode }, { merge: true })
+  await syncInviteCodeRecord(bootstrapBatch, householdId, inviteCode, [nextMember])
   await bootstrapBatch.commit()
 
   const seedBatch = writeBatch(firestore)
@@ -187,28 +215,39 @@ export async function joinHouseholdWithInviteCode(currentUser, inviteCode) {
   const normalizedCode = (inviteCode || '').trim().toUpperCase()
   if (!normalizedCode) return { ok: false, error: 'Enter the household invite code.' }
 
-  const matchingHouseholds = await getDocs(query(householdsRef(), where('inviteCode', '==', normalizedCode)))
-  if (matchingHouseholds.empty) return { ok: false, error: 'That invite code does not match a household.' }
+  const inviteCodeSnap = await getDoc(inviteCodeRef(normalizedCode))
+  if (!inviteCodeSnap.exists()) return { ok: false, error: 'That invite code does not match a household.' }
 
-  const householdSnap = matchingHouseholds.docs[0]
-  const householdId = householdSnap.id
-  const household = householdSnap.data()
-  const members = household.members ?? []
-  const nextRole = members.length === 0 ? 'owner' : 'member'
+  const householdId = inviteCodeSnap.data().householdId
   const identity = await resolveMembershipIdentity(currentUser)
   const nextMember = {
     id: currentUser.uid,
     email: identity.email,
     name: identity.name,
-    role: nextRole,
+    role: 'member',
     joinedAt: new Date().toISOString(),
     householdId,
   }
 
-  await setDoc(householdRef(householdId), {
-    members: [...members, nextMember],
-    updatedAt: serverTimestamp(),
-  }, { merge: true })
+  await setDoc(userMembershipRef(currentUser.uid), { ...nextMember, inviteCode: normalizedCode }, { merge: true })
+
+  const householdSnap = await getDoc(householdRef(householdId))
+  if (!householdSnap.exists()) {
+    await deleteDoc(userMembershipRef(currentUser.uid))
+    return { ok: false, error: 'That invite code does not match a household.' }
+  }
+
+  const household = householdSnap.data()
+  const members = household.members ?? []
+
+  if (!members.some((member) => member.id === currentUser.uid)) {
+    const nextMembers = [...members, nextMember]
+    await setDoc(householdRef(householdId), {
+      members: nextMembers,
+      updatedAt: serverTimestamp(),
+    }, { merge: true })
+  }
+
   await setDoc(userMembershipRef(currentUser.uid), { ...nextMember, inviteCode: household.inviteCode || normalizedCode }, { merge: true })
 
   return { ok: true, membership: nextMember }
@@ -269,7 +308,27 @@ export async function completeHouseholdSetup(householdId, setupInput = {}) {
 export async function updateHouseholdMembership(householdId, patch) {
   if (!hasFirebaseConfig || !firestore || !householdId) return { ok: false, error: 'Firebase is not configured.' }
   try {
-    await updateDoc(householdRef(householdId), { ...patch, updatedAt: serverTimestamp() })
+    const currentHouseholdSnap = await getDoc(householdRef(householdId))
+    const currentInviteCode = currentHouseholdSnap.exists() ? (currentHouseholdSnap.data()?.inviteCode || '') : ''
+    const nextInviteCode = typeof patch.inviteCode === 'string' ? patch.inviteCode.trim().toUpperCase() : currentInviteCode
+    const nextMembers = Array.isArray(patch.members) ? patch.members : (currentHouseholdSnap.data()?.members ?? [])
+    const batch = writeBatch(firestore)
+
+    batch.set(householdRef(householdId), { ...patch, ...(patch.inviteCode ? { inviteCode: nextInviteCode } : {}), updatedAt: serverTimestamp() }, { merge: true })
+
+    if (patch.inviteCode && currentInviteCode && currentInviteCode !== nextInviteCode) {
+      batch.delete(inviteCodeRef(currentInviteCode))
+    }
+
+    if (nextInviteCode) {
+      await syncInviteCodeRecord(batch, householdId, nextInviteCode, nextMembers)
+    }
+
+    if (nextMembers.length) {
+      syncMemberRecords(batch, nextMembers, nextInviteCode)
+    }
+
+    await batch.commit()
     return { ok: true }
   } catch (error) {
     console.error('Failed to update household membership/settings', error)
@@ -471,15 +530,22 @@ export async function deleteCurrentUserData(currentUser, membership) {
       await Promise.all(itemSnaps.docs.map((snap) => deleteDoc(listItemDoc(householdId, listSnap.id, snap.id))))
       await deleteDoc(listDoc(householdId, listSnap.id))
     }
+    if (household.inviteCode) await deleteDoc(inviteCodeRef(household.inviteCode))
     await deleteDoc(householdRef(householdId))
     await deleteDoc(userMembershipRef(currentUser.uid))
     return { ok: true, deletedHousehold: true }
   }
 
-  await updateDoc(householdRef(householdId), {
+  const batch = writeBatch(firestore)
+  batch.update(householdRef(householdId), {
     members: remainingMembers,
     updatedAt: serverTimestamp(),
   })
-  await deleteDoc(userMembershipRef(currentUser.uid))
+  if (household.inviteCode) {
+    await syncInviteCodeRecord(batch, householdId, household.inviteCode, remainingMembers)
+  }
+  syncMemberRecords(batch, remainingMembers, household.inviteCode || '')
+  batch.delete(userMembershipRef(currentUser.uid))
+  await batch.commit()
   return { ok: true, deletedHousehold: false }
 }

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 import './App.css'
 import { formatDate, addDays } from './lib/model'
 import { usePlannerState } from './hooks/usePlannerState'
-import { createEmailPasswordAccount, deleteSignedInAuthUser, signInWithEmailPassword, signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
+import { createEmailPasswordAccount, deleteSignedInAuthUser, ensureRecentLogin, sendPasswordReset, signInWithEmailPassword, signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
 
 const emptyTaskForm = {
   id: '', title: '', area: '', category: 'Cleaning', room: '', system: '', assetName: '', vendor: '', supplyNote: '', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
@@ -51,6 +51,7 @@ function App() {
   const [emailAuthMode, setEmailAuthMode] = useState('signin')
   const [isEmailAuthLoading, setIsEmailAuthLoading] = useState(false)
   const [emailAuthForm, setEmailAuthForm] = useState({ name: '', email: '', password: '' })
+  const [deleteAccountPassword, setDeleteAccountPassword] = useState('')
 
   async function submitEmailAuth(event) {
     event.preventDefault()
@@ -74,6 +75,20 @@ function App() {
     setAuthMessage(emailAuthMode === 'signup' ? 'Creating your account…' : 'Signing you in…')
     setEmailAuthForm((current) => ({ ...current, password: '' }))
     setIsEmailAuthLoading(false)
+  }
+
+  async function handlePasswordReset() {
+    setAuthMessage('')
+    setAuthError('')
+    setAuthErrorCode('')
+    const result = await sendPasswordReset({ email: emailAuthForm.email })
+    if (!result?.ok) {
+      setAuthMessage(result?.error || 'Could not send a password reset email right now.')
+      setAuthError(result?.error || '')
+      setAuthErrorCode(result?.rawCode || '')
+      return
+    }
+    setAuthMessage('Password reset email sent. Check your inbox and spam folder.')
   }
 
   function buildSetupPreview(form = setupForm) {
@@ -151,11 +166,13 @@ function App() {
     handleJoinHousehold,
     handleCompleteSetup,
     handleDeleteCurrentAccount,
+    finalizeDeletedAccount,
     setInviteChoice,
     setShowInvitePanel,
   } = usePlannerState(user)
 
   const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile.name || 'our Maison home'
+  const deleteAccountNeedsPassword = Boolean(user?.providerData?.some((provider) => provider.providerId === 'password'))
   const inviteMessage = `Hey, I set up our Maison household, ${inviteHomeName}. Use invite code ${freshInviteCode} to join it.`
   const inviteInstructions = 'Open Maison, sign in or create an account, tap “I already have an invite code,” and enter the code.'
   const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join our Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\n${inviteInstructions}`)}`
@@ -334,6 +351,7 @@ function App() {
                   setAuthErrorCode('')
                   setEmailAuthForm((current) => ({ ...current, password: '' }))
                 }}>{emailAuthMode === 'signup' ? 'I already have an account' : 'Create an email account'}</button>
+                {emailAuthMode === 'signin' ? <button className="secondary-button" type="button" onClick={handlePasswordReset} disabled={isEmailAuthLoading}>Reset password</button> : null}
               </div>
             </form>
             {!showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
@@ -776,7 +794,7 @@ function App() {
             </div>
           </section>
 
-          {membership?.role === 'owner' ? <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2>{settingsMessage ? <p className={`auth-help ${settingsMessageClass}`}>{settingsMessage}</p> : null}</div></div><div className="completion-list">{householdMembers.length ? householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>) : <p className="empty-copy">No household members are listed yet.</p>}</div><div className="form-actions" style={{ marginTop: 16 }}><button className="danger-button" onClick={async () => { const confirmed = window.confirm('Delete your Maison account? This cannot be undone.'); if (!confirmed) return; const ok = await handleDeleteCurrentAccount(); if (!ok) return; const authResult = await deleteSignedInAuthUser(); if (!authResult.ok) { window.alert(authResult.error); return; } await signOutUser(); }} disabled={isDeletingAccount}>{isDeletingAccount ? 'Deleting account…' : 'Delete my account'}</button></div></section> : <section className="panel"><p className="empty-copy">Only owners can manage household roles and invite codes.</p></section>}
+          {membership?.role === 'owner' ? <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2>{settingsMessage ? <p className={`auth-help ${settingsMessageClass}`}>{settingsMessage}</p> : null}</div></div><div className="completion-list">{householdMembers.length ? householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>) : <p className="empty-copy">No household members are listed yet.</p>}</div><div className="form-actions" style={{ marginTop: 16, flexDirection: 'column', alignItems: 'stretch' }}>{deleteAccountNeedsPassword ? <input className="invite-code-input no-caps-input" type="password" placeholder="Current password to confirm deletion" value={deleteAccountPassword} onChange={(event) => setDeleteAccountPassword(event.target.value)} autoComplete="current-password" /> : null}<button className="danger-button" onClick={async () => { const confirmed = window.confirm('Delete your Maison account? This cannot be undone.'); if (!confirmed) return; const recentLogin = await ensureRecentLogin({ email: user?.email || '', password: deleteAccountPassword }); if (!recentLogin.ok) { window.alert(recentLogin.error); return; } const result = await handleDeleteCurrentAccount(); if (!result?.ok) return; const authResult = await deleteSignedInAuthUser(); if (!authResult.ok) { window.alert(authResult.error); return; } finalizeDeletedAccount(result, user?.email || ''); setDeleteAccountPassword(''); await signOutUser(); }} disabled={isDeletingAccount}>{isDeletingAccount ? 'Deleting account…' : 'Delete my account'}</button>{deleteAccountNeedsPassword ? <p className="hero-copy">Enter your current password before deleting this account.</p> : null}</div></section> : <section className="panel"><p className="empty-copy">Only owners can manage household roles and invite codes.</p></section>}
 
           {membership?.role === 'owner' ? <section className="panel reminder-panel">
             <div className="section-head"><div><p className="panel-label">Reminder operations</p><h2>Delivery queue and history</h2></div></div>

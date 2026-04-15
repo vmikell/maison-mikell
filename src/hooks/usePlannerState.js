@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { starterHouseProfile, shoppingLists as seedLists, TODAY } from '../lib/data'
+import { starterHouseProfile, maintenanceTasks as seedTasks, shoppingLists as seedLists, TODAY } from '../lib/data'
 import { hasFirebaseConfig } from '../lib/firebase'
 import {
   deleteCheckedShoppingItems,
@@ -558,29 +558,36 @@ export function usePlannerState(currentUser = null) {
         setDeleteAccountError(result.error || 'Could not delete this account right now.')
         return false
       }
-      const successMessage = result.deletedHousehold ? 'Your account and household were deleted.' : 'Your account was removed from the household.'
-      setMembership(null)
-      setHouseProfile(seedHouseProfile)
-      setTaskState(seedTasks)
-      setLists(seedLists)
-      setReminders(seedTasks.map(buildReminderRecord))
-      setCompletions([])
-      setInviteChoice(false)
-      setFreshInviteCode('')
-      setShowInvitePanel(false)
-      setDeleteAccountSuccess(successMessage)
-      setDeletedAccountSummary({
-        deletedHousehold: Boolean(result.deletedHousehold),
-        message: successMessage,
-        email: currentUser.email || '',
-      })
-      return true
+      return result
     } catch (error) {
       setDeleteAccountError(error instanceof Error ? error.message : 'Could not delete this account right now.')
       return false
     } finally {
       setIsDeletingAccount(false)
     }
+  }
+
+  function resetPlannerStateAfterDelete() {
+    setMembership(null)
+    setHouseProfile(starterHouseProfile)
+    setTaskState(seedTasks)
+    setLists(seedLists)
+    setReminders(seedTasks.map(buildReminderRecord))
+    setCompletions([])
+    setInviteChoice(false)
+    setFreshInviteCode('')
+    setShowInvitePanel(false)
+  }
+
+  function finalizeDeletedAccount(result, email = '') {
+    const successMessage = result?.deletedHousehold ? 'Your account and household were deleted.' : 'Your account was removed from the household.'
+    resetPlannerStateAfterDelete()
+    setDeleteAccountSuccess(successMessage)
+    setDeletedAccountSummary({
+      deletedHousehold: Boolean(result?.deletedHousehold),
+      message: successMessage,
+      email,
+    })
   }
 
   async function handleJoinHousehold(inviteCode) {
@@ -672,6 +679,8 @@ export function usePlannerState(currentUser = null) {
     handleJoinHousehold,
     handleCompleteSetup,
     handleDeleteCurrentAccount,
+    finalizeDeletedAccount,
+    resetPlannerStateAfterDelete,
     setInviteChoice,
     setShowInvitePanel,
   }

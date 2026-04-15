@@ -1,10 +1,13 @@
 import { useEffect, useState } from 'react'
 import {
+  EmailAuthProvider,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   deleteUser,
   getRedirectResult,
   onAuthStateChanged,
+  reauthenticateWithCredential,
+  sendPasswordResetEmail,
   signInWithEmailAndPassword,
   signInWithRedirect,
   signOut,
@@ -55,6 +58,8 @@ function toPlainEnglishAuthError(error, context = {}) {
     return 'That email or password did not match an account.'
   }
   if (code.includes('too-many-requests')) return 'Too many sign-in attempts just now. Give it a minute and try again.'
+  if (code.includes('missing-email')) return 'Enter your email address first.'
+  if (code.includes('requires-recent-login')) return 'For security, sign in again and retry that action right away.'
 
   if (context.provider === 'email') {
     return 'Email sign-in did not finish. Check that email/password is enabled in Firebase and try again.'
@@ -135,9 +140,62 @@ export async function createEmailPasswordAccount(input = {}) {
   }
 }
 
+export async function sendPasswordReset(input = {}) {
+  if (!hasFirebaseConfig || !auth) return missingFirebaseConfigResult()
+  try {
+    await sendPasswordResetEmail(auth, normalizeEmail(input.email))
+    return { ok: true }
+  } catch (error) {
+    return {
+      ok: false,
+      error: toPlainEnglishAuthError(error, { provider: 'email' }),
+      rawCode: error?.code || '',
+      rawMessage: error?.message || '',
+    }
+  }
+}
+
 export async function signOutUser() {
   if (!auth) return
   await signOut(auth)
+}
+
+export async function ensureRecentLogin(input = {}) {
+  if (!auth?.currentUser) return { ok: false, error: 'No signed-in user.' }
+
+  const providerIds = auth.currentUser.providerData?.map((provider) => provider.providerId).filter(Boolean) || []
+  if (providerIds.includes('password')) {
+    const email = normalizeEmail(input.email || auth.currentUser.email || '')
+    const password = input.password || ''
+    if (!email || !password) {
+      return { ok: false, needsPassword: true, error: 'Enter your current password to confirm account deletion.' }
+    }
+
+    try {
+      const credential = EmailAuthProvider.credential(email, password)
+      await reauthenticateWithCredential(auth.currentUser, credential)
+      return { ok: true }
+    } catch (error) {
+      return {
+        ok: false,
+        needsPassword: true,
+        error: toPlainEnglishAuthError(error, { provider: 'email' }),
+        rawCode: error?.code || '',
+      }
+    }
+  }
+
+  const lastSignInAt = Number(auth.currentUser.metadata?.lastSignInTime ? new Date(auth.currentUser.metadata.lastSignInTime) : 0)
+  const maxAgeMs = 10 * 60 * 1000
+  if (Date.now() - lastSignInAt > maxAgeMs) {
+    return {
+      ok: false,
+      error: 'For security, sign out, sign back in, and then retry account deletion right away.',
+      requiresFreshSignIn: true,
+    }
+  }
+
+  return { ok: true }
 }
 
 export async function deleteSignedInAuthUser() {
