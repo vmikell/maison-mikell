@@ -69,16 +69,7 @@ function App() {
   }
 
   const setupPreview = buildSetupPreview()
-  function deriveMaisonLabel() {
-    const rawName = (setupForm.name?.trim() || houseProfile.name || householdNameInput.trim() || '').trim()
-    if (!rawName) return 'Maison'
-    const parts = rawName.split(/\s+/).filter(Boolean)
-    const lastWord = parts[parts.length - 1]
-    if (!lastWord) return 'Maison'
-    const cleaned = lastWord.replace(/[^a-zA-Z'-]/g, '')
-    return cleaned ? `Maison ${cleaned}` : 'Maison'
-  }
-  const maisonLabel = deriveMaisonLabel()
+  const maisonLabel = 'Maison'
   const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile.name || 'our Maison home'
   const inviteMessage = `Hey, I set up our Maison household, ${inviteHomeName}. Use invite code ${freshInviteCode} to join it.`
   const inviteInstructions = 'Open Maison, sign in with Google, tap “I already have an invite code,” and enter the code.'
