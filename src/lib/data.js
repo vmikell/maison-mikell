@@ -2,19 +2,6 @@ export const TODAY = new Date().toISOString().slice(0, 10)
 
 export const houseProfile = {
   id: 'victor-home',
-  name: 'Victor Home',
-  sizeSqFt: 1000,
-  levels: 2,
-  bedrooms: 2,
-  bathrooms: 1.5,
-  hvac: {
-    system: 'Mini split heat pump',
-    heads: 4,
-  },
-  reminderRules: {
-    majorLeadDays: 30,
-    standardLeadDays: 7,
-  },
 }
 
 export const starterHouseProfile = {

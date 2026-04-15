@@ -222,7 +222,7 @@ function App() {
   }
   function resetTaskForm() { setEditingTaskId(null); setTaskForm(emptyTaskForm); setTaskEditorOpen(false) }
   async function submitTaskForm(event) { event.preventDefault(); const saved = await handleSaveTask(taskForm); if (saved) { setSelectedTask(saved); resetTaskForm() } }
-  async function completeFromModal(taskId, actor = 'Victor') { await handleComplete(taskId, actor); setSelectedTask(null) }
+  async function completeFromModal(taskId, actor = 'Household member') { await handleComplete(taskId, actor); setSelectedTask(null) }
   async function deleteFromModal(taskId) { await handleDeleteTask(taskId); setSelectedTask(null) }
   async function claimFromModal(taskId, actor = null) {
     await handleClaimTask(taskId, actor)
@@ -597,7 +597,7 @@ function App() {
                 {resolvedActorName ? <button className="primary-button" onClick={() => claimFromModal(selectedTask.id, resolvedActorName)}>Claim as me</button> : null}
                 {visibleClaimMembers.map((member) => <button key={member.id} className="secondary-button" onClick={() => claimFromModal(selectedTask.id, member.name)}>Claim for {member.name}</button>)}
                 <button className="secondary-button" onClick={() => claimFromModal(selectedTask.id, null)}>Clear claim</button>
-                <button className="primary-button" onClick={() => completeFromModal(selectedTask.id, selectedTask.claimedBy || resolvedActorName || 'Victor')}>Mark done today</button>
+                <button className="primary-button" onClick={() => completeFromModal(selectedTask.id, selectedTask.claimedBy || resolvedActorName || 'Household member')}>Mark done today</button>
                 <button className="secondary-button" onClick={() => startEditTask(selectedTask)}>Edit</button>
                 <button className="danger-button" onClick={() => deleteFromModal(selectedTask.id)}>Delete</button>
                 {selectedTask.major ? <span className="major-flag">Large maintenance</span> : null}

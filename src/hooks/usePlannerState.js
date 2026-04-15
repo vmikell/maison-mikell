@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react'
-import { houseProfile as seedHouseProfile, starterHouseProfile, maintenanceTasks as seedTasks, shoppingLists as seedLists, TODAY } from '../lib/data'
+import { starterHouseProfile, shoppingLists as seedLists, TODAY } from '../lib/data'
 import { hasFirebaseConfig } from '../lib/firebase'
 import {
   deleteCheckedShoppingItems,
@@ -39,10 +39,10 @@ import {
 } from '../lib/model'
 
 export function usePlannerState(currentUser = null) {
-  const [houseProfile, setHouseProfile] = useState(seedHouseProfile)
-  const [taskState, setTaskState] = useState(seedTasks)
+  const [houseProfile, setHouseProfile] = useState(starterHouseProfile)
+  const [taskState, setTaskState] = useState([])
   const [lists, setLists] = useState(seedLists)
-  const [reminders, setReminders] = useState(seedTasks.map(buildReminderRecord))
+  const [reminders, setReminders] = useState([])
   const [completions, setCompletions] = useState([])
   const [isRemoteLoaded, setIsRemoteLoaded] = useState(false)
   const [isRemoteLoading, setIsRemoteLoading] = useState(hasFirebaseConfig)
@@ -113,10 +113,10 @@ export function usePlannerState(currentUser = null) {
         setMembership(nextMembership)
 
         if (!nextMembership?.householdId) {
-          setHouseProfile(seedHouseProfile)
-          setTaskState(seedTasks)
+          setHouseProfile(starterHouseProfile)
+          setTaskState([])
           setLists(seedLists)
-          setReminders(seedTasks.map(buildReminderRecord))
+          setReminders([])
           setCompletions([])
           setIsRemoteLoaded(false)
           return
@@ -167,7 +167,7 @@ export function usePlannerState(currentUser = null) {
     .sort((a, b) => (a.dueAt || '').localeCompare(b.dueAt || '')),
   [reminders])
 
-  async function handleComplete(taskId, actor = 'Victor') {
+  async function handleComplete(taskId, actor = 'Household member') {
     const currentTask = taskState.find((task) => task.id === taskId)
     if (!currentTask) return
     setPlannerMessage('')
@@ -399,10 +399,11 @@ export function usePlannerState(currentUser = null) {
     setSettingsMessage('Reminder marked delivered locally.')
   }
 
-  const householdMembers = houseProfile.members ?? [
-    { id: 'victor', name: 'Victor', role: 'owner' },
-    { id: 'riah', name: 'Riah', role: 'member' },
-  ]
+  const householdMembers = houseProfile.members ?? (membership ? [{
+    id: membership.id || currentUser?.uid || 'current-user',
+    name: membership.name || currentUser?.displayName || currentUser?.email || 'Household member',
+    role: membership.role || 'owner',
+  }] : [])
 
   const resolvedActorName = currentUser?.displayName || currentUser?.email || null
 

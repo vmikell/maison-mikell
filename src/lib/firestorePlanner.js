@@ -322,7 +322,7 @@ async function syncReminderForTask(householdId, task) {
   await setDoc(reminderDoc(householdId, reminder.id), { ...reminder, updatedAt: serverTimestamp(), createdAt: serverTimestamp() }, { merge: true })
 }
 
-export async function markTaskCompleted(householdId, taskId, lastDone, actor = 'Victor') {
+export async function markTaskCompleted(householdId, taskId, lastDone, actor = 'Household member') {
   if (!hasFirebaseConfig || !firestore || !householdId) return false
   const taskSnap = await getDoc(taskDoc(householdId, taskId))
   if (!taskSnap.exists()) return false

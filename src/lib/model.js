@@ -47,7 +47,7 @@ export function buildReminderRecord(task) {
   }
 }
 
-export function buildCompletionRecord(task, actor = 'Victor', completedAt = new Date().toISOString()) {
+export function buildCompletionRecord(task, actor = 'Household member', completedAt = new Date().toISOString()) {
   return {
     id: `${task.id}:${completedAt}`,
     taskId: task.id,
@@ -59,7 +59,7 @@ export function buildCompletionRecord(task, actor = 'Victor', completedAt = new 
   }
 }
 
-export function completeTask(task, doneDate = TODAY, actor = 'Victor') {
+export function completeTask(task, doneDate = TODAY, actor = 'Household member') {
   return {
     ...task,
     lastDone: doneDate,
