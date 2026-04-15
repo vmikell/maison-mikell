@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react'
 import { GoogleAuthProvider, deleteUser, getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut } from 'firebase/auth'
 import { auth, hasFirebaseConfig } from './firebase'
+import { getDeletedAccountRecord } from './firestorePlanner'
 
 const provider = new GoogleAuthProvider()
 
@@ -20,14 +21,33 @@ export function useAuthState() {
   useEffect(() => {
     if (!hasFirebaseConfig || !auth) return
 
+    let cancelled = false
+
     getRedirectResult(auth)
       .then(() => {})
       .catch((error) => {
+        if (cancelled) return
         setAuthError(toPlainEnglishAuthError(error))
         setAuthErrorCode(error?.code || '')
       })
 
-    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (nextUser) => {
+      if (cancelled) return
+      if (nextUser?.email) {
+        const deletedAccount = await getDeletedAccountRecord(nextUser.email)
+        if (cancelled) return
+        if (deletedAccount) {
+          try {
+            await signOut(auth)
+          } catch {}
+          setUser(null)
+          setAuthLoading(false)
+          setAuthError('This email belongs to a deleted Maison account and can no longer sign in. Use a different Google account if you want to come back.')
+          setAuthErrorCode('auth/account-disabled-in-maison')
+          return
+        }
+      }
+
       setUser(nextUser)
       setAuthLoading(false)
       if (nextUser) {
@@ -35,7 +55,10 @@ export function useAuthState() {
         setAuthErrorCode('')
       }
     })
-    return unsubscribe
+    return () => {
+      cancelled = true
+      unsubscribe()
+    }
   }, [])
 
   return { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode }

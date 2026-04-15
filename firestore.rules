@@ -107,12 +107,22 @@ service cloud.firestore {
       }
     }
 
+    match /deletedAccounts/{accountKey} {
+      allow read: if signedIn() && resource.data.email == request.auth.token.email;
+      allow create, update: if signedIn()
+        && request.resource.data.uid == request.auth.uid
+        && request.resource.data.email == request.auth.token.email;
+      allow delete: if false;
+    }
+
     match /users/{userId}/meta/{docId} {
       allow read: if signedIn() && request.auth.uid == userId;
       allow create, update: if signedIn()
         && request.auth.uid == userId
         && docId == 'membership';
-      allow delete: if false;
+      allow delete: if signedIn()
+        && request.auth.uid == userId
+        && docId == 'membership';
     }
   }
 }
