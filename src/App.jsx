@@ -375,9 +375,24 @@ function App() {
               <strong>What happens next</strong>
               <span>Create the household first, then Maison immediately walks you into home setup and gives you an invite code for your partner.</span>
             </div>
-            <button className="primary-button" type="submit" disabled={isCreatingHousehold}>{isCreatingHousehold ? 'Creating…' : 'Create household'}</button>
-            <button className="secondary-button" type="button" onClick={() => setInviteChoice(true)}>{createHouseholdError === 'This household already exists. Use an invite code to join it instead.' ? 'Enter invite code' : 'I already have an invite code'}</button>
-            <button className="secondary-button" type="button" onClick={() => signOutUser()}>Use a different account</button>
+            {isCreatingHousehold ? <div className="create-household-progress onboarding-note-card" role="status" aria-live="polite">
+              <div className="house-puzzle-loading premium-house-loading" aria-hidden="true">
+                <div className="puzzle-piece piece-roof-left"></div>
+                <div className="puzzle-piece piece-roof-right"></div>
+                <div className="puzzle-piece piece-wall-left"></div>
+                <div className="puzzle-piece piece-wall-right"></div>
+                <div className="puzzle-piece piece-bottom-left"></div>
+                <div className="puzzle-piece piece-bottom-right"></div>
+                <div className="house-outline"></div>
+              </div>
+              <div className="create-household-progress-copy">
+                <strong className="create-household-progress-title">Creating your home<span className="loading-dots" aria-hidden="true"></span></strong>
+                <span><span className="loading-word-cycle" aria-hidden="true"><span>Creating</span><span>Building</span><span>Preparing</span><span>Opening</span></span> the household shell and getting your setup questions ready.</span>
+              </div>
+            </div> : null}
+            <button className="primary-button" type="submit" disabled={isCreatingHousehold}>{isCreatingHousehold ? <span className="button-loading-label">Creating home<span className="loading-dots" aria-hidden="true"></span></span> : 'Create household'}</button>
+            <button className="secondary-button" type="button" disabled={isCreatingHousehold} onClick={() => setInviteChoice(true)}>{createHouseholdError === 'This household already exists. Use an invite code to join it instead.' ? 'Enter invite code' : 'I already have an invite code'}</button>
+            <button className="secondary-button" type="button" disabled={isCreatingHousehold} onClick={() => signOutUser()}>Use a different account</button>
           </form>
         </section>
       </div>
