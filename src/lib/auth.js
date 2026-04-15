@@ -1,14 +1,8 @@
 import { useEffect, useState } from 'react'
-import { GoogleAuthProvider, deleteUser, getRedirectResult, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth'
+import { GoogleAuthProvider, deleteUser, getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut } from 'firebase/auth'
 import { auth, hasFirebaseConfig } from './firebase'
 
 const provider = new GoogleAuthProvider()
-
-function prefersRedirectSignIn() {
-  if (typeof window === 'undefined') return false
-  const ua = window.navigator?.userAgent || ''
-  return /iPhone|iPad|iPod|Mobile Safari/i.test(ua)
-}
 
 function launchFullPageGoogleSignIn() {
   const authDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || ''
@@ -33,11 +27,9 @@ function launchFullPageGoogleSignIn() {
 
 function toPlainEnglishAuthError(error) {
   const code = error?.code || ''
-  if (code.includes('popup-blocked')) return 'Your browser blocked the Google sign-in popup. Try the full-page sign-in button instead.'
-  if (code.includes('popup-closed')) return 'The sign-in popup was closed before Google finished. Try again.'
   if (code.includes('unauthorized-domain')) return 'Google sign-in is not allowed on this site yet. Firebase needs this Netlify domain added as an authorized domain.'
   if (code.includes('operation-not-allowed')) return 'Google sign-in is not enabled in Firebase yet.'
-  return 'Sign-in did not finish. On mobile, use the full-page sign-in button. If it still fails, Firebase likely needs this Netlify domain added as an authorized domain.'
+  return 'Sign-in did not finish. Firebase likely needs this Netlify domain added as an authorized domain, or Google sign-in is not fully enabled for this project yet.'
 }
 
 export function useAuthState() {
@@ -71,21 +63,6 @@ export function useAuthState() {
 }
 
 export async function signInWithGoogle() {
-  if (!auth) return null
-  if (prefersRedirectSignIn()) {
-    await signInWithRedirect(auth, provider)
-    return { user: null, redirected: true, mobileRedirect: true }
-  }
-  try {
-    const result = await signInWithPopup(auth, provider)
-    return { user: result.user, redirected: false }
-  } catch (error) {
-    const message = toPlainEnglishAuthError(error)
-    return { user: null, redirected: false, error: message, rawCode: error?.code || '', rawMessage: error?.message || '' }
-  }
-}
-
-export async function signInWithGoogleRedirect() {
   if (!auth) return null
   if (launchFullPageGoogleSignIn()) return { redirected: true, forcedHandler: true }
   await signInWithRedirect(auth, provider)

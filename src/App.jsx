@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import './App.css'
 import { formatDate, addDays } from './lib/model'
 import { usePlannerState } from './hooks/usePlannerState'
-import { deleteSignedInAuthUser, signInWithGoogle, signInWithGoogleRedirect, signOutUser, useAuthState } from './lib/auth'
+import { deleteSignedInAuthUser, signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
 
 const emptyTaskForm = {
   id: '', title: '', area: '', category: 'Cleaning', room: '', system: '', assetName: '', vendor: '', supplyNote: '', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
@@ -235,7 +235,7 @@ function App() {
             ) : (
               <>
                 <p className="hero-copy">A calmer way to run your home, with maintenance, shopping, reminders, and shared household coordination in one place.</p>
-                <p className="hero-copy">If the Google popup gets blocked or seems to do nothing, use the full-page sign-in button instead.</p>
+                <p className="hero-copy">Google sign-in uses a full-page redirect so the auth flow behaves the same way across devices.</p>
                 <p className="hero-copy">If your session has expired, just sign in again and you’ll land back in the household flow.</p>
               </>
             )}
@@ -252,7 +252,7 @@ function App() {
                 setAuthError(result.error)
                 setAuthErrorCode(result.rawCode || '')
               } else if (result?.redirected) {
-                setAuthMessage(result.mobileRedirect ? 'Redirecting you to Google sign-in…' : '')
+                setAuthMessage('Redirecting you to Google sign-in…')
                 setAuthError('')
                 setAuthErrorCode('')
               } else {
@@ -262,12 +262,6 @@ function App() {
               }
             }}>{showDeletedAccountView ? 'Sign in again with Google' : 'Sign in or sign up with Google'}</button>
             <button className="secondary-button" onClick={() => setInviteChoice(true)}>I already have an invite code</button>
-            <button className="secondary-button" onClick={async () => {
-              setAuthMessage('Redirecting you to Google sign-in…')
-              setAuthError('')
-              setAuthErrorCode('')
-              await signInWithGoogleRedirect()
-            }}>Use full-page sign-in</button>
             {!showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
               <strong>Private household access</strong>
               <span>After sign-in, non-members can either create their own household or join one with a valid invite code from an owner.</span>
