@@ -8,6 +8,7 @@
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview",
+    "smoke:live": "node scripts/live_smoke_test.mjs",
     "reminders:dry-run": "node scripts/send_due_reminders.mjs --dry-run",
     "reminders:send": "node scripts/send_due_reminders.mjs",
     "calendar:preview": "node scripts/export_calendar_sync_preview.mjs",

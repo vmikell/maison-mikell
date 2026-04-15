@@ -29,4 +29,3 @@ dist-ssr
 # Generated operational artifacts
 calendar-sync-preview.json
 household-members.json
-scripts/live_smoke_test.mjs
