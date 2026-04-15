@@ -4,6 +4,5 @@
 
 [[redirects]]
   from = "/*"
-  to = "https://maison-reset.firebaseapp.com/:splat"
-  status = 302
-  force = true
+  to = "/index.html"
+  status = 200

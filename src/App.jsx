@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react'
 import './App.css'
 import { formatDate, addDays } from './lib/model'
 import { usePlannerState } from './hooks/usePlannerState'
-import { deleteSignedInAuthUser, signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
+import { deleteSignedInAuthUser, signInWithGoogle, signInWithGoogleRedirect, signOutUser, useAuthState } from './lib/auth'
 
 const emptyTaskForm = {
   id: '', title: '', area: '', category: 'Cleaning', room: '', system: '', assetName: '', vendor: '', supplyNote: '', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
@@ -69,7 +69,21 @@ function App() {
   }
 
   const setupPreview = buildSetupPreview()
-  const maisonLabel = 'Maison'
+  function deriveMaisonLabel() {
+    const rawName = (setupForm.name?.trim() || houseProfile.name || householdNameInput.trim() || '').trim()
+    if (!rawName) return 'Maison'
+    const parts = rawName.split(/\s+/).filter(Boolean)
+    const lastWord = parts[parts.length - 1]
+    if (!lastWord) return 'Maison'
+    const cleaned = lastWord.replace(/[^a-zA-Z'-]/g, '')
+    return cleaned ? `Maison ${cleaned}` : 'Maison'
+  }
+  const maisonLabel = deriveMaisonLabel()
+  const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile.name || 'our Maison home'
+  const inviteMessage = `Hey, I set up our Maison household, ${inviteHomeName}. Use invite code ${freshInviteCode} to join it.`
+  const inviteInstructions = 'Open Maison, sign in with Google, tap “I already have an invite code,” and enter the code.'
+  const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join our Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\n${inviteInstructions}`)}`
+  const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
   const { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode } = useAuthState()
   const {
     houseProfile,
@@ -126,12 +140,6 @@ function App() {
     setInviteChoice,
     setShowInvitePanel,
   } = usePlannerState(user)
-
-  const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile?.name || 'our Maison home'
-  const inviteMessage = `Hey, I set up our Maison household, ${inviteHomeName}. Use invite code ${freshInviteCode} to join it.`
-  const inviteInstructions = 'Open Maison, sign in with Google, tap “I already have an invite code,” and enter the code.'
-  const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join our Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\n${inviteInstructions}`)}`
-  const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
 
   const categories = useMemo(() => ['All', ...new Set(enrichedTasks.map((task) => task.category))], [enrichedTasks])
   const filteredTasks = enrichedTasks.filter((task) => {
@@ -235,7 +243,7 @@ function App() {
             ) : (
               <>
                 <p className="hero-copy">A calmer way to run your home, with maintenance, shopping, reminders, and shared household coordination in one place.</p>
-                <p className="hero-copy">Google sign-in uses a full-page redirect so the auth flow behaves the same way across devices.</p>
+                <p className="hero-copy">If the Google popup gets blocked or seems to do nothing, use the full-page sign-in button instead.</p>
                 <p className="hero-copy">If your session has expired, just sign in again and you’ll land back in the household flow.</p>
               </>
             )}
@@ -251,10 +259,6 @@ function App() {
                 setAuthMessage(result.error)
                 setAuthError(result.error)
                 setAuthErrorCode(result.rawCode || '')
-              } else if (result?.redirected) {
-                setAuthMessage('Redirecting you to Google sign-in…')
-                setAuthError('')
-                setAuthErrorCode('')
               } else {
                 setAuthMessage('')
                 setAuthError('')
@@ -262,6 +266,12 @@ function App() {
               }
             }}>{showDeletedAccountView ? 'Sign in again with Google' : 'Sign in or sign up with Google'}</button>
             <button className="secondary-button" onClick={() => setInviteChoice(true)}>I already have an invite code</button>
+            <button className="secondary-button" onClick={async () => {
+              setAuthMessage('Redirecting you to Google sign-in…')
+              setAuthError('')
+              setAuthErrorCode('')
+              await signInWithGoogleRedirect()
+            }}>Use full-page sign-in</button>
             {!showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
               <strong>Private household access</strong>
               <span>After sign-in, non-members can either create their own household or join one with a valid invite code from an owner.</span>

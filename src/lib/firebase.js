@@ -2,17 +2,9 @@ import { initializeApp, getApps } from 'firebase/app'
 import { getAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
-function resolveAuthDomain() {
-  const configuredAuthDomain = import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || ''
-  if (typeof window === 'undefined') return configuredAuthDomain
-  const currentHost = window.location.hostname || ''
-  if (currentHost === 'maison-mikell.netlify.app') return currentHost
-  return configuredAuthDomain
-}
-
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || '',
-  authDomain: resolveAuthDomain(),
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || '',
   projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID || '',
   storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET || '',
   messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID || '',

@@ -29,8 +29,6 @@ function reminderDoc(householdId, reminderId) { return doc(firestore, 'household
 function completionsRef(householdId) { return collection(firestore, 'households', householdId, 'completions') }
 function completionDoc(householdId, completionId) { return doc(firestore, 'households', householdId, 'completions', completionId) }
 function userMembershipRef(userId) { return doc(firestore, 'users', userId, 'meta', 'membership') }
-function deletedAccountKey(email = '') { return encodeURIComponent(email.trim().toLowerCase()) }
-function deletedAccountRef(email) { return doc(firestore, 'deletedAccounts', deletedAccountKey(email)) }
 
 function buildHouseholdId() {
   return `household-${Math.random().toString(36).slice(2, 10)}`
@@ -96,7 +94,15 @@ export async function ensureHouseholdMembership(currentUser) {
     }
   }
 
-  return null
+  const legacySnap = await getDoc(doc(firestore, 'households', houseProfile.id))
+  if (!legacySnap.exists()) return null
+  const legacyData = legacySnap.data()
+  const existing = (legacyData.members ?? []).find((member) => member.email === currentUser.email)
+  if (!existing) return null
+
+  const membership = { ...existing, householdId: houseProfile.id }
+  await setDoc(userMembershipRef(currentUser.uid), membership, { merge: true })
+  return membership
 }
 
 export async function createHouseholdForCurrentUser(currentUser, options = {}) {
@@ -413,29 +419,15 @@ export async function saveShoppingListMeta(householdId, listId, patch) {
   return true
 }
 
-export async function getDeletedAccountRecord(email) {
-  if (!hasFirebaseConfig || !firestore || !email?.trim()) return null
-  const deletedSnap = await getDoc(deletedAccountRef(email))
-  return deletedSnap.exists() ? deletedSnap.data() : null
-}
-
 export async function deleteCurrentUserData(currentUser, membership) {
   if (!hasFirebaseConfig || !firestore || !currentUser || !membership?.householdId) {
     return { ok: false, error: 'Missing account or household context.' }
   }
 
   const householdId = membership.householdId
-  const markerEmail = currentUser.email || membership.email || ''
-  const marker = {
-    uid: currentUser.uid,
-    email: markerEmail,
-    deletedAt: serverTimestamp(),
-    householdId,
-  }
   const householdSnap = await getDoc(householdRef(householdId))
   if (!householdSnap.exists()) {
     await deleteDoc(userMembershipRef(currentUser.uid))
-    if (markerEmail) await setDoc(deletedAccountRef(marker.email), marker, { merge: true })
     return { ok: true, deletedHousehold: false }
   }
 
@@ -459,7 +451,6 @@ export async function deleteCurrentUserData(currentUser, membership) {
     }
     await deleteDoc(householdRef(householdId))
     await deleteDoc(userMembershipRef(currentUser.uid))
-    if (markerEmail) await setDoc(deletedAccountRef(marker.email), { ...marker, deletedHousehold: true }, { merge: true })
     return { ok: true, deletedHousehold: true }
   }
 
@@ -468,6 +459,5 @@ export async function deleteCurrentUserData(currentUser, membership) {
     updatedAt: serverTimestamp(),
   })
   await deleteDoc(userMembershipRef(currentUser.uid))
-  if (markerEmail) await setDoc(deletedAccountRef(marker.email), { ...marker, deletedHousehold: false }, { merge: true })
   return { ok: true, deletedHousehold: false }
 }

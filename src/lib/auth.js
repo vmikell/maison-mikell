@@ -1,15 +1,16 @@
 import { useEffect, useState } from 'react'
-import { GoogleAuthProvider, deleteUser, getRedirectResult, onAuthStateChanged, signInWithRedirect, signOut } from 'firebase/auth'
+import { GoogleAuthProvider, deleteUser, getRedirectResult, onAuthStateChanged, signInWithPopup, signInWithRedirect, signOut } from 'firebase/auth'
 import { auth, hasFirebaseConfig } from './firebase'
-import { getDeletedAccountRecord } from './firestorePlanner'
 
 const provider = new GoogleAuthProvider()
 
 function toPlainEnglishAuthError(error) {
   const code = error?.code || ''
+  if (code.includes('popup-blocked')) return 'Your browser blocked the Google sign-in popup. Try the full-page sign-in button instead.'
+  if (code.includes('popup-closed')) return 'The sign-in popup was closed before Google finished. Try again.'
   if (code.includes('unauthorized-domain')) return 'Google sign-in is not allowed on this site yet. Firebase needs this Netlify domain added as an authorized domain.'
   if (code.includes('operation-not-allowed')) return 'Google sign-in is not enabled in Firebase yet.'
-  return 'Sign-in did not finish. If this is happening on the Netlify production domain, the auth helper domain may still need same-site proxying.'
+  return 'Sign-in did not finish. Check that Google sign-in is enabled in Firebase and that this Netlify domain is authorized.'
 }
 
 export function useAuthState() {
@@ -21,33 +22,14 @@ export function useAuthState() {
   useEffect(() => {
     if (!hasFirebaseConfig || !auth) return
 
-    let cancelled = false
-
     getRedirectResult(auth)
       .then(() => {})
       .catch((error) => {
-        if (cancelled) return
         setAuthError(toPlainEnglishAuthError(error))
         setAuthErrorCode(error?.code || '')
       })
 
-    const unsubscribe = onAuthStateChanged(auth, async (nextUser) => {
-      if (cancelled) return
-      if (nextUser?.email) {
-        const deletedAccount = await getDeletedAccountRecord(nextUser.email)
-        if (cancelled) return
-        if (deletedAccount) {
-          try {
-            await signOut(auth)
-          } catch {}
-          setUser(null)
-          setAuthLoading(false)
-          setAuthError('This email belongs to a deleted Maison account and can no longer sign in. Use a different Google account if you want to come back.')
-          setAuthErrorCode('auth/account-disabled-in-maison')
-          return
-        }
-      }
-
+    const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       setUser(nextUser)
       setAuthLoading(false)
       if (nextUser) {
@@ -55,16 +37,24 @@ export function useAuthState() {
         setAuthErrorCode('')
       }
     })
-    return () => {
-      cancelled = true
-      unsubscribe()
-    }
+    return unsubscribe
   }, [])
 
   return { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode }
 }
 
 export async function signInWithGoogle() {
+  if (!auth) return null
+  try {
+    const result = await signInWithPopup(auth, provider)
+    return { user: result.user, redirected: false }
+  } catch (error) {
+    const message = toPlainEnglishAuthError(error)
+    return { user: null, redirected: false, error: message, rawCode: error?.code || '', rawMessage: error?.message || '' }
+  }
+}
+
+export async function signInWithGoogleRedirect() {
   if (!auth) return null
   await signInWithRedirect(auth, provider)
   return { redirected: true }
