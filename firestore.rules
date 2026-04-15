@@ -112,7 +112,9 @@ service cloud.firestore {
       allow create, update: if signedIn()
         && request.auth.uid == userId
         && docId == 'membership';
-      allow delete: if false;
+      allow delete: if signedIn()
+        && request.auth.uid == userId
+        && docId == 'membership';
     }
   }
 }

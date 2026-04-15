@@ -38,6 +38,25 @@ function buildInviteCode() {
   return Math.random().toString(36).slice(2, 8).toUpperCase()
 }
 
+async function resolveMembershipIdentity(currentUser) {
+  const fallbackEmail = currentUser?.email || ''
+  const fallbackName = currentUser?.displayName || fallbackEmail
+
+  try {
+    const tokenResult = await currentUser?.getIdTokenResult?.()
+    const tokenName = tokenResult?.claims?.name
+    return {
+      email: fallbackEmail,
+      name: tokenName || fallbackEmail || fallbackName,
+    }
+  } catch {
+    return {
+      email: fallbackEmail,
+      name: fallbackEmail || fallbackName,
+    }
+  }
+}
+
 async function seedHouseholdIfNeeded(householdId, overrides = {}) {
   const homeSnap = await getDoc(householdRef(householdId))
   const batch = writeBatch(firestore)
@@ -114,10 +133,11 @@ export async function createHouseholdForCurrentUser(currentUser, options = {}) {
   const householdId = buildHouseholdId()
   const inviteCode = buildInviteCode()
   const nextHouseholdName = (options.name || '').trim()
+  const identity = await resolveMembershipIdentity(currentUser)
   const nextMember = {
     id: currentUser.uid,
-    email: currentUser.email,
-    name: currentUser.displayName || currentUser.email,
+    email: identity.email,
+    name: identity.name,
     role: 'owner',
     joinedAt: new Date().toISOString(),
     householdId,
@@ -174,10 +194,11 @@ export async function joinHouseholdWithInviteCode(currentUser, inviteCode) {
   const household = householdSnap.data()
   const members = household.members ?? []
   const nextRole = members.length === 0 ? 'owner' : 'member'
+  const identity = await resolveMembershipIdentity(currentUser)
   const nextMember = {
     id: currentUser.uid,
-    email: currentUser.email,
-    name: currentUser.displayName || currentUser.email,
+    email: identity.email,
+    name: identity.name,
     role: nextRole,
     joinedAt: new Date().toISOString(),
     householdId,

@@ -9,6 +9,7 @@ import {
   signInWithRedirect,
   signOut,
   updateProfile,
+  getIdTokenResult,
 } from 'firebase/auth'
 import { auth, hasFirebaseConfig } from './firebase'
 
@@ -115,6 +116,8 @@ export async function createEmailPasswordAccount(input = {}) {
 
     if (displayName) {
       await updateProfile(result.user, { displayName })
+      await result.user.reload()
+      await getIdTokenResult(result.user, true)
     }
 
     return { user: auth.currentUser ?? result.user, displayName }
