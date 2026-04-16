@@ -16,6 +16,7 @@ import {
 } from 'firebase/auth'
 import { auth, hasFirebaseConfig } from './firebase'
 import { appendDiagnosticsEvent } from './diagnosticsStore'
+import { getGoogleAuthStrategyPlan } from './googleAuthStrategy'
 
 const provider = new GoogleAuthProvider()
 
@@ -113,8 +114,11 @@ export function useAuthState() {
     getRedirectResult(auth)
       .then((result) => {
         if (!isActive || !result?.user) return
+        const authPlan = getGoogleAuthStrategyPlan()
         recordAuthDiagnostic('auth_redirect_result_success', {
           providerId: result.providerId || 'unknown',
+          authMode: authPlan.effectiveMode,
+          platform: authPlan.platform,
           url: getCurrentPageUrl(),
         })
         setUser(result.user)
@@ -123,8 +127,11 @@ export function useAuthState() {
       })
       .catch((error) => {
         if (!isActive) return
+        const authPlan = getGoogleAuthStrategyPlan()
         recordAuthDiagnostic('auth_redirect_result_error', {
           code: error?.code || 'unknown',
+          authMode: authPlan.effectiveMode,
+          platform: authPlan.platform,
           message: toPlainEnglishAuthError(error),
           url: getCurrentPageUrl(),
         })
@@ -163,21 +170,36 @@ export function useAuthState() {
 
 export async function signInWithGoogle() {
   if (!hasFirebaseConfig || !auth) return { redirected: false, ...missingFirebaseConfigResult() }
+
+  const authPlan = getGoogleAuthStrategyPlan()
+  recordAuthDiagnostic('auth_google_strategy_selected', {
+    preferredMode: authPlan.preferredMode,
+    effectiveMode: authPlan.effectiveMode,
+    fallbackApplied: authPlan.fallbackApplied,
+    platform: authPlan.platform,
+    rationale: authPlan.rationale,
+    url: getCurrentPageUrl(),
+  })
+
   try {
     recordAuthDiagnostic('auth_google_redirect_start', {
+      authMode: authPlan.effectiveMode,
+      platform: authPlan.platform,
       url: getCurrentPageUrl(),
       userAgent: typeof navigator === 'undefined' ? 'unknown' : navigator.userAgent,
     })
     await signInWithRedirect(auth, provider)
-    return { redirected: true }
+    return { redirected: true, authMode: authPlan.effectiveMode }
   } catch (error) {
     const message = toPlainEnglishAuthError(error)
     recordAuthDiagnostic('auth_google_redirect_error', {
       code: error?.code || 'unknown',
+      authMode: authPlan.effectiveMode,
+      platform: authPlan.platform,
       message,
       url: getCurrentPageUrl(),
     })
-    return { redirected: false, error: message, rawCode: error?.code || '', rawMessage: error?.message || '' }
+    return { redirected: false, error: message, rawCode: error?.code || '', rawMessage: error?.message || '', authMode: authPlan.effectiveMode }
   }
 }
 
