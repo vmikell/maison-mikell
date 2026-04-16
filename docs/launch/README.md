@@ -21,6 +21,7 @@ This folder is the operating base for turning Maison Mikell from a working house
 - `onboarding-implementation-plan.md`
 - `ios-xcode-signing-checklist.md`
 - `native-first-device-pass-worksheet.md`
+- `native-google-auth-handoff.md`
 - `native-auth-fallback-plan.md`
 - `reliability-audit-2026-04-11.md`
 - `write-scenario-matrix-2026-04-11.md`
