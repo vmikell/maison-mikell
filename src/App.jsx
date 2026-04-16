@@ -309,6 +309,32 @@ function App() {
     return memberName && memberName !== normalizedResolvedActor
   })
 
+  if (!user && authLoading) {
+    return (
+      <div className="shell auth-shell">
+        <section className="hero-card auth-landing-card">
+          <div>
+            <p className="eyebrow">{maisonLabel}</p>
+            <h1>Finishing your sign-in</h1>
+            <p className="hero-copy">One second, I’m checking whether Google just handed your Maison session back.</p>
+            <div className="house-loading-wrap" aria-label="Loading" role="status">
+              <div className="house-puzzle-loading premium-house-loading" aria-hidden="true">
+                <div className="puzzle-piece piece-roof-left"></div>
+                <div className="puzzle-piece piece-roof-right"></div>
+                <div className="puzzle-piece piece-wall-left"></div>
+                <div className="puzzle-piece piece-wall-right"></div>
+                <div className="puzzle-piece piece-bottom-left"></div>
+                <div className="puzzle-piece piece-bottom-right"></div>
+                <div className="house-outline"></div>
+              </div>
+              <span className="loading-pulse-label">Checking your sign-in…</span>
+            </div>
+          </div>
+        </section>
+      </div>
+    )
+  }
+
   if (!user) {
     return (
       <div className="shell auth-shell">

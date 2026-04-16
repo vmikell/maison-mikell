@@ -77,22 +77,46 @@ export function useAuthState() {
   useEffect(() => {
     if (!hasFirebaseConfig || !auth) return
 
+    let isActive = true
+    let sawInitialAuthSnapshot = false
+    let redirectCheckFinished = false
+
+    function settleLoading() {
+      if (!isActive) return
+      if (sawInitialAuthSnapshot && redirectCheckFinished) setAuthLoading(false)
+    }
+
     getRedirectResult(auth)
-      .then(() => {})
+      .then((result) => {
+        if (!isActive || !result?.user) return
+        setUser(result.user)
+        setAuthError('')
+        setAuthErrorCode('')
+      })
       .catch((error) => {
+        if (!isActive) return
         setAuthError(toPlainEnglishAuthError(error))
         setAuthErrorCode(error?.code || '')
       })
+      .finally(() => {
+        redirectCheckFinished = true
+        settleLoading()
+      })
 
     const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
+      if (!isActive) return
+      sawInitialAuthSnapshot = true
       setUser(nextUser)
-      setAuthLoading(false)
       if (nextUser) {
         setAuthError('')
         setAuthErrorCode('')
       }
+      settleLoading()
     })
-    return unsubscribe
+    return () => {
+      isActive = false
+      unsubscribe()
+    }
   }, [])
 
   return { user, authLoading, authError, authErrorCode, setAuthError, setAuthErrorCode }
