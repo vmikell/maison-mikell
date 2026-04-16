@@ -40,17 +40,22 @@ Recommended app identity draft:
 
 ## Phase 3: Native shell setup
 
+Current local progress:
+- [x] Draft Maison-branded native icons and splash assets generated for iOS and Android.
+- [x] Capacitor shells still sync cleanly after the asset refresh.
+- [ ] Native IDE signing, device installs, and real-device auth verification still need to happen.
+
 ### iOS
 - [ ] Open in Xcode.
 - [ ] Configure signing.
-- [ ] Add icons and launch assets.
+- [x] Add icons and launch assets.
 - [ ] Test authentication and session persistence on a real iPhone.
 - [ ] Test deep links and outbound links.
 
 ### Android
 - [ ] Open in Android Studio.
 - [ ] Configure application id and signing.
-- [ ] Add icons and launch assets.
+- [x] Add icons and launch assets.
 - [ ] Test authentication and session persistence on a real Android device.
 - [ ] Test background/resume behavior.
 
