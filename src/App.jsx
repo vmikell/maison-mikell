@@ -181,6 +181,14 @@ function App() {
   const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
 
   const categories = useMemo(() => ['All', ...new Set(enrichedTasks.map((task) => task.category))], [enrichedTasks])
+  const inAppBrowserWarning = useMemo(() => {
+    if (typeof navigator === 'undefined') return null
+    const ua = navigator.userAgent || ''
+    if (/Telegram/i.test(ua)) return 'Telegram'
+    if (/Instagram/i.test(ua)) return 'Instagram'
+    if (/FBAN|FBAV|FB_IAB|FB4A/i.test(ua)) return 'Facebook'
+    return null
+  }, [])
   const currentInviteCode = houseProfile.inviteCode || freshInviteCode || ''
   const inviteCodeVisibilityKey = membership?.householdId ? `maison:invite-code-visible:${membership.householdId}` : ''
 
@@ -356,6 +364,10 @@ function App() {
                 {emailAuthMode === 'signin' ? <button className="secondary-button" type="button" onClick={handlePasswordReset} disabled={isEmailAuthLoading}>Reset password</button> : null}
               </div>
             </form>
+            {inAppBrowserWarning && !showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
+              <strong>Open in your main browser if Google loops</strong>
+              <span>{inAppBrowserWarning}'s in-app browser can break Google sign-in handoff. If login bounces back here, open Maison in Safari or Chrome and try again there.</span>
+            </div> : null}
             {!showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
               <strong>Private household access</strong>
               <span>After sign-in, non-members can either create their own household or join one with a valid invite code from an owner.</span>
