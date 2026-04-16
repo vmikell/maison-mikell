@@ -216,6 +216,7 @@ function App() {
 
   useEffect(() => {
     if (!inviteCodeVisibilityKey) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsInviteCodeVisible(true)
       return
     }

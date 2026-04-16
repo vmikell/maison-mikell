@@ -29,3 +29,12 @@ dist-ssr
 # Generated operational artifacts
 calendar-sync-preview.json
 household-members.json
+
+# Capacitor / native local build artifacts
+android/.gradle
+android/local.properties
+android/captures
+android/.idea
+ios/App/Pods
+ios/App/build
+ios/App/App/public

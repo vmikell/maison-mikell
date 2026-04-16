@@ -16,14 +16,23 @@
     "calendar:preview": "node scripts/export_calendar_sync_preview.mjs",
     "calendar:members": "node scripts/export_household_members.mjs",
     "calendar:sync": "bash scripts/run_calendar_sync.sh",
-    "join:test": "node --env-file=.env.local scripts/test_join_flow.mjs"
+    "join:test": "node --env-file=.env.local scripts/test_join_flow.mjs",
+    "cap:build": "npm run build && npx cap sync",
+    "cap:sync": "npx cap sync",
+    "cap:copy": "npx cap copy",
+    "cap:open:ios": "npx cap open ios",
+    "cap:open:android": "npx cap open android"
   },
   "dependencies": {
+    "@capacitor/core": "^8.3.0",
     "firebase": "^11.6.1",
     "react": "^19.2.4",
     "react-dom": "^19.2.4"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/ios": "^8.3.0",
     "@eslint/js": "^9.39.4",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",

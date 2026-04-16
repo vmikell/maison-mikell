@@ -232,7 +232,9 @@ export async function deleteSignedInAuthUser() {
     if (code.includes('requires-recent-login')) {
       try {
         await signOut(auth)
-      } catch {}
+      } catch {
+        // Ignore sign-out cleanup failures here, the main issue is the stale auth session.
+      }
       return {
         ok: false,
         error: 'For security, you need a fresh sign-in before Maison can fully delete this account. You have been signed out, so sign back in and retry deletion right away.',

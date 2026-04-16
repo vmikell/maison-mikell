@@ -28,11 +28,11 @@ Why this is the right path now:
 
 ## Phase 2: Add Capacitor
 
-- [ ] Install Capacitor packages.
-- [ ] Initialize Capacitor in the Maison Mikell project.
-- [ ] Set app id and app name.
-- [ ] Point Capacitor to the Vite build output.
-- [ ] Generate iOS and Android projects.
+- [x] Install Capacitor packages.
+- [x] Initialize Capacitor in the Maison Mikell project.
+- [x] Set app id and app name.
+- [x] Point Capacitor to the Vite build output.
+- [x] Generate iOS and Android projects.
 
 Recommended app identity draft:
 - App name: Maison Mikell

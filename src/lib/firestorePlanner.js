@@ -16,7 +16,6 @@ import { firestore, hasFirebaseConfig } from './firebase'
 import { houseProfile, starterHouseProfile, shoppingLists } from './data'
 import { buildCompletionRecord, buildReminderRecord, buildTasksFromSetup, completeTask, normalizeShoppingItemInput, normalizeTaskInput } from './model'
 
-function householdsRef() { return collection(firestore, 'households') }
 function householdRef(householdId) { return doc(firestore, 'households', householdId) }
 function inviteCodeRef(inviteCode) { return doc(firestore, 'inviteCodes', inviteCode) }
 function tasksRef(householdId) { return collection(firestore, 'households', householdId, 'maintenanceTasks') }
