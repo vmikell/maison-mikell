@@ -29,6 +29,7 @@ The shell currently has:
 - working Capacitor packaging
 - branded native assets
 - default Capacitor app delegates / activities
+- diagnostics and doctor tooling that make the missing callback-path configuration visible
 
 The shell does **not** yet have:
 - a native Google sign-in plugin

@@ -51,6 +51,7 @@ All passed after the diagnostics update.
 - Google sign-in is still using the Firebase **web** redirect flow in `src/lib/auth.js`.
 - The native shell does not yet include a dedicated Capacitor Firebase / Google auth plugin.
 - The new diagnostics panel improves device-test visibility, but it does **not** change the auth implementation itself.
+- The shell doctor also confirms there is currently no Android `VIEW` intent filter or iOS `CFBundleURLTypes` callback scheme configured for mobile OAuth return paths.
 - That means the biggest remaining Phase 3 risk is real-device Google auth behavior inside the Capacitor WebView.
 - Detailed notes are captured in `docs/launch/native-auth-mobile-audit.md`.
 - Device validation steps are captured in `docs/launch/native-device-test-runbook.md`.

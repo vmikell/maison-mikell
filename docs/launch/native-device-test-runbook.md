@@ -34,6 +34,7 @@ Prepare before testing:
 
 - Run `npm run native:doctor` from the repo root.
 - Use it as a quick readiness check for Java, Android SDK env vars, Capacitor shell presence, and basic project wiring before you lose time in Xcode or Android Studio.
+- Read the callback-path warnings too. Right now the doctor should flag that Android has no `VIEW` intent filter and iOS has no `CFBundleURLTypes` callback scheme configured yet.
 
 ## iPhone runbook
 

@@ -15,6 +15,10 @@ function readJson(relativePath) {
   return JSON.parse(fs.readFileSync(path.join(repoRoot, relativePath), 'utf8'))
 }
 
+function readText(relativePath) {
+  return fs.readFileSync(path.join(repoRoot, relativePath), 'utf8')
+}
+
 function run(command, args = []) {
   try {
     const result = spawnSync(command, args, {
@@ -52,6 +56,15 @@ function buildChecks() {
   const hasWebBuild = exists(path.join(capacitorConfig.webDir || 'dist', 'index.html'))
   const hasGradleWrapper = exists('android/gradlew')
   const hasCapacitorAppPlugin = Boolean(packageJson.dependencies?.['@capacitor/app'])
+  const androidManifest = hasAndroid ? readText('android/app/src/main/AndroidManifest.xml') : ''
+  const iosInfoPlist = hasIos ? readText('ios/App/App/Info.plist') : ''
+  const iosAppDelegate = hasIos ? readText('ios/App/App/AppDelegate.swift') : ''
+
+  const hasAndroidViewIntentFilter = androidManifest.includes('android.intent.action.VIEW')
+  const hasAndroidSingleTaskLaunchMode = androidManifest.includes('android:launchMode="singleTask"')
+  const hasIosUrlTypes = iosInfoPlist.includes('CFBundleURLTypes')
+  const hasIosUniversalLinkForwarder = iosAppDelegate.includes('continue userActivity')
+  const hasIosOpenUrlForwarder = iosAppDelegate.includes('open url: URL')
 
   checks.push({ ok: Boolean(capacitorConfig.appId), level: 'fail', label: 'Capacitor app id', detail: capacitorConfig.appId || 'Missing appId in capacitor.config.json' })
   checks.push({ ok: Boolean(capacitorConfig.appName), level: 'fail', label: 'Capacitor app name', detail: capacitorConfig.appName || 'Missing appName in capacitor.config.json' })
@@ -61,6 +74,11 @@ function buildChecks() {
   checks.push({ ok: hasGradleWrapper, level: 'fail', label: 'Gradle wrapper', detail: hasGradleWrapper ? 'android/gradlew is present' : 'android/gradlew is missing' })
   checks.push({ ok: hasWebBuild, level: 'warn', label: 'Web build output', detail: hasWebBuild ? `${capacitorConfig.webDir}/index.html is present` : `Missing ${capacitorConfig.webDir}/index.html. Run npm run build before syncing.` })
   checks.push({ ok: hasCapacitorAppPlugin, level: 'warn', label: '@capacitor/app plugin', detail: hasCapacitorAppPlugin ? 'Installed for lifecycle and appUrlOpen diagnostics' : 'Missing @capacitor/app dependency' })
+  checks.push({ ok: hasAndroidSingleTaskLaunchMode, level: 'warn', label: 'Android singleTask activity', detail: hasAndroidSingleTaskLaunchMode ? 'MainActivity is configured with singleTask launchMode' : 'MainActivity is not configured with singleTask launchMode' })
+  checks.push({ ok: hasAndroidViewIntentFilter, level: 'warn', label: 'Android callback intent filter', detail: hasAndroidViewIntentFilter ? 'AndroidManifest has a VIEW intent filter for callback URLs' : 'AndroidManifest has no VIEW intent filter for OAuth/deep-link callbacks yet' })
+  checks.push({ ok: hasIosOpenUrlForwarder, level: 'warn', label: 'iOS openURL forwarder', detail: hasIosOpenUrlForwarder ? 'AppDelegate forwards openURL calls into Capacitor' : 'AppDelegate is missing the Capacitor openURL forwarder' })
+  checks.push({ ok: hasIosUniversalLinkForwarder, level: 'warn', label: 'iOS universal-link forwarder', detail: hasIosUniversalLinkForwarder ? 'AppDelegate forwards universal links into Capacitor' : 'AppDelegate is missing the universal-link forwarder' })
+  checks.push({ ok: hasIosUrlTypes, level: 'warn', label: 'iOS callback URL scheme', detail: hasIosUrlTypes ? 'Info.plist declares CFBundleURLTypes' : 'Info.plist has no CFBundleURLTypes callback scheme yet' })
 
   const javaResult = run('java', ['-version'])
   const hasJavaHome = Boolean(process.env.JAVA_HOME)
