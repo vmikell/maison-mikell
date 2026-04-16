@@ -11,6 +11,14 @@ const emptyTaskForm = {
 const emptyShoppingForm = { id: '', name: '', qty: '1', aisleHint: 'Household', url: '', checked: false }
 
 function App() {
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    const host = window.location.hostname || ''
+    if (!host.endsWith('--maison-mikell.netlify.app')) return
+    const target = `https://maison-mikell.netlify.app${window.location.pathname}${window.location.search}${window.location.hash}`
+    window.location.replace(target)
+  }, [])
+
   const [activeTab, setActiveTab] = useState('planner')
   const [selectedCategory, setSelectedCategory] = useState('All')
   const [selectedStatus, setSelectedStatus] = useState('All')
