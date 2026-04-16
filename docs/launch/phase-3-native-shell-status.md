@@ -15,6 +15,7 @@ See also: `docs/launch/native-phase-3-gate-matrix.md`
 - Added a web-only debug escape hatch via `?nativeDebug=1` so the same diagnostics surface can be checked in a browser without changing normal web behavior.
 - Added `npm run native:doctor` to quickly report whether the local machine is actually ready for Android / iOS device testing.
 - Reserved an app-owned callback route, `com.maisonmikell.app://auth`, in the Android manifest and iOS URL types so the native shell can be smoke-tested without changing the current web auth flow.
+- Added Android callback smoke helpers so a connected device can install the debug APK and trigger the reserved callback route from one repo command.
 
 ## Files updated by the asset pass
 
@@ -38,6 +39,7 @@ See also: `docs/launch/native-phase-3-gate-matrix.md`
 - `npm run cap:sync`
 - `npm run native:doctor`
 - `cd android && ./gradlew assembleDebug`
+- `node scripts/native_android_callback_smoke.mjs --help`
 
 All passed after the native shell prep updates.
 
@@ -46,6 +48,7 @@ All passed after the native shell prep updates.
 ### Android
 - User-local Java and Android SDK tooling are now installed on this Linux box.
 - `./gradlew assembleDebug` now succeeds locally and produces a debug APK.
+- `npm run native:android:callback-smoke` can now trigger `com.maisonmikell.app://auth` over adb when a device is attached.
 - Real-device install, signing choices, and callback round-trip verification still need Android Studio and hardware.
 
 ### iOS
@@ -73,5 +76,5 @@ All passed after the native shell prep updates.
 ### Android
 1. Open `android/` in Android Studio or install `android/app/build/outputs/apk/debug/app-debug.apk` on a real Android device.
 2. Configure signing for debug/release builds as needed.
-3. Smoke-test `com.maisonmikell.app://auth` and confirm the diagnostics panel captures the callback event.
+3. Run `npm run native:android:callback-smoke` and confirm the diagnostics panel captures the callback event.
 4. Verify sign-in, resume/background behavior, and outbound links.

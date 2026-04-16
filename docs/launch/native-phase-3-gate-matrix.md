@@ -14,6 +14,7 @@ Use this as the current source of truth for what is already done locally, what i
 | Callback readiness warnings surfaced | ✅ Done | `a75f616` | Treat the missing callback wiring as a known auth risk, not a surprise. |
 | Android shell build on this machine | ✅ Done | `./gradlew assembleDebug` succeeds locally and produces `android/app/build/outputs/apk/debug/app-debug.apk` | Install the debug APK on a real device and validate auth behavior there. |
 | Android callback return path wiring | ✅ Done | `android/app/src/main/AndroidManifest.xml` now declares a `VIEW` / `BROWSABLE` intent filter for `com.maisonmikell.app://auth` | Smoke-test the reserved callback route on a real Android device, then verify Google auth return behavior. |
+| Android callback smoke helper | ✅ Done | `npm run native:android:callback-smoke` now wraps the adb deep-link launch | Use it to reduce setup friction during the first Android device pass. |
 | iOS callback return path wiring | ✅ Done | `ios/App/App/Info.plist` now declares `CFBundleURLTypes` for `com.maisonmikell.app` | Smoke-test the reserved callback route on iPhone, then verify Google auth return behavior. |
 | iOS shell opening and signing | ⏳ Manual | Shell exists, but no Xcode signing has been done locally here | Open `ios/App/App.xcodeproj` on macOS, configure signing for `com.maisonmikell.app`, then install on a real iPhone. |
 | Real-device Google auth validation | ⏳ Manual | Not run yet | Test start, return-to-app, persistence, sign-out/sign-back-in, and background/resume on both platforms. |
@@ -36,6 +37,7 @@ Use this as the current source of truth for what is already done locally, what i
 ## Recommended next execution order
 
 1. Install `android/app/build/outputs/apk/debug/app-debug.apk` on a real Android device and smoke-test `com.maisonmikell.app://auth`.
+   - fastest path once adb sees the phone: `npm run native:android:callback-smoke:install`
 2. On macOS, open Xcode, configure signing, and install on a real iPhone.
 3. Smoke-test `com.maisonmikell.app://auth` on iPhone too, then run the device checklist in `docs/launch/native-device-test-runbook.md`.
    - Record each pass with `docs/launch/native-device-test-results-template.md`.

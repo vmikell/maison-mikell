@@ -49,6 +49,10 @@ Use this before Google auth if you want to verify the shell can reopen itself wi
 - Confirm Maison opens and the diagnostics panel records an `appUrlOpen` event.
 
 ### Android
+- One-command helper from the repo root:
+  - `npm run native:android:callback-smoke`
+- Or install the debug APK first and then trigger the callback in one pass:
+  - `npm run native:android:callback-smoke:install`
 - With a connected device, run:
   - `adb shell am start -W -a android.intent.action.VIEW -d "com.maisonmikell.app://auth?source=adb" com.maisonmikell.app`
 - Confirm Maison opens and the diagnostics panel records an `appUrlOpen` event.
@@ -109,7 +113,7 @@ If anything breaks, record:
 ## Android runbook
 
 ### 1. Install and boot
-- Install the debug build from Android Studio.
+- Install the debug build from Android Studio, or run `npm run native:android:callback-smoke:install` if adb already sees the device.
 - Confirm the Maison icon and splash screen look correct.
 - Confirm the app opens without crash or blank screen.
 
