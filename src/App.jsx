@@ -14,9 +14,23 @@ function App() {
   useEffect(() => {
     if (typeof window === 'undefined') return
     const host = window.location.hostname || ''
-    if (!host.endsWith('--maison-mikell.netlify.app')) return
-    const target = `https://maison-mikell.netlify.app${window.location.pathname}${window.location.search}${window.location.hash}`
-    window.location.replace(target)
+    const path = `${window.location.pathname}${window.location.search}${window.location.hash}`
+    const ua = typeof navigator === 'undefined' ? '' : navigator.userAgent || ''
+    const isInAppBrowser = /Telegram|Instagram|FBAN|FBAV|FB_IAB|FB4A/i.test(ua)
+
+    if (host.endsWith('--maison-mikell.netlify.app')) {
+      window.location.replace(`https://maison-mikell.netlify.app${path}`)
+      return
+    }
+
+    if (host === 'maison-reset.web.app') {
+      window.location.replace(`https://maison-reset.firebaseapp.com${path}`)
+      return
+    }
+
+    if (isInAppBrowser && host === 'maison-mikell.netlify.app') {
+      window.location.replace(`https://maison-reset.firebaseapp.com${path}`)
+    }
   }, [])
 
   const [activeTab, setActiveTab] = useState('planner')
