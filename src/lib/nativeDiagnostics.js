@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { Capacitor } from '@capacitor/core'
 import { App as CapacitorApp } from '@capacitor/app'
+import { appendDiagnosticsEvent, clearDiagnosticsEvents, readDiagnosticsEvents, subscribeDiagnosticsEvents } from './diagnosticsStore'
 
-const MAX_EVENTS = 6
+const MAX_VISIBLE_EVENTS = 8
 const DEBUG_QUERY_KEYS = ['nativeDebug', 'nativeDiagnostics']
 const TRUTHY_QUERY_VALUES = new Set(['1', 'true', 'yes', 'on'])
 
@@ -14,15 +15,6 @@ function getCurrentUrl() {
 function getDocumentAppState() {
   if (typeof document === 'undefined') return 'unknown'
   return document.hidden ? 'background' : 'active'
-}
-
-function buildEvent(type, detail) {
-  return {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    type,
-    detail,
-    timestamp: new Date().toISOString(),
-  }
 }
 
 function readDebugFlagFromUrl() {
@@ -38,20 +30,43 @@ export function useNativeDiagnostics() {
   const [currentUrl, setCurrentUrl] = useState(() => getCurrentUrl())
   const [appState, setAppState] = useState(() => getDocumentAppState())
   const [debugEnabled] = useState(() => readDebugFlagFromUrl())
+  const lastRecordedUrl = useRef(getCurrentUrl())
 
   const shouldShowDiagnostics = isNativeShell || debugEnabled
-  const [events, setEvents] = useState(() => shouldShowDiagnostics ? [buildEvent('webview_url', getCurrentUrl())] : [])
+  const [events, setEvents] = useState(() => shouldShowDiagnostics ? readDiagnosticsEvents() : [])
   const [copyMessage, setCopyMessage] = useState('')
 
   const pushEvent = useCallback((type, detail) => {
-    setEvents((current) => [buildEvent(type, detail), ...current].slice(0, MAX_EVENTS))
+    if (!shouldShowDiagnostics) return
+    const nextEvents = appendDiagnosticsEvent(type, detail)
+    setEvents(nextEvents)
+  }, [shouldShowDiagnostics])
+
+  const clearEvents = useCallback(() => {
+    clearDiagnosticsEvents()
+    setEvents([])
+    setCopyMessage('Cleared diagnostics history.')
   }, [])
 
   useEffect(() => {
+    if (!shouldShowDiagnostics) return undefined
+    return subscribeDiagnosticsEvents((nextEvents) => setEvents(nextEvents))
+  }, [shouldShowDiagnostics])
+
+  useEffect(() => {
     if (!shouldShowDiagnostics || typeof window === 'undefined' || typeof document === 'undefined') return undefined
+    lastRecordedUrl.current = getCurrentUrl()
+
+    const initialUrlTimer = window.setTimeout(() => {
+      pushEvent('webview_url', getCurrentUrl())
+    }, 0)
 
     function handleLocationChange() {
-      setCurrentUrl(getCurrentUrl())
+      const nextUrl = getCurrentUrl()
+      setCurrentUrl(nextUrl)
+      if (nextUrl === lastRecordedUrl.current) return
+      lastRecordedUrl.current = nextUrl
+      pushEvent('webview_url', nextUrl)
     }
 
     function handleVisibilityChange() {
@@ -67,6 +82,7 @@ export function useNativeDiagnostics() {
     document.addEventListener('visibilitychange', handleVisibilityChange)
 
     return () => {
+      window.clearTimeout(initialUrlTimer)
       window.removeEventListener('hashchange', handleLocationChange)
       window.removeEventListener('popstate', handleLocationChange)
       document.removeEventListener('visibilitychange', handleVisibilityChange)
@@ -134,6 +150,7 @@ export function useNativeDiagnostics() {
     platform,
     appState,
     currentUrl,
+    eventCount: events.length,
     latestEvent: events[0]
       ? {
           type: events[0].type,
@@ -165,16 +182,20 @@ export function useNativeDiagnostics() {
     return () => window.clearTimeout(timer)
   }, [copyMessage])
 
+  const visibleEvents = useMemo(() => events.slice(0, MAX_VISIBLE_EVENTS), [events])
+
   return {
     appState,
+    clearEvents,
     copyMessage,
     copySnapshot,
     currentUrl,
     debugEnabled,
-    events,
+    events: visibleEvents,
     isNativeShell,
     platform,
     shouldShowDiagnostics,
     snapshot,
+    totalEventCount: events.length,
   }
 }

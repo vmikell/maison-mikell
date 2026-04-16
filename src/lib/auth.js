@@ -15,8 +15,31 @@ import {
   getIdTokenResult,
 } from 'firebase/auth'
 import { auth, hasFirebaseConfig } from './firebase'
+import { appendDiagnosticsEvent } from './diagnosticsStore'
 
 const provider = new GoogleAuthProvider()
+
+function getCurrentPageUrl() {
+  if (typeof window === 'undefined') return ''
+  return `${window.location.origin}${window.location.pathname}${window.location.search}${window.location.hash}`
+}
+
+function recordAuthDiagnostic(type, detail) {
+  try {
+    appendDiagnosticsEvent(type, detail)
+  } catch {
+    // Diagnostics must stay passive and never block auth flows.
+  }
+}
+
+function summarizeAuthUser(user) {
+  if (!user) return { signedIn: false }
+  return {
+    signedIn: true,
+    isAnonymous: Boolean(user.isAnonymous),
+    providerIds: user.providerData?.map((providerItem) => providerItem.providerId).filter(Boolean) || [],
+  }
+}
 
 function missingFirebaseConfigResult() {
   return {
@@ -80,6 +103,7 @@ export function useAuthState() {
     let isActive = true
     let sawInitialAuthSnapshot = false
     let redirectCheckFinished = false
+    let lastAuthSnapshotKey = ''
 
     function settleLoading() {
       if (!isActive) return
@@ -89,12 +113,21 @@ export function useAuthState() {
     getRedirectResult(auth)
       .then((result) => {
         if (!isActive || !result?.user) return
+        recordAuthDiagnostic('auth_redirect_result_success', {
+          providerId: result.providerId || 'unknown',
+          url: getCurrentPageUrl(),
+        })
         setUser(result.user)
         setAuthError('')
         setAuthErrorCode('')
       })
       .catch((error) => {
         if (!isActive) return
+        recordAuthDiagnostic('auth_redirect_result_error', {
+          code: error?.code || 'unknown',
+          message: toPlainEnglishAuthError(error),
+          url: getCurrentPageUrl(),
+        })
         setAuthError(toPlainEnglishAuthError(error))
         setAuthErrorCode(error?.code || '')
       })
@@ -106,6 +139,12 @@ export function useAuthState() {
     const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       if (!isActive) return
       sawInitialAuthSnapshot = true
+      const authSnapshot = summarizeAuthUser(nextUser)
+      const authSnapshotKey = JSON.stringify(authSnapshot)
+      if (authSnapshotKey !== lastAuthSnapshotKey) {
+        recordAuthDiagnostic('auth_state_change', authSnapshot)
+        lastAuthSnapshotKey = authSnapshotKey
+      }
       setUser(nextUser)
       if (nextUser) {
         setAuthError('')
@@ -125,10 +164,19 @@ export function useAuthState() {
 export async function signInWithGoogle() {
   if (!hasFirebaseConfig || !auth) return { redirected: false, ...missingFirebaseConfigResult() }
   try {
+    recordAuthDiagnostic('auth_google_redirect_start', {
+      url: getCurrentPageUrl(),
+      userAgent: typeof navigator === 'undefined' ? 'unknown' : navigator.userAgent,
+    })
     await signInWithRedirect(auth, provider)
     return { redirected: true }
   } catch (error) {
     const message = toPlainEnglishAuthError(error)
+    recordAuthDiagnostic('auth_google_redirect_error', {
+      code: error?.code || 'unknown',
+      message,
+      url: getCurrentPageUrl(),
+    })
     return { redirected: false, error: message, rawCode: error?.code || '', rawMessage: error?.message || '' }
   }
 }
@@ -181,7 +229,9 @@ export async function sendPasswordReset(input = {}) {
 
 export async function signOutUser() {
   if (!auth) return
+  recordAuthDiagnostic('auth_sign_out_start', { url: getCurrentPageUrl() })
   await signOut(auth)
+  recordAuthDiagnostic('auth_sign_out_complete', { url: getCurrentPageUrl() })
 }
 
 export async function ensureRecentLogin(input = {}) {

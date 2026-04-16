@@ -927,7 +927,7 @@ function NativeDiagnosticsPanel({ diagnostics }) {
         <div>
           <p className="panel-label">Native diagnostics</p>
           <h2>{diagnostics.isNativeShell ? 'Capacitor shell detected' : 'Debug diagnostics enabled'}</h2>
-          <p className="hero-copy">Current URL, runtime, and recent lifecycle events for device testing.</p>
+          <p className="hero-copy">Current URL, runtime, lifecycle events, and auth redirect traces for device testing.</p>
         </div>
         <span className="count-pill">{diagnostics.snapshot.runtime} · {diagnostics.platform}</span>
       </summary>
@@ -945,21 +945,27 @@ function NativeDiagnosticsPanel({ diagnostics }) {
           <span>App state</span>
           <strong>{diagnostics.appState}</strong>
         </div>
+        <div className="native-diagnostics-stat">
+          <span>Stored events</span>
+          <strong>{diagnostics.totalEventCount}</strong>
+        </div>
       </div>
 
       <div className="native-diagnostics-url-block">
         <p className="panel-label">Current URL</p>
         <p className="hero-copy native-diagnostics-url">{diagnostics.currentUrl || 'Unavailable'}</p>
+        <p className="hero-copy">This history survives auth redirects until you clear it, so failed return flows leave a trail behind.</p>
       </div>
 
       <div className="form-actions native-diagnostics-actions">
         <button className="secondary-button" type="button" onClick={() => diagnostics.copySnapshot()}>Copy snapshot</button>
+        <button className="secondary-button" type="button" onClick={() => diagnostics.clearEvents()}>Clear history</button>
         {diagnostics.debugEnabled && !diagnostics.isNativeShell ? <span className="hero-copy">Remove <code>?nativeDebug=1</code> to hide this on web.</span> : null}
         {diagnostics.copyMessage ? <span className="auth-help success native-diagnostics-copy">{diagnostics.copyMessage}</span> : null}
       </div>
 
       <div className="native-diagnostics-events">
-        <p className="panel-label">Recent events</p>
+        <p className="panel-label">Recent events {diagnostics.totalEventCount ? `(${Math.min(diagnostics.events.length, diagnostics.totalEventCount)} shown)` : ''}</p>
         {diagnostics.events.length ? diagnostics.events.map((event) => (
           <article key={event.id} className="native-diagnostics-event">
             <div className="native-diagnostics-event-head">

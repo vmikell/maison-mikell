@@ -9,6 +9,7 @@
 - Re-synced the Capacitor shells after the asset update.
 - Added a native diagnostics panel that appears automatically inside Capacitor shells.
 - Added passive runtime listeners through `@capacitor/app` for app state changes, pause / resume, launch URL capture, and `appUrlOpen` callbacks.
+- Added persistent local diagnostics history so auth redirect attempts and return-path evidence survive page reloads until manually cleared.
 - Added a web-only debug escape hatch via `?nativeDebug=1` so the same diagnostics surface can be checked in a browser without changing normal web behavior.
 
 ## Files updated by the asset pass

@@ -26,6 +26,8 @@ Prepare before testing:
 - In the packaged iPhone and Android shells, Maison now shows a **Native diagnostics** panel automatically.
 - Use it to confirm the current runtime, platform, URL, latest lifecycle changes, and any `appUrlOpen` callback events.
 - Tap **Copy snapshot** whenever a flow breaks so you have a clean event trace to paste into notes.
+- Tap **Clear history** before a fresh auth attempt if you want a clean redirect trace.
+- The diagnostics history now survives auth redirects and reloads, which helps when Google hands control out to Safari, Chrome, or Custom Tabs before returning.
 - In a normal desktop or mobile browser, you can reveal the same panel with `?nativeDebug=1` for quick comparison without changing default web behavior.
 
 ## iPhone runbook

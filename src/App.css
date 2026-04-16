@@ -236,7 +236,7 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
 .native-diagnostics-summary { display: flex; align-items: start; justify-content: space-between; gap: 12px; cursor: pointer; list-style: none; }
 .native-diagnostics-summary::-webkit-details-marker { display: none; }
 .native-diagnostics-summary h2 { margin-top: 4px; }
-.native-diagnostics-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.native-diagnostics-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
 .native-diagnostics-stat { display: grid; gap: 4px; padding: 12px; border-radius: 18px; background: rgba(255,255,255,0.06); }
 .native-diagnostics-stat span { text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.68rem; color: #c9bddf; }
 .native-diagnostics-stat strong { color: #fff; font-size: 1rem; }
