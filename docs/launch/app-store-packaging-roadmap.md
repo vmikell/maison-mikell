@@ -49,6 +49,8 @@ Current local progress:
 - [ ] Open in Xcode.
 - [ ] Configure signing.
 - [x] Add icons and launch assets.
+- [ ] Verify whether the current Firebase web redirect flow survives inside the iPhone Capacitor shell.
+- [ ] If not, switch Google auth to a native mobile path before store prep.
 - [ ] Test authentication and session persistence on a real iPhone.
 - [ ] Test deep links and outbound links.
 
@@ -56,6 +58,8 @@ Current local progress:
 - [ ] Open in Android Studio.
 - [ ] Configure application id and signing.
 - [x] Add icons and launch assets.
+- [ ] Verify whether the current Firebase web redirect flow survives inside the Android Capacitor shell.
+- [ ] If not, switch Google auth to a native mobile path before store prep.
 - [ ] Test authentication and session persistence on a real Android device.
 - [ ] Test background/resume behavior.
 

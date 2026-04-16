@@ -40,6 +40,12 @@ Both passed after the asset refresh.
 ### iOS
 - Xcode signing and device installs must still be done on macOS.
 
+### Native auth gap
+- Google sign-in is still using the Firebase **web** redirect flow in `src/lib/auth.js`.
+- The native shell does not yet include a dedicated Capacitor Firebase / Google auth plugin.
+- That means the biggest remaining Phase 3 risk is real-device Google auth behavior inside the Capacitor WebView.
+- Detailed notes are captured in `docs/launch/native-auth-mobile-audit.md`.
+
 ## Next manual Phase 3 steps
 
 ### iOS
