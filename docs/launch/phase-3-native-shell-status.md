@@ -1,5 +1,7 @@
 # Phase 3 Native Shell Status
 
+See also: `docs/launch/native-phase-3-gate-matrix.md`
+
 ## Done locally
 
 - Replaced the stock Capacitor placeholder assets with Maison-branded draft assets for both platforms.

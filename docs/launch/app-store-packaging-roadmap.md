@@ -46,6 +46,8 @@ Current local progress:
 - [x] Native auth risk and device-test runbook documented.
 - [ ] Native IDE signing, device installs, and real-device auth verification still need to happen.
 
+See also: `docs/launch/native-phase-3-gate-matrix.md` for the current Phase 3 readiness snapshot.
+
 ### iOS
 - [ ] Open in Xcode.
 - [ ] Configure signing.
