@@ -1,5 +1,6 @@
+import { Capacitor } from '@capacitor/core'
 import { initializeApp, getApps } from 'firebase/app'
-import { getAuth } from 'firebase/auth'
+import { getAuth, indexedDBLocalPersistence, initializeAuth } from 'firebase/auth'
 import { getFirestore } from 'firebase/firestore'
 
 const publicFirebaseConfig = {
@@ -23,5 +24,22 @@ const firebaseConfig = {
 export const hasFirebaseConfig = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId && firebaseConfig.appId)
 
 export const firebaseApp = hasFirebaseConfig ? (getApps()[0] ?? initializeApp(firebaseConfig)) : null
-export const auth = hasFirebaseConfig ? getAuth(firebaseApp) : null
+
+function createFirebaseAuth(app) {
+  if (!app) return null
+
+  if (Capacitor.isNativePlatform()) {
+    try {
+      return initializeAuth(app, {
+        persistence: indexedDBLocalPersistence,
+      })
+    } catch {
+      return getAuth(app)
+    }
+  }
+
+  return getAuth(app)
+}
+
+export const auth = hasFirebaseConfig ? createFirebaseAuth(firebaseApp) : null
 export const firestore = hasFirebaseConfig ? getFirestore(firebaseApp) : null

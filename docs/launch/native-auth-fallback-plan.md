@@ -40,15 +40,22 @@ If the fallback is triggered, the preferred next move is:
 
 ## Option A, recommended: native Google auth integration for Capacitor
 
-Why this is the default recommendation:
+Status now: **partially implemented**.
+
+Why this is still the default recommendation:
 - best chance of reliable iPhone and Android login UX
 - better fit for store-ready builds than continuing to force a web redirect flow inside a WebView
 - reduces dependence on hosted-web assumptions that may keep breaking inside native shells
 
-What this means in practice:
-- use a dedicated native-capable Google sign-in path for both platforms
-- bridge the returned identity into Firebase auth cleanly
-- keep Maison session handling consistent after native sign-in succeeds
+What is already in place:
+- a Capacitor Firebase Authentication plugin is installed
+- Maison can now request native Google sign-in and bridge the returned token into the Firebase JS SDK
+- the path is gated behind `VITE_NATIVE_GOOGLE_AUTH_MODE=native-bridge`, so normal web auth stays on the current redirect flow
+
+What still must happen before calling this fallback complete:
+- add real Android and iOS Firebase mobile config files
+- wire the iOS reversed client ID URL scheme from `GoogleService-Info.plist`
+- verify sign-in, relaunch persistence, and sign-out on real devices
 
 ## Option B, fallback if Option A is blocked: hosted browser plus deep-link callback
 

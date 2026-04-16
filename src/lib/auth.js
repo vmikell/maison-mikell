@@ -1,22 +1,25 @@
 import { useEffect, useState } from 'react'
+import { Capacitor } from '@capacitor/core'
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication'
 import {
   EmailAuthProvider,
   GoogleAuthProvider,
   createUserWithEmailAndPassword,
   deleteUser,
   getRedirectResult,
+  getIdTokenResult,
   onAuthStateChanged,
   reauthenticateWithCredential,
   sendPasswordResetEmail,
+  signInWithCredential,
   signInWithEmailAndPassword,
   signInWithRedirect,
   signOut,
   updateProfile,
-  getIdTokenResult,
 } from 'firebase/auth'
 import { auth, hasFirebaseConfig } from './firebase'
 import { appendDiagnosticsEvent } from './diagnosticsStore'
-import { getGoogleAuthStrategyPlan } from './googleAuthStrategy'
+import { getGoogleAuthStrategyPlan, NATIVE_BRIDGE_MODE, WEB_REDIRECT_MODE } from './googleAuthStrategy'
 
 const provider = new GoogleAuthProvider()
 
@@ -31,6 +34,34 @@ function recordAuthDiagnostic(type, detail) {
   } catch {
     // Diagnostics must stay passive and never block auth flows.
   }
+}
+
+async function signInWithNativeGoogleBridge(authPlan) {
+  const nativeResult = await FirebaseAuthentication.signInWithGoogle({
+    skipNativeAuth: true,
+  })
+
+  const idToken = nativeResult?.credential?.idToken || ''
+  const accessToken = nativeResult?.credential?.accessToken || ''
+
+  if (!idToken) {
+    const error = new Error('Native Google sign-in finished without an ID token.')
+    error.code = 'maison/native-google-missing-id-token'
+    throw error
+  }
+
+  const credential = GoogleAuthProvider.credential(idToken, accessToken || null)
+  const signedInResult = await signInWithCredential(auth, credential)
+
+  recordAuthDiagnostic('auth_google_native_success', {
+    authMode: authPlan.effectiveMode,
+    platform: authPlan.platform,
+    providerId: nativeResult?.credential?.providerId || 'google.com',
+    isNewUser: Boolean(nativeResult?.additionalUserInfo?.isNewUser),
+    url: getCurrentPageUrl(),
+  })
+
+  return signedInResult
 }
 
 function summarizeAuthUser(user) {
@@ -84,6 +115,8 @@ function toPlainEnglishAuthError(error, context = {}) {
   if (code.includes('too-many-requests')) return 'Too many sign-in attempts just now. Give it a minute and try again.'
   if (code.includes('missing-email')) return 'Enter your email address first.'
   if (code.includes('requires-recent-login')) return 'For security, sign in again and retry that action right away.'
+  if (code.includes('sign_in_canceled') || code.includes('cancelled') || code.includes('canceled')) return 'Google sign-in was canceled before it finished.'
+  if (code.includes('network-request-failed')) return 'Google sign-in could not reach the network. Check your connection and try again.'
 
   if (context.provider === 'email') {
     return 'Email sign-in did not finish. Check that email/password is enabled in Firebase and try again.'
@@ -111,37 +144,42 @@ export function useAuthState() {
       if (sawInitialAuthSnapshot && redirectCheckFinished) setAuthLoading(false)
     }
 
-    getRedirectResult(auth)
-      .then((result) => {
-        if (!isActive || !result?.user) return
-        const authPlan = getGoogleAuthStrategyPlan()
-        recordAuthDiagnostic('auth_redirect_result_success', {
-          providerId: result.providerId || 'unknown',
-          authMode: authPlan.effectiveMode,
-          platform: authPlan.platform,
-          url: getCurrentPageUrl(),
+    const authPlan = getGoogleAuthStrategyPlan()
+
+    if (authPlan.effectiveMode === WEB_REDIRECT_MODE) {
+      getRedirectResult(auth)
+        .then((result) => {
+          if (!isActive || !result?.user) return
+          recordAuthDiagnostic('auth_redirect_result_success', {
+            providerId: result.providerId || 'unknown',
+            authMode: authPlan.effectiveMode,
+            platform: authPlan.platform,
+            url: getCurrentPageUrl(),
+          })
+          setUser(result.user)
+          setAuthError('')
+          setAuthErrorCode('')
         })
-        setUser(result.user)
-        setAuthError('')
-        setAuthErrorCode('')
-      })
-      .catch((error) => {
-        if (!isActive) return
-        const authPlan = getGoogleAuthStrategyPlan()
-        recordAuthDiagnostic('auth_redirect_result_error', {
-          code: error?.code || 'unknown',
-          authMode: authPlan.effectiveMode,
-          platform: authPlan.platform,
-          message: toPlainEnglishAuthError(error),
-          url: getCurrentPageUrl(),
+        .catch((error) => {
+          if (!isActive) return
+          recordAuthDiagnostic('auth_redirect_result_error', {
+            code: error?.code || 'unknown',
+            authMode: authPlan.effectiveMode,
+            platform: authPlan.platform,
+            message: toPlainEnglishAuthError(error),
+            url: getCurrentPageUrl(),
+          })
+          setAuthError(toPlainEnglishAuthError(error))
+          setAuthErrorCode(error?.code || '')
         })
-        setAuthError(toPlainEnglishAuthError(error))
-        setAuthErrorCode(error?.code || '')
-      })
-      .finally(() => {
-        redirectCheckFinished = true
-        settleLoading()
-      })
+        .finally(() => {
+          redirectCheckFinished = true
+          settleLoading()
+        })
+    } else {
+      redirectCheckFinished = true
+      settleLoading()
+    }
 
     const unsubscribe = onAuthStateChanged(auth, (nextUser) => {
       if (!isActive) return
@@ -182,6 +220,17 @@ export async function signInWithGoogle() {
   })
 
   try {
+    if (authPlan.effectiveMode === NATIVE_BRIDGE_MODE && Capacitor.isNativePlatform()) {
+      recordAuthDiagnostic('auth_google_native_start', {
+        authMode: authPlan.effectiveMode,
+        platform: authPlan.platform,
+        url: getCurrentPageUrl(),
+        userAgent: typeof navigator === 'undefined' ? 'unknown' : navigator.userAgent,
+      })
+      const result = await signInWithNativeGoogleBridge(authPlan)
+      return { redirected: false, user: result.user, authMode: authPlan.effectiveMode }
+    }
+
     recordAuthDiagnostic('auth_google_redirect_start', {
       authMode: authPlan.effectiveMode,
       platform: authPlan.platform,
@@ -192,7 +241,7 @@ export async function signInWithGoogle() {
     return { redirected: true, authMode: authPlan.effectiveMode }
   } catch (error) {
     const message = toPlainEnglishAuthError(error)
-    recordAuthDiagnostic('auth_google_redirect_error', {
+    recordAuthDiagnostic(authPlan.effectiveMode === NATIVE_BRIDGE_MODE ? 'auth_google_native_error' : 'auth_google_redirect_error', {
       code: error?.code || 'unknown',
       authMode: authPlan.effectiveMode,
       platform: authPlan.platform,
@@ -252,6 +301,13 @@ export async function sendPasswordReset(input = {}) {
 export async function signOutUser() {
   if (!auth) return
   recordAuthDiagnostic('auth_sign_out_start', { url: getCurrentPageUrl() })
+  if (Capacitor.isNativePlatform()) {
+    try {
+      await FirebaseAuthentication.signOut()
+    } catch {
+      // Keep native sign-out best-effort so web auth never gets stuck behind plugin state.
+    }
+  }
   await signOut(auth)
   recordAuthDiagnostic('auth_sign_out_complete', { url: getCurrentPageUrl() })
 }

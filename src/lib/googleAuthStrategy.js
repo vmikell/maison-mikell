@@ -1,8 +1,8 @@
 import { Capacitor } from '@capacitor/core'
 
-const WEB_REDIRECT_MODE = 'firebase-web-redirect'
-const NATIVE_BRIDGE_MODE = 'native-bridge'
-const HOSTED_BROWSER_MODE = 'hosted-browser-deeplink'
+export const WEB_REDIRECT_MODE = 'firebase-web-redirect'
+export const NATIVE_BRIDGE_MODE = 'native-bridge'
+export const HOSTED_BROWSER_MODE = 'hosted-browser-deeplink'
 
 function normalizePreferredMode(rawValue = '') {
   const value = String(rawValue || '').trim().toLowerCase()
@@ -51,9 +51,9 @@ export function getGoogleAuthStrategyPlan() {
       platform,
       isNativeShell,
       preferredMode,
-      effectiveMode: WEB_REDIRECT_MODE,
-      fallbackApplied: true,
-      rationale: 'Requested native bridge mode is not wired yet, so Maison is falling back to the current Firebase web redirect flow.',
+      effectiveMode: NATIVE_BRIDGE_MODE,
+      fallbackApplied: false,
+      rationale: 'Native shells can now use the Capacitor Firebase Authentication bridge for Google sign-in when the mobile Firebase client config is present.',
     }
   }
 
@@ -63,7 +63,7 @@ export function getGoogleAuthStrategyPlan() {
     preferredMode,
     effectiveMode: WEB_REDIRECT_MODE,
     fallbackApplied: true,
-    rationale: 'Requested hosted browser deep-link mode is scaffolded but not wired yet, so Maison is falling back to the current Firebase web redirect flow.',
+    rationale: 'Requested hosted browser deep-link mode is still scaffolded only, so Maison is falling back to the current Firebase web redirect flow.',
   }
 }
 

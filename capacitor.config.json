@@ -1,5 +1,11 @@
 {
   "appId": "com.maisonmikell.app",
   "appName": "Maison Mikell",
-  "webDir": "dist"
+  "webDir": "dist",
+  "plugins": {
+    "FirebaseAuthentication": {
+      "skipNativeAuth": true,
+      "providers": ["google.com"]
+    }
+  }
 }

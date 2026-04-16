@@ -37,6 +37,8 @@ Prepare before testing:
 - Run `npm run native:doctor` from the repo root.
 - Use it as a quick readiness check for Java, Android SDK wiring, Capacitor shell presence, and basic project wiring before you lose time in Xcode or Android Studio.
 - Confirm the doctor reports the reserved app callback route too. Right now it should show Android callback routing for `com.maisonmikell.app://auth` and matching iOS `CFBundleURLTypes` for `com.maisonmikell.app`.
+- If you want to test the new native Google path instead of the web redirect path, build with `VITE_NATIVE_GOOGLE_AUTH_MODE=native-bridge`.
+- Before that native test, add `android/app/google-services.json` and `ios/App/App/GoogleService-Info.plist`, then wire the iOS reversed client ID URL scheme from the plist into Xcode.
 
 ## Optional callback-path smoke test
 
@@ -69,10 +71,12 @@ This smoke test proves only that the shell can handle the reserved callback rout
 ### 2. Fresh launch auth test
 - If already signed in, sign out first.
 - Expand the **Native diagnostics** panel before starting so the event list is visible.
+- Note whether this build is using web redirect mode or `native-bridge` mode.
 - Tap **Continue with Google**.
 - Confirm Google sign-in opens correctly.
 - Complete sign-in.
-- Confirm Maison returns to the app instead of getting stuck in Safari / browser tabs.
+- In `native-bridge` mode, confirm Maison returns with a signed-in JS session even if there is no Firebase web redirect round-trip.
+- In web redirect mode, confirm Maison returns to the app instead of getting stuck in Safari / browser tabs.
 - Confirm the app lands in the expected household flow.
 - Confirm the diagnostics panel records the URL transition and any lifecycle / callback events during the return.
 
@@ -120,10 +124,12 @@ If anything breaks, record:
 ### 2. Fresh launch auth test
 - If already signed in, sign out first.
 - Expand the **Native diagnostics** panel before starting so the event list is visible.
+- Note whether this build is using web redirect mode or `native-bridge` mode.
 - Tap **Continue with Google**.
 - Confirm Google sign-in opens correctly.
 - Complete sign-in.
-- Confirm Maison returns to the app instead of getting stuck in Chrome / Custom Tabs.
+- In `native-bridge` mode, confirm Maison returns with a signed-in JS session even if there is no Firebase web redirect round-trip.
+- In web redirect mode, confirm Maison returns to the app instead of getting stuck in Chrome / Custom Tabs.
 - Confirm the app lands in the expected household flow.
 - Confirm the diagnostics panel records the URL transition and any lifecycle / callback events during the return.
 

@@ -2,16 +2,16 @@
 
 ## Current implementation
 
-Maison currently uses the Firebase web SDK auth flow inside the app shell:
+Maison now has two Google auth paths:
 
-- `src/lib/auth.js` uses `signInWithRedirect(auth, provider)` for Google sign-in.
-- `src/lib/auth.js` also expects `getRedirectResult(auth)` to complete inside the same web runtime after the redirect returns.
-- `package.json` includes Capacitor core packages, but no native Firebase / Google auth Capacitor plugin yet.
-- The app now includes a passive diagnostics surface backed by `@capacitor/app`, plus persistent local auth/runtime event history, so device tests can capture lifecycle, callback, and redirect evidence without changing auth behavior.
-- The app now also has a small Google auth strategy scaffold in `src/lib/googleAuthStrategy.js`, so native bridge or hosted-browser fallback work can land behind one decision point instead of rewiring the whole UI later.
-- The shell now reserves an app-owned callback route, `com.maisonmikell.app://auth`, through the Android manifest and iOS URL-type configuration.
-- `android/app/src/main/java/com/maisonmikell/app/MainActivity.java` is still the default `BridgeActivity`.
-- `ios/App/App/AppDelegate.swift` is still the default Capacitor delegate proxy setup.
+- Web still uses the Firebase web SDK redirect flow in `src/lib/auth.js` via `signInWithRedirect(auth, provider)` and `getRedirectResult(auth)`.
+- Native shells can now use `@capacitor-firebase/authentication` to launch Google sign-in natively, return an ID token, and bridge that credential back into the Firebase JS SDK with `signInWithCredential(...)`.
+- The Firebase auth bootstrap now uses IndexedDB persistence on Capacitor so the bridged JS session survives app relaunches more reliably.
+- `src/lib/googleAuthStrategy.js` remains the decision point. The native bridge is enabled when `VITE_NATIVE_GOOGLE_AUTH_MODE=native-bridge`. Web builds still stay on the web redirect flow.
+- `capacitor.config.json` now registers the Firebase Authentication plugin with `skipNativeAuth: true` and `providers: ["google.com"]`, which keeps Maison's existing JS auth and Firestore usage intact.
+- Android now has the required plugin variable scaffold in `android/variables.gradle` for Google provider support.
+- The app still includes the passive diagnostics surface backed by `@capacitor/app`, plus persistent local auth/runtime event history, so device tests can capture lifecycle, callback, and redirect evidence without changing auth behavior.
+- The shell still reserves an app-owned callback route, `com.maisonmikell.app://auth`, through the Android manifest and iOS URL-type configuration.
 
 ## Why this matters for Phase 3
 
@@ -34,24 +34,27 @@ The shell currently has:
 - diagnostics and doctor tooling
 - reserved callback-path scaffolding for `com.maisonmikell.app://auth`
 
-The shell does **not** yet have:
-- a native Google sign-in plugin
-- a native Firebase auth bridge
-- a provider-specific, end-to-end verified callback path for Google mobile auth
-- verified persistence behavior on actual iPhone / Android hardware
+The shell still does **not** yet have:
+- checked-in mobile Firebase client config files (`android/app/google-services.json`, `ios/App/App/GoogleService-Info.plist`)
+- the iOS reversed-client-id URL scheme wired from a real `GoogleService-Info.plist`
+- provider-specific, end-to-end verified Google auth behavior on real iPhone / Android hardware
+- proof yet that native sign-in, relaunch persistence, and sign-out are clean on devices
 
-The shell **does** now have one useful prep step toward that work:
-- a strategy layer that can choose between the current Firebase web redirect flow and future native-capable auth modes without rewriting the sign-in UI again
+The shell **does** now have a real first-pass native auth implementation:
+- a strategy layer that can switch between web redirect and native bridge mode without rewriting the sign-in UI
+- a native Google sign-in bridge that turns the returned mobile credential into the existing Firebase JS session
 
 ## Recommended Phase 3 path
 
-### First pass, verify on devices
+### First pass, finish native wiring and verify on devices
 
-1. Install the current shell on a real iPhone.
-2. Install the current shell on a real Android device.
-3. Test:
+1. Add the real Firebase mobile config files for Android and iOS.
+2. On iOS, add the reversed client ID URL scheme from `GoogleService-Info.plist`.
+3. Build fresh native shells with `npx cap sync`.
+4. Test:
    - Google sign-in start
    - Google return to app
+   - JS-session establishment after native sign-in
    - session persistence after app restart
    - sign-out and sign-back-in
    - outbound links
