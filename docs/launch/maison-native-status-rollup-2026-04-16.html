@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Mikell Native Readiness Rollup</title>
+  <style>
+    :root {
+      --ink: #201933;
+      --muted: #6d6581;
+      --paper: #fffdfd;
+      --line: #eadff1;
+      --lavender: #f5efff;
+      --rose: #fff1f7;
+      --green: #e8fff4;
+      --amber: #fff6df;
+      --danger: #ffe8ee;
+      --accent: linear-gradient(135deg, #ff8ecf 0%, #b18cff 100%);
+      --accent-solid: #8f6cff;
+      --shadow: 0 18px 50px rgba(33, 22, 56, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.5;
+    }
+    .page {
+      min-height: 100vh;
+      padding: 52px 56px;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    .cover {
+      background:
+        radial-gradient(circle at top right, rgba(255, 142, 207, 0.2), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(177, 140, 255, 0.18), transparent 28%),
+        #fffdfd;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--lavender);
+      color: var(--accent-solid);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: 42px;
+      line-height: 1.04;
+      margin: 18px 0 14px;
+      max-width: 620px;
+    }
+    .subtitle {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 660px;
+      margin: 0;
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 24px;
+      margin-top: 36px;
+      align-items: stretch;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.94);
+      box-shadow: var(--shadow);
+    }
+    .hero-card { padding: 28px; }
+    .hero-card h2 {
+      margin: 0 0 12px;
+      font-size: 21px;
+    }
+    .hero-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+    }
+    .stack {
+      display: grid;
+      gap: 14px;
+    }
+    .mini {
+      padding: 18px;
+      background: linear-gradient(180deg, #fff 0%, #fcf8ff 100%);
+    }
+    .mini strong {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+    }
+    .mini span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .footer-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 28px;
+    }
+    h2.section-title {
+      font-size: 28px;
+      margin: 0 0 8px;
+    }
+    .section-intro {
+      margin: 0 0 24px;
+      color: var(--muted);
+      font-size: 15px;
+      max-width: 760px;
+    }
+    .status-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin-bottom: 24px;
+    }
+    .status-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 18px 20px;
+      background: #fff;
+    }
+    .status-card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+    }
+    .status-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .tag {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+    .done { background: var(--green); color: #126843; }
+    .pending { background: var(--amber); color: #8b5a00; }
+    .risk { background: var(--danger); color: #9e284b; }
+    .callout {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 22px;
+      background: linear-gradient(180deg, #fff 0%, #fff7fb 100%);
+      margin-bottom: 18px;
+    }
+    .callout h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+    .callout p {
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    ul {
+      margin: 10px 0 0;
+      padding-left: 20px;
+    }
+    li { margin: 7px 0; }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 22px;
+    }
+    .timeline {
+      display: grid;
+      gap: 14px;
+      margin-top: 10px;
+    }
+    .step {
+      border-left: 4px solid #d8c8ff;
+      padding: 8px 0 8px 14px;
+    }
+    .step strong {
+      display: block;
+      margin-bottom: 4px;
+      font-size: 15px;
+    }
+    .step span {
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .decision-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .decision {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 20px;
+      background: #fff;
+    }
+    .decision h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+    .decision p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .banner {
+      margin-top: 22px;
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: var(--accent);
+      color: white;
+      font-size: 17px;
+      font-weight: 700;
+    }
+    .small {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 14px;
+    }
+    code {
+      font-family: "SFMono-Regular", Consolas, Menlo, monospace;
+      font-size: 0.94em;
+      background: #f5f1ff;
+      padding: 1px 5px;
+      border-radius: 6px;
+    }
+    @page {
+      size: Letter;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div>
+      <span class="eyebrow">Maison Mikell native status</span>
+      <h1>Native is prepared for real device testing, but not validated yet.</h1>
+      <p class="subtitle">Android packaging is now in much better shape, iPhone still needs Xcode signing on macOS, and the biggest remaining risk is still Google sign-in behavior inside the Capacitor shells.</p>
+      <div class="hero-grid">
+        <div class="card hero-card">
+          <h2>Bottom line</h2>
+          <p>The shell work is real, not hypothetical anymore. Branding, diagnostics, callback scaffolding, doctor tooling, and Android local builds are in place. The next thing that actually matters is the first real phone pass. That is what decides whether Phase 3 stays green or turns into a native auth fix sprint.</p>
+        </div>
+        <div class="stack">
+          <div class="card mini">
+            <strong>Android today</strong>
+            <span>Debug APK builds locally on the Linux machine and callback smoke helpers are ready.</span>
+          </div>
+          <div class="card mini">
+            <strong>iPhone today</strong>
+            <span>Shell exists, but signing and device install still need Xcode on macOS.</span>
+          </div>
+          <div class="card mini">
+            <strong>Biggest risk</strong>
+            <span>Google auth is still the Firebase web redirect flow, which is unproven inside native WebViews.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note">Prepared for Victor, April 16, 2026</div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">Current readout</h2>
+    <p class="section-intro">This is the clean snapshot of where Maison Mikell native packaging stands right now.</p>
+
+    <div class="status-grid">
+      <div class="status-card">
+        <span class="tag done">Done</span>
+        <h3>Capacitor shells and branding</h3>
+        <p>The <code>ios/</code> and <code>android/</code> shells exist, sync cleanly, and use Maison-branded draft icon and splash assets.</p>
+      </div>
+      <div class="status-card">
+        <span class="tag done">Done</span>
+        <h3>Diagnostics and doctor tooling</h3>
+        <p>A Native diagnostics panel now captures lifecycle and callback evidence, and <code>npm run native:doctor</code> gives a quick readiness check.</p>
+      </div>
+      <div class="status-card">
+        <span class="tag done">Done</span>
+        <h3>Android local build path</h3>
+        <p><code>cd android && ./gradlew assembleDebug</code> now succeeds on this Linux box and produces a debug APK.</p>
+      </div>
+      <div class="status-card">
+        <span class="tag done">Done</span>
+        <h3>Callback smoke-test wiring</h3>
+        <p>The reserved callback route <code>com.maisonmikell.app://auth</code> is wired on Android and iOS, with a one-command Android smoke helper.</p>
+      </div>
+      <div class="status-card">
+        <span class="tag pending">Pending manual work</span>
+        <h3>iPhone signing and install</h3>
+        <p>The iOS shell still needs Xcode signing on macOS before a real iPhone pass can happen.</p>
+      </div>
+      <div class="status-card">
+        <span class="tag risk">Still unproven</span>
+        <h3>Real-device Google auth</h3>
+        <p>The highest-risk path, start auth, return to app, persistence, and resume behavior on real phones, has not been validated yet.</p>
+      </div>
+    </div>
+
+    <div class="two-col">
+      <div class="callout">
+        <h3>What is already done</h3>
+        <ul>
+          <li>Maison app identity is set to <code>com.maisonmikell.app</code>.</li>
+          <li>Native diagnostics capture app state, pause/resume, launch URL, and <code>appUrlOpen</code> events.</li>
+          <li>Diagnostics history persists through reloads, which matters for redirect auth tracing.</li>
+          <li>Android callback helpers are available through <code>npm run native:android:callback-smoke</code> and <code>npm run native:android:callback-smoke:install</code>.</li>
+          <li>Local verification already passed for build, lint, Capacitor sync, native doctor, and Android debug build generation.</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <h3>Why this still is not store-ready</h3>
+        <ul>
+          <li>Google sign-in is still using the Firebase web redirect flow inside the Capacitor shell.</li>
+          <li>Native WebViews do not behave exactly like the hosted site.</li>
+          <li>Return-to-app behavior can still fail even if the web version looks fixed.</li>
+          <li>Store confidence depends on device auth stability more than on more shell polish.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">Later today: the first real phone pass</h2>
+    <p class="section-intro">When a phone is available, the goal is to answer one question fast: does Google auth actually survive inside the native shells?</p>
+
+    <div class="two-col">
+      <div class="callout">
+        <h3>Android sequence</h3>
+        <div class="timeline">
+          <div class="step"><strong>1. Run the readiness check</strong><span><code>npm run native:doctor</code></span></div>
+          <div class="step"><strong>2. Connect the device</strong><span>Make sure adb sees it.</span></div>
+          <div class="step"><strong>3. Install and callback-smoke</strong><span><code>npm run native:android:callback-smoke:install</code></span></div>
+          <div class="step"><strong>4. Confirm diagnostics evidence</strong><span>The panel should log the callback event.</span></div>
+          <div class="step"><strong>5. Run the real auth pass</strong><span>Test Google start, return, persistence, sign-out/sign-back-in, and background/resume.</span></div>
+        </div>
+      </div>
+      <div class="callout">
+        <h3>iPhone sequence</h3>
+        <div class="timeline">
+          <div class="step"><strong>1. Open Xcode on macOS</strong><span>Use <code>ios/App/App.xcodeproj</code>.</span></div>
+          <div class="step"><strong>2. Configure signing</strong><span>Set up Apple signing for <code>com.maisonmikell.app</code>.</span></div>
+          <div class="step"><strong>3. Install on a real iPhone</strong><span>Confirm splash, icon, and clean launch first.</span></div>
+          <div class="step"><strong>4. Smoke-test the callback path</strong><span>Verify <code>com.maisonmikell.app://auth</code> returns to Maison.</span></div>
+          <div class="step"><strong>5. Run the same auth and resume checks</strong><span>Use the diagnostics panel to capture any failure trace.</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="decision-grid">
+      <div class="decision">
+        <h3>Green</h3>
+        <p>Both platforms handle Google auth cleanly. Keep the current auth flow and continue toward store prep.</p>
+      </div>
+      <div class="decision">
+        <h3>Yellow</h3>
+        <p>One platform is flaky. Stop assuming web redirect auth is good enough and move to native auth integration before more polish.</p>
+      </div>
+      <div class="decision">
+        <h3>Red</h3>
+        <p>Both platforms are flaky. Pause packaging polish and fix auth first.</p>
+      </div>
+    </div>
+
+    <div class="banner">Recommendation: use the first device pass as the gate. If auth handoff is unstable on either platform, switch to a native-capable auth path immediately instead of polishing around a broken core flow.</div>
+    <div class="small">Sources rolled up from the current launch docs: Phase 3 shell status, native auth audit, native device test runbook, gate matrix, and app store packaging roadmap.</div>
+  </section>
+</body>
+</html>
