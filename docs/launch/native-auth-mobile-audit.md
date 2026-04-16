@@ -7,6 +7,7 @@ Maison currently uses the Firebase web SDK auth flow inside the app shell:
 - `src/lib/auth.js` uses `signInWithRedirect(auth, provider)` for Google sign-in.
 - `src/lib/auth.js` also expects `getRedirectResult(auth)` to complete inside the same web runtime after the redirect returns.
 - `package.json` includes Capacitor core packages, but no native Firebase / Google auth Capacitor plugin yet.
+- The app now includes a passive diagnostics surface backed by `@capacitor/app`, so device tests can capture lifecycle and callback evidence without changing auth behavior.
 - `android/app/src/main/java/com/maisonmikell/app/MainActivity.java` is still the default `BridgeActivity`.
 - `ios/App/App/AppDelegate.swift` is still the default Capacitor delegate proxy setup.
 

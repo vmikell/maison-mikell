@@ -7,6 +7,9 @@
 - Added a reproducible asset generator: `scripts/generate_native_brand_assets.py`.
 - Added an npm shortcut: `npm run native:assets`.
 - Re-synced the Capacitor shells after the asset update.
+- Added a native diagnostics panel that appears automatically inside Capacitor shells.
+- Added passive runtime listeners through `@capacitor/app` for app state changes, pause / resume, launch URL capture, and `appUrlOpen` callbacks.
+- Added a web-only debug escape hatch via `?nativeDebug=1` so the same diagnostics surface can be checked in a browser without changing normal web behavior.
 
 ## Files updated by the asset pass
 
@@ -26,9 +29,10 @@
 ## Verification completed
 
 - `npm run build`
+- `npm run lint`
 - `npm run cap:sync`
 
-Both passed after the asset refresh.
+All passed after the diagnostics update.
 
 ## Current blockers for deeper native verification
 
@@ -43,6 +47,7 @@ Both passed after the asset refresh.
 ### Native auth gap
 - Google sign-in is still using the Firebase **web** redirect flow in `src/lib/auth.js`.
 - The native shell does not yet include a dedicated Capacitor Firebase / Google auth plugin.
+- The new diagnostics panel improves device-test visibility, but it does **not** change the auth implementation itself.
 - That means the biggest remaining Phase 3 risk is real-device Google auth behavior inside the Capacitor WebView.
 - Detailed notes are captured in `docs/launch/native-auth-mobile-audit.md`.
 - Device validation steps are captured in `docs/launch/native-device-test-runbook.md`.

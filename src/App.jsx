@@ -4,6 +4,7 @@ import { formatDate, addDays } from './lib/model'
 import { starterHouseProfile } from './lib/data'
 import { usePlannerState } from './hooks/usePlannerState'
 import { createEmailPasswordAccount, deleteSignedInAuthUser, ensureRecentLogin, sendPasswordReset, signInWithEmailPassword, signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
+import { useNativeDiagnostics } from './lib/nativeDiagnostics'
 
 const emptyTaskForm = {
   id: '', title: '', area: '', category: 'Cleaning', room: '', system: '', assetName: '', vendor: '', supplyNote: '', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
@@ -11,6 +12,8 @@ const emptyTaskForm = {
 const emptyShoppingForm = { id: '', name: '', qty: '1', aisleHint: 'Household', url: '', checked: false }
 
 function App() {
+  const nativeDiagnostics = useNativeDiagnostics()
+
   useEffect(() => {
     if (typeof window === 'undefined') return
     const host = window.location.hostname || ''
@@ -327,6 +330,7 @@ function App() {
   if (!user && authLoading) {
     return (
       <div className="shell auth-shell">
+        <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
         <section className="hero-card auth-landing-card">
           <div>
             <p className="eyebrow">{maisonLabel}</p>
@@ -353,6 +357,7 @@ function App() {
   if (!user) {
     return (
       <div className="shell auth-shell">
+        <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
         <section className="hero-card auth-landing-card onboarding-card goodbye-card">
           <div>
             <p className="eyebrow">{maisonLabel}</p>
@@ -430,6 +435,7 @@ function App() {
   if (isResolvingSignedInState) {
     return (
       <div className="shell auth-shell">
+        <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
         <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
         <SignedInPill user={user} membership={membership} />
         <section className="hero-card auth-landing-card">
@@ -458,6 +464,7 @@ function App() {
   if (user && !membership && !inviteChoice) {
     return (
       <div className="shell auth-shell">
+        <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
         <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
         <SignedInPill user={user} membership={membership} />
         <section className="hero-card auth-landing-card onboarding-card">
@@ -513,6 +520,7 @@ function App() {
   if (user && membership && membership.role === 'owner' && houseProfile.setupCompleted === false) {
     return (
       <div className="shell auth-shell">
+        <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
         <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
         <SignedInPill user={user} membership={membership} />
         <section className="hero-card auth-landing-card onboarding-card">
@@ -580,6 +588,7 @@ function App() {
   if (user && !membership && inviteChoice) {
     return (
       <div className="shell auth-shell">
+        <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
         <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} />
         <SignedInPill user={user} membership={membership} />
         <section className="hero-card auth-landing-card onboarding-card">
@@ -621,6 +630,7 @@ function App() {
         {activeTab === 'planner' ? <button className="menu-button" onClick={() => setFiltersOpen((open) => !open)} aria-label="Open filters">☰</button> : null}
       </div>
       <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} maisonLabel={maisonLabel} />
+      <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
       {showRemoteWarning ? <section className="panel remote-warning-panel"><p className="panel-label">Live sync issue</p><h2>Some household data may be stale</h2><p className="hero-copy">{maisonLabel} had trouble reaching the live household data just now. You can keep browsing, but if something looks off, refresh or sign out and back in before making decisions.</p></section> : null}
       {deleteAccountError ? <section className="panel remote-warning-panel"><p className="panel-label">Account deletion</p><h2>Could not delete account</h2><p className="hero-copy">{deleteAccountError}</p></section> : null}
       {deleteAccountSuccess ? <section className="panel remote-warning-panel"><p className="panel-label">Account deletion</p><h2>Account removed</h2><p className="hero-copy">{deleteAccountSuccess}</p></section> : null}
@@ -896,6 +906,72 @@ function SignedInPill({ user, membership }) {
   if (!user) return null
   const label = membership?.role === 'owner' ? `Signed in as ${user.displayName || user.email} (owner)` : `Signed in as ${user.displayName || user.email}`
   return <div className="status-pill-bar">{label}</div>
+}
+function formatDiagnosticsDetail(detail) {
+  if (detail == null) return '—'
+  if (typeof detail === 'string') return detail
+  try {
+    return JSON.stringify(detail, null, 2)
+  } catch {
+    return String(detail)
+  }
+}
+function NativeDiagnosticsPanel({ diagnostics }) {
+  const [isOpen, setIsOpen] = useState(() => diagnostics.isNativeShell)
+
+  if (!diagnostics.shouldShowDiagnostics) return null
+
+  return (
+    <details className="panel native-diagnostics-panel" open={isOpen} onToggle={(event) => setIsOpen(event.currentTarget.open)}>
+      <summary className="native-diagnostics-summary">
+        <div>
+          <p className="panel-label">Native diagnostics</p>
+          <h2>{diagnostics.isNativeShell ? 'Capacitor shell detected' : 'Debug diagnostics enabled'}</h2>
+          <p className="hero-copy">Current URL, runtime, and recent lifecycle events for device testing.</p>
+        </div>
+        <span className="count-pill">{diagnostics.snapshot.runtime} · {diagnostics.platform}</span>
+      </summary>
+
+      <div className="native-diagnostics-grid">
+        <div className="native-diagnostics-stat">
+          <span>Runtime</span>
+          <strong>{diagnostics.snapshot.runtime}</strong>
+        </div>
+        <div className="native-diagnostics-stat">
+          <span>Platform</span>
+          <strong>{diagnostics.platform}</strong>
+        </div>
+        <div className="native-diagnostics-stat">
+          <span>App state</span>
+          <strong>{diagnostics.appState}</strong>
+        </div>
+      </div>
+
+      <div className="native-diagnostics-url-block">
+        <p className="panel-label">Current URL</p>
+        <p className="hero-copy native-diagnostics-url">{diagnostics.currentUrl || 'Unavailable'}</p>
+      </div>
+
+      <div className="form-actions native-diagnostics-actions">
+        <button className="secondary-button" type="button" onClick={() => diagnostics.copySnapshot()}>Copy snapshot</button>
+        {diagnostics.debugEnabled && !diagnostics.isNativeShell ? <span className="hero-copy">Remove <code>?nativeDebug=1</code> to hide this on web.</span> : null}
+        {diagnostics.copyMessage ? <span className="auth-help success native-diagnostics-copy">{diagnostics.copyMessage}</span> : null}
+      </div>
+
+      <div className="native-diagnostics-events">
+        <p className="panel-label">Recent events</p>
+        {diagnostics.events.length ? diagnostics.events.map((event) => (
+          <article key={event.id} className="native-diagnostics-event">
+            <div className="native-diagnostics-event-head">
+              <strong>{event.type}</strong>
+              <time dateTime={event.timestamp}>{new Date(event.timestamp).toLocaleTimeString()}</time>
+            </div>
+            <pre>{formatDiagnosticsDetail(event.detail)}</pre>
+          </article>
+        )) : <p className="empty-copy">No lifecycle or callback events captured yet.</p>}
+      </div>
+    </details>
+  )
 }
 function StatCard({ label, value, tone, active = false, onClick }) { return <button className={`stat-card ${tone} ${active ? 'active' : ''}`} onClick={onClick}><p>{label}</p><strong>{value}</strong></button> }
 function TaskDatum({ label, value }) { return <div className="task-datum"><span>{label}</span><strong>{value}</strong></div> }

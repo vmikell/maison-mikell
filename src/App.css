@@ -232,6 +232,23 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
 .inline-action { border: 0; background: transparent; color: #f5eaff; font-size: 0.82rem; padding: 0; }
 .inline-action.danger { color: #ffb7ca; }
 .nice-list { margin: 12px 0 0; padding-left: 18px; display: grid; gap: 10px; }
+.native-diagnostics-panel { display: grid; gap: 14px; background: linear-gradient(180deg, rgba(28, 47, 71, 0.96), rgba(15, 23, 37, 0.92)); }
+.native-diagnostics-summary { display: flex; align-items: start; justify-content: space-between; gap: 12px; cursor: pointer; list-style: none; }
+.native-diagnostics-summary::-webkit-details-marker { display: none; }
+.native-diagnostics-summary h2 { margin-top: 4px; }
+.native-diagnostics-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+.native-diagnostics-stat { display: grid; gap: 4px; padding: 12px; border-radius: 18px; background: rgba(255,255,255,0.06); }
+.native-diagnostics-stat span { text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.68rem; color: #c9bddf; }
+.native-diagnostics-stat strong { color: #fff; font-size: 1rem; }
+.native-diagnostics-url-block { display: grid; gap: 8px; }
+.native-diagnostics-url { word-break: break-word; }
+.native-diagnostics-actions { align-items: center; }
+.native-diagnostics-copy { margin: 0; }
+.native-diagnostics-events { display: grid; gap: 10px; }
+.native-diagnostics-event { display: grid; gap: 8px; padding: 12px; border-radius: 18px; background: rgba(255,255,255,0.05); }
+.native-diagnostics-event-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.native-diagnostics-event time { color: #d9cef1; font-size: 0.82rem; }
+.native-diagnostics-event pre { margin: 0; white-space: pre-wrap; word-break: break-word; color: #efe7fb; font-size: 0.82rem; font-family: ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
 @media (max-width: 819px) {
   .planner-overview-head,.shopping-section-head,.calendar-summary-head { flex-direction: column; }
   .shell { padding: 16px 14px 40px; gap: 14px; }
@@ -243,6 +260,9 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
   .create-household-progress { grid-template-columns: 1fr; justify-items: start; }
   .setup-form-split { grid-template-columns: 1fr; }
   .invite-code-input { padding: 13px 14px; }
+  .native-diagnostics-summary,.native-diagnostics-grid,.native-diagnostics-event-head { grid-template-columns: 1fr; }
+  .native-diagnostics-summary,.native-diagnostics-event-head { display: grid; }
+  .native-diagnostics-grid { grid-template-columns: 1fr; }
   h1 { font-size: clamp(2.1rem, 10vw, 3rem); }
 }
 
