@@ -30,6 +30,11 @@ Prepare before testing:
 - The diagnostics history now survives auth redirects and reloads, which helps when Google hands control out to Safari, Chrome, or Custom Tabs before returning.
 - In a normal desktop or mobile browser, you can reveal the same panel with `?nativeDebug=1` for quick comparison without changing default web behavior.
 
+## Before opening the native IDEs
+
+- Run `npm run native:doctor` from the repo root.
+- Use it as a quick readiness check for Java, Android SDK env vars, Capacitor shell presence, and basic project wiring before you lose time in Xcode or Android Studio.
+
 ## iPhone runbook
 
 ### 1. Install and boot

@@ -18,6 +18,7 @@
     "calendar:sync": "bash scripts/run_calendar_sync.sh",
     "join:test": "node --env-file=.env.local scripts/test_join_flow.mjs",
     "native:assets": "python3 scripts/generate_native_brand_assets.py",
+    "native:doctor": "node scripts/native_shell_doctor.mjs",
     "cap:build": "npm run build && npx cap sync",
     "cap:sync": "npx cap sync",
     "cap:copy": "npx cap copy",

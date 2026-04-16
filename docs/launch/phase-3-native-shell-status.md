@@ -11,6 +11,7 @@
 - Added passive runtime listeners through `@capacitor/app` for app state changes, pause / resume, launch URL capture, and `appUrlOpen` callbacks.
 - Added persistent local diagnostics history so auth redirect attempts and return-path evidence survive page reloads until manually cleared.
 - Added a web-only debug escape hatch via `?nativeDebug=1` so the same diagnostics surface can be checked in a browser without changing normal web behavior.
+- Added `npm run native:doctor` to quickly report whether the local machine is actually ready for Android / iOS device testing.
 
 ## Files updated by the asset pass
 
@@ -32,6 +33,7 @@
 - `npm run build`
 - `npm run lint`
 - `npm run cap:sync`
+- `npm run native:doctor`
 
 All passed after the diagnostics update.
 
