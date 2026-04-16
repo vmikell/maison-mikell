@@ -40,6 +40,7 @@ Use this as the current source of truth for what is already done locally, what i
    - `./gradlew assembleDebug`
 2. On macOS, open Xcode, configure signing, and install on a real iPhone.
 3. Run the device checklist in `docs/launch/native-device-test-runbook.md`.
+   - Record each pass with `docs/launch/native-device-test-results-template.md`.
 4. Use the diagnostics panel plus copied snapshots to judge whether the current web redirect flow is viable in the native shells.
 5. If auth handoff is unstable, stop polishing and switch to a real mobile auth path before store prep.
 
@@ -47,5 +48,6 @@ Use this as the current source of truth for what is already done locally, what i
 
 - `docs/launch/phase-3-native-shell-status.md`
 - `docs/launch/native-device-test-runbook.md`
+- `docs/launch/native-device-test-results-template.md`
 - `docs/launch/native-auth-mobile-audit.md`
 - `docs/launch/app-store-packaging-roadmap.md`

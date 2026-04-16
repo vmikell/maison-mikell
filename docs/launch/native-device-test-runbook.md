@@ -13,6 +13,8 @@ Validate that the packaged native apps behave like the live web app where it mat
 - open external links safely
 - avoid auth loops or blank screens
 
+Use `docs/launch/native-device-test-results-template.md` to capture each device pass in a consistent format.
+
 ## Test accounts
 
 Prepare before testing:
