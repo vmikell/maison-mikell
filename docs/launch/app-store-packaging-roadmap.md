@@ -43,6 +43,8 @@ Recommended app identity draft:
 Current local progress:
 - [x] Draft Maison-branded native icons and splash assets generated for iOS and Android.
 - [x] Capacitor shells still sync cleanly after the asset refresh.
+- [x] Reserved app-owned callback scaffolding added for `com.maisonmikell.app://auth` on Android and iOS.
+- [x] Android debug builds now complete locally on the Linux box.
 - [x] Native auth risk and device-test runbook documented.
 - [ ] Native IDE signing, device installs, and real-device auth verification still need to happen.
 

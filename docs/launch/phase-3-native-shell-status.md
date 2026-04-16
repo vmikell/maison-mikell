@@ -14,6 +14,7 @@ See also: `docs/launch/native-phase-3-gate-matrix.md`
 - Added persistent local diagnostics history so auth redirect attempts and return-path evidence survive page reloads until manually cleared.
 - Added a web-only debug escape hatch via `?nativeDebug=1` so the same diagnostics surface can be checked in a browser without changing normal web behavior.
 - Added `npm run native:doctor` to quickly report whether the local machine is actually ready for Android / iOS device testing.
+- Reserved an app-owned callback route, `com.maisonmikell.app://auth`, in the Android manifest and iOS URL types so the native shell can be smoke-tested without changing the current web auth flow.
 
 ## Files updated by the asset pass
 
@@ -36,15 +37,16 @@ See also: `docs/launch/native-phase-3-gate-matrix.md`
 - `npm run lint`
 - `npm run cap:sync`
 - `npm run native:doctor`
+- `cd android && ./gradlew assembleDebug`
 
-All passed after the diagnostics update.
+All passed after the native shell prep updates.
 
-## Current blockers for deeper native verification
+## Current blockers and remaining native verification gaps
 
 ### Android
-- `./gradlew assembleDebug` is blocked in this environment because Java is not installed or `JAVA_HOME` is unset.
-- Exact failure:
-  - `ERROR: JAVA_HOME is not set and no 'java' command could be found in your PATH.`
+- User-local Java and Android SDK tooling are now installed on this Linux box.
+- `./gradlew assembleDebug` now succeeds locally and produces a debug APK.
+- Real-device install, signing choices, and callback round-trip verification still need Android Studio and hardware.
 
 ### iOS
 - Xcode signing and device installs must still be done on macOS.
@@ -53,7 +55,8 @@ All passed after the diagnostics update.
 - Google sign-in is still using the Firebase **web** redirect flow in `src/lib/auth.js`.
 - The native shell does not yet include a dedicated Capacitor Firebase / Google auth plugin.
 - The new diagnostics panel improves device-test visibility, but it does **not** change the auth implementation itself.
-- The shell doctor also confirms there is currently no Android `VIEW` intent filter or iOS `CFBundleURLTypes` callback scheme configured for mobile OAuth return paths.
+- The shell now reserves an app-owned callback path, `com.maisonmikell.app://auth`, on both platforms so return-to-app handling can be smoke-tested independently of Google auth.
+- That reserved callback path is only scaffolding. It does **not** prove that the current Google auth redirect flow is stable inside the Capacitor WebView.
 - That means the biggest remaining Phase 3 risk is real-device Google auth behavior inside the Capacitor WebView.
 - Detailed notes are captured in `docs/launch/native-auth-mobile-audit.md`.
 - Device validation steps are captured in `docs/launch/native-device-test-runbook.md`.
@@ -68,8 +71,7 @@ All passed after the diagnostics update.
 5. Verify outbound links and any deep-link flows.
 
 ### Android
-1. Install a JDK and Android SDK if they are not already available.
-2. Open `android/` in Android Studio.
-3. Configure signing for debug/release builds.
-4. Build and install on a real Android device.
-5. Verify sign-in, resume/background behavior, and outbound links.
+1. Open `android/` in Android Studio or install `android/app/build/outputs/apk/debug/app-debug.apk` on a real Android device.
+2. Configure signing for debug/release builds as needed.
+3. Smoke-test `com.maisonmikell.app://auth` and confirm the diagnostics panel captures the callback event.
+4. Verify sign-in, resume/background behavior, and outbound links.

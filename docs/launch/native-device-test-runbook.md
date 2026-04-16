@@ -35,8 +35,25 @@ Prepare before testing:
 ## Before opening the native IDEs
 
 - Run `npm run native:doctor` from the repo root.
-- Use it as a quick readiness check for Java, Android SDK env vars, Capacitor shell presence, and basic project wiring before you lose time in Xcode or Android Studio.
-- Read the callback-path warnings too. Right now the doctor should flag that Android has no `VIEW` intent filter and iOS has no `CFBundleURLTypes` callback scheme configured yet.
+- Use it as a quick readiness check for Java, Android SDK wiring, Capacitor shell presence, and basic project wiring before you lose time in Xcode or Android Studio.
+- Confirm the doctor reports the reserved app callback route too. Right now it should show Android callback routing for `com.maisonmikell.app://auth` and matching iOS `CFBundleURLTypes` for `com.maisonmikell.app`.
+
+## Optional callback-path smoke test
+
+Use this before Google auth if you want to verify the shell can reopen itself with the reserved callback route, independent of Firebase behavior.
+
+### iPhone
+- On Simulator, run:
+  - `xcrun simctl openurl booted "com.maisonmikell.app://auth?source=simctl"`
+- On a real iPhone, tap or paste `com.maisonmikell.app://auth?source=safari` into Safari, Notes, or another tappable surface.
+- Confirm Maison opens and the diagnostics panel records an `appUrlOpen` event.
+
+### Android
+- With a connected device, run:
+  - `adb shell am start -W -a android.intent.action.VIEW -d "com.maisonmikell.app://auth?source=adb" com.maisonmikell.app`
+- Confirm Maison opens and the diagnostics panel records an `appUrlOpen` event.
+
+This smoke test proves only that the shell can handle the reserved callback route. It does **not** prove that Google auth itself is stable yet.
 
 ## iPhone runbook
 

@@ -8,6 +8,7 @@ Maison currently uses the Firebase web SDK auth flow inside the app shell:
 - `src/lib/auth.js` also expects `getRedirectResult(auth)` to complete inside the same web runtime after the redirect returns.
 - `package.json` includes Capacitor core packages, but no native Firebase / Google auth Capacitor plugin yet.
 - The app now includes a passive diagnostics surface backed by `@capacitor/app`, plus persistent local auth/runtime event history, so device tests can capture lifecycle, callback, and redirect evidence without changing auth behavior.
+- The shell now reserves an app-owned callback route, `com.maisonmikell.app://auth`, through the Android manifest and iOS URL-type configuration.
 - `android/app/src/main/java/com/maisonmikell/app/MainActivity.java` is still the default `BridgeActivity`.
 - `ios/App/App/AppDelegate.swift` is still the default Capacitor delegate proxy setup.
 
@@ -29,12 +30,13 @@ The shell currently has:
 - working Capacitor packaging
 - branded native assets
 - default Capacitor app delegates / activities
-- diagnostics and doctor tooling that make the missing callback-path configuration visible
+- diagnostics and doctor tooling
+- reserved callback-path scaffolding for `com.maisonmikell.app://auth`
 
 The shell does **not** yet have:
 - a native Google sign-in plugin
 - a native Firebase auth bridge
-- a confirmed deep-link return path for mobile OAuth
+- a provider-specific, end-to-end verified callback path for Google mobile auth
 - verified persistence behavior on actual iPhone / Android hardware
 
 ## Recommended Phase 3 path

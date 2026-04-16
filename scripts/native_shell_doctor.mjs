@@ -51,6 +51,9 @@ function buildChecks() {
   const checks = []
   const capacitorConfig = readJson('capacitor.config.json')
   const packageJson = readJson('package.json')
+  const reservedCallbackScheme = capacitorConfig.appId
+  const reservedCallbackHost = 'auth'
+  const reservedCallbackUrl = `${reservedCallbackScheme}://${reservedCallbackHost}`
   const hasAndroid = exists('android/app/build.gradle')
   const hasIos = exists('ios/App/App.xcodeproj/project.pbxproj')
   const hasWebBuild = exists(path.join(capacitorConfig.webDir || 'dist', 'index.html'))
@@ -61,8 +64,14 @@ function buildChecks() {
   const iosAppDelegate = hasIos ? readText('ios/App/App/AppDelegate.swift') : ''
 
   const hasAndroidViewIntentFilter = androidManifest.includes('android.intent.action.VIEW')
+  const hasAndroidDefaultCategory = androidManifest.includes('android.intent.category.DEFAULT')
+  const hasAndroidBrowsableCategory = androidManifest.includes('android.intent.category.BROWSABLE')
+  const hasAndroidCallbackScheme = androidManifest.includes('android:scheme="@string/custom_url_scheme"') || androidManifest.includes(`android:scheme="${reservedCallbackScheme}"`)
+  const hasAndroidCallbackHost = androidManifest.includes(`android:host="${reservedCallbackHost}"`)
+  const hasAndroidCallbackIntentFilter = hasAndroidViewIntentFilter && hasAndroidDefaultCategory && hasAndroidBrowsableCategory && hasAndroidCallbackScheme && hasAndroidCallbackHost
   const hasAndroidSingleTaskLaunchMode = androidManifest.includes('android:launchMode="singleTask"')
   const hasIosUrlTypes = iosInfoPlist.includes('CFBundleURLTypes')
+  const hasIosCallbackScheme = iosInfoPlist.includes(`<string>${reservedCallbackScheme}</string>`)
   const hasIosUniversalLinkForwarder = iosAppDelegate.includes('continue userActivity')
   const hasIosOpenUrlForwarder = iosAppDelegate.includes('open url: URL')
 
@@ -75,13 +84,20 @@ function buildChecks() {
   checks.push({ ok: hasWebBuild, level: 'warn', label: 'Web build output', detail: hasWebBuild ? `${capacitorConfig.webDir}/index.html is present` : `Missing ${capacitorConfig.webDir}/index.html. Run npm run build before syncing.` })
   checks.push({ ok: hasCapacitorAppPlugin, level: 'warn', label: '@capacitor/app plugin', detail: hasCapacitorAppPlugin ? 'Installed for lifecycle and appUrlOpen diagnostics' : 'Missing @capacitor/app dependency' })
   checks.push({ ok: hasAndroidSingleTaskLaunchMode, level: 'warn', label: 'Android singleTask activity', detail: hasAndroidSingleTaskLaunchMode ? 'MainActivity is configured with singleTask launchMode' : 'MainActivity is not configured with singleTask launchMode' })
-  checks.push({ ok: hasAndroidViewIntentFilter, level: 'warn', label: 'Android callback intent filter', detail: hasAndroidViewIntentFilter ? 'AndroidManifest has a VIEW intent filter for callback URLs' : 'AndroidManifest has no VIEW intent filter for OAuth/deep-link callbacks yet' })
+  checks.push({ ok: hasAndroidCallbackIntentFilter, level: 'warn', label: 'Android callback intent filter', detail: hasAndroidCallbackIntentFilter ? `AndroidManifest declares VIEW/BROWSABLE callback routing for ${reservedCallbackUrl}` : `AndroidManifest is missing a VIEW/BROWSABLE callback filter for ${reservedCallbackUrl}` })
   checks.push({ ok: hasIosOpenUrlForwarder, level: 'warn', label: 'iOS openURL forwarder', detail: hasIosOpenUrlForwarder ? 'AppDelegate forwards openURL calls into Capacitor' : 'AppDelegate is missing the Capacitor openURL forwarder' })
   checks.push({ ok: hasIosUniversalLinkForwarder, level: 'warn', label: 'iOS universal-link forwarder', detail: hasIosUniversalLinkForwarder ? 'AppDelegate forwards universal links into Capacitor' : 'AppDelegate is missing the universal-link forwarder' })
-  checks.push({ ok: hasIosUrlTypes, level: 'warn', label: 'iOS callback URL scheme', detail: hasIosUrlTypes ? 'Info.plist declares CFBundleURLTypes' : 'Info.plist has no CFBundleURLTypes callback scheme yet' })
+  checks.push({ ok: hasIosUrlTypes && hasIosCallbackScheme, level: 'warn', label: 'iOS callback URL scheme', detail: hasIosUrlTypes && hasIosCallbackScheme ? `Info.plist declares CFBundleURLTypes for ${reservedCallbackScheme}` : `Info.plist is missing CFBundleURLTypes for ${reservedCallbackScheme}` })
 
   const javaResult = run('java', ['-version'])
   const hasJavaHome = Boolean(process.env.JAVA_HOME)
+  const androidSdkCandidates = [
+    process.env.ANDROID_HOME,
+    process.env.ANDROID_SDK_ROOT,
+    process.env.HOME ? path.join(process.env.HOME, '.local/share/android/sdk') : '',
+    process.env.HOME ? path.join(process.env.HOME, 'Android/Sdk') : '',
+  ].filter(Boolean)
+  const androidSdkRoot = androidSdkCandidates.find((candidate) => fs.existsSync(candidate)) || ''
   checks.push({
     ok: javaResult.ok,
     level: 'fail',
@@ -91,12 +107,11 @@ function buildChecks() {
       : `Java is unavailable${hasJavaHome ? ` even though JAVA_HOME=${process.env.JAVA_HOME}` : ' and JAVA_HOME is unset'}`,
   })
 
-  const androidSdkRoot = process.env.ANDROID_HOME || process.env.ANDROID_SDK_ROOT || ''
   checks.push({
     ok: Boolean(androidSdkRoot),
     level: 'fail',
-    label: 'Android SDK env',
-    detail: androidSdkRoot || 'ANDROID_HOME / ANDROID_SDK_ROOT is not set',
+    label: 'Android SDK',
+    detail: androidSdkRoot || 'No Android SDK found in ANDROID_HOME, ANDROID_SDK_ROOT, ~/.local/share/android/sdk, or ~/Android/Sdk',
   })
 
   if (process.platform === 'darwin') {
