@@ -1,0 +1,178 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Terracotta Gold Story</title>
+  <style>
+    :root {
+      --ink: #3e2318;
+      --body: #5d4338;
+      --muted: #8b7566;
+      --line: #e3d7c8;
+      --paper: #faf4e6;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+    }
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto;
+      padding: 0.62in;
+      position: relative;
+      overflow: hidden;
+      background: #fbf5e9;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    .cover::before,
+    .cover::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+    .cover::before { width: 300px; height: 300px; right: -100px; top: -90px; background: rgba(145,112,67,0.16); }
+    .cover::after { width: 220px; height: 220px; left: -70px; bottom: -70px; background: rgba(137,82,61,0.14); }
+    .eyebrow { position: relative; z-index: 1; margin-bottom: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #917043; }
+    h1,h2,h3,p { margin: 0; }
+    h1 { position: relative; z-index: 1; max-width: 660px; margin-bottom: 16px; font-size: 42px; line-height: 0.96; letter-spacing: -0.045em; }
+    .subhead { position: relative; z-index: 1; max-width: 660px; margin-bottom: 22px; font-size: 18px; line-height: 1.56; color: var(--body); }
+    .quote { position: relative; z-index: 1; border: 1px solid var(--line); border-radius: 28px; padding: 26px; background: rgba(255,255,255,0.76); font-size: 27px; line-height: 1.18; font-weight: 700; margin-bottom: 18px; }
+    .quote small { display:block; margin-top:10px; color: var(--muted); font-size:14px; line-height:1.54; font-weight:500; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; position: relative; z-index: 1; }
+    .card, .note-card { border: 1px solid var(--line); border-radius: 24px; padding: 18px; background: rgba(255,255,255,0.8); }
+    .card h3, .note-card h3 { margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em; color: #917043; }
+    .card p, .note-card p, .note-card li { color: var(--body); }
+    .section-tag { margin-bottom: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #917043; }
+    .story-name { margin-bottom: 8px; font-size: 34px; line-height: 1.02; letter-spacing: -0.04em; }
+    .story-copy { margin-bottom: 18px; font-size: 16px; line-height: 1.62; color: var(--body); max-width: 690px; }
+    .swatches { display: grid; grid-template-columns: repeat(5, 1fr); border-radius: 18px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 18px; }
+    .swatch { min-height: 100px; padding: 12px; display: flex; align-items: end; font-size: 11px; font-weight: 700; line-height: 1.28; }
+    .swatch span { display:block; margin-top:3px; font-size:10px; opacity:0.92; }
+    .mockup-grid { display: grid; grid-template-columns: 1.08fr 0.98fr; gap: 16px; }
+    .mockup-card { border-radius: 28px; padding: 18px; border: 1px solid rgba(0,0,0,0.06); overflow: hidden; position: relative; box-shadow: 0 24px 60px rgba(62,35,24,0.1); background: linear-gradient(180deg, #faf3e0 0%, #d7cbb5 100%); color: #3e2318; }
+    .mockup-card::after { content: ""; position: absolute; width: 240px; height: 240px; border-radius: 999px; right: -108px; top: -108px; opacity: 0.76; pointer-events: none; background: radial-gradient(circle, rgba(137,82,61,0.22), transparent 68%); }
+    .mockup-label { margin-bottom: 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em; font-weight: 800; opacity: 0.74; }
+    .topbar, .nav-links, .hero-actions, .stats-grid, .subbar { display:flex; gap:8px; flex-wrap:wrap; }
+    .topbar, .dash-top { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .brand { font-size: 22px; line-height: 1; letter-spacing: -0.04em; font-weight: 700; }
+    .nav-chip, .chip, .status-chip, .button { border-radius: 999px; padding: 8px 12px; font-size: 11px; font-weight: 700; border: 1px solid rgba(62,35,24,0.08); background: rgba(255,249,241,0.72); color: #4e392f; }
+    .landing-shell, .dashboard-shell { display:grid; gap:14px; }
+    .hero-shell { display:grid; grid-template-columns: 1.1fr 0.92fr; gap: 14px; align-items: stretch; }
+    .hero-copy { display:grid; gap:12px; align-content:start; }
+    .hero-title { font-size: 35px; line-height: 0.95; letter-spacing: -0.05em; max-width: 330px; }
+    .hero-body { font-size: 14px; line-height: 1.58; max-width: 340px; }
+    .button.primary, .surface-hero { background: linear-gradient(135deg, #89523d, #917043); color: #fff8f2; border-color: transparent; }
+    .button.secondary { background: rgba(255,249,241,0.82); }
+    .surface, .panel, .stat, .task, .feature-box, .list-item, .rail-item, .shot { border-radius: 20px; border: 1px solid rgba(62,35,24,0.08); background: rgba(255,249,241,0.74); padding: 14px; }
+    .surface-stack { display:grid; gap:10px; }
+    .surface-head { display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:700; }
+    .surface-hero { display:grid; gap:6px; padding:16px; min-height:104px; align-content:end; border-radius: 18px; }
+    .surface-hero strong { font-size:18px; line-height:1.02; }
+    .list { display:grid; gap:8px; }
+    .list-item { display:flex; justify-content:space-between; gap:10px; font-size:12px; font-weight:600; }
+    .feature-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
+    .feature-box { min-width:0; font-size:12px; }
+    .feature-box strong { display:block; margin-bottom:4px; font-size:13px; }
+    .dash-title { font-size: 29px; line-height: 0.98; letter-spacing: -0.05em; max-width: 320px; }
+    .dash-copy { font-size: 13px; line-height: 1.54; max-width: 330px; }
+    .stats-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; }
+    .stat strong { display:block; margin-top:8px; font-size:24px; line-height:1; }
+    .stat span, .task small, .panel small, .rail-item small { font-size:10px; text-transform:uppercase; letter-spacing:0.12em; font-weight:800; opacity:0.72; }
+    .stat.terracotta, .task.terracotta { background: linear-gradient(180deg, rgba(137,82,61,0.94), rgba(106,60,43,0.96)); color:#fff8f2; }
+    .stat.gold, .panel.gold { background: linear-gradient(180deg, rgba(145,112,67,0.94), rgba(118,91,55,0.96)); color:#fff8f0; }
+    .stat.leather, .panel.leather, .rail-item.dark, .shot.dark { background: linear-gradient(180deg, rgba(62,35,24,0.97), rgba(49,28,20,0.97)); color:#f8efe6; }
+    .dash-body { display:grid; grid-template-columns: 1.16fr 0.92fr; gap:12px; }
+    .task-list, .rail-list { display:grid; gap:8px; margin-top:10px; }
+    .task strong, .panel strong, .rail-item strong { display:block; font-size:14px; line-height:1.24; }
+    .task p, .panel p, .rail-item p, .stat p { margin-top:4px; font-size:12px; line-height:1.44; }
+    .calendar-grid { display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:12px; }
+    .shot-title { font-size:13px; font-weight:800; margin-bottom:8px; }
+    .footer-note { position: absolute; left: 0.62in; right: 0.62in; bottom: 0.42in; display:flex; justify-content:space-between; align-items:center; font-size:11px; color: var(--muted); border-top:1px solid var(--line); padding-top:10px; }
+    @media print { body { background: var(--paper); } .page { margin: 0; } }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div class="eyebrow">Maison • New Color Story</div>
+    <h1>Terracotta, gold, and leather as a warmer Maison direction</h1>
+    <p class="subhead">Built from the palette Riah just sent over. This is a more grounded, richer Maison story that uses the terracotta, gold, and brown as the emotional core, while keeping Antique and Natural Cotton as the breathable base.</p>
+    <div class="quote">This one makes immediate sense.<small>The palette already has hierarchy: Antique for light, Natural Cotton for softness, Terracotta for warmth, Gold for polish, and Leather for anchor. That’s a real color story, not just a set of nice chips.</small></div>
+    <div class="grid-2">
+      <div class="card"><h3>Why it works</h3><p>It feels warm and expensive without going glossy. It also solves the flatness issue because the dark brown gives the system a real anchor.</p></div>
+      <div class="card"><h3>How I’d use it</h3><p>Antique and Natural Cotton carry the space, Terracotta leads emotional moments, Gold handles premium accents, and Leather creates authority.</p></div>
+    </div>
+    <div class="footer-note"><span>Prepared on April 17, 2026</span><span>Maison terracotta gold story</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Color story</div>
+    <h2 class="story-name">Antique Hearth</h2>
+    <p class="story-copy">This feels like warm stone, aged wood, handmade ceramics, and soft light instead of trendy startup color. It is richer than Sunwashed Market, more grounded than Sage Linen, and cleaner than going full rustic. This is a real Maison direction.</p>
+    <div class="swatches">
+      <div class="swatch" style="background:#FAF3E0;color:#3E2318;">Antique<span>#FAF3E0</span></div>
+      <div class="swatch" style="background:#D7CBB5;color:#3E2318;">Natural Cotton<span>#D7CBB5</span></div>
+      <div class="swatch" style="background:#89523D;color:#FFF8F2;">Terracotta<span>#89523D</span></div>
+      <div class="swatch" style="background:#917043;color:#FFF8F0;">Gold Trimming<span>#917043</span></div>
+      <div class="swatch" style="background:#3E2318;color:#F9F1E7;">Leather<span>#3E2318</span></div>
+    </div>
+    <div class="note-card" style="margin-bottom:16px;"><h3>Read</h3><p>This has the same emotional family as some of the earlier good directions, but it is cleaner and better balanced. The brown gives it seriousness, the terracotta gives it warmth, and the gold gives it enough polish to feel intentional instead of earthy-for-earthy’s-sake.</p></div>
+    <div class="mockup-grid">
+      <div class="mockup-card">
+        <div class="mockup-label">Landing page mockup</div>
+        <div class="landing-shell">
+          <div class="topbar"><div class="brand">Maison</div><div class="nav-links"><span class="nav-chip">How it works</span><span class="nav-chip">Founding access</span><span class="nav-chip">Sign in</span></div></div>
+          <div class="hero-shell">
+            <div class="hero-copy">
+              <div class="hero-title">A home feels better when it’s held together beautifully.</div>
+              <div class="hero-body">Maison keeps the maintenance, shopping, reminders, and household flow in one place that feels warm, useful, and calm instead of chaotic.</div>
+              <div class="hero-actions"><span class="button primary">Join the founding launch</span><span class="button secondary">See the dashboard</span></div>
+              <div class="panel gold"><small>Brand read</small><strong>Warm, grounded, expensive.</strong><p>This is the kind of direction that could carry the product without leaning on loud branding tricks.</p></div>
+            </div>
+            <div class="surface-stack">
+              <div class="surface"><div class="surface-head"><span>Tonight at home</span><span class="status-chip">3 items</span></div><div class="surface-hero"><strong>Evening reset</strong><span>Kitchen close, refill soap, prep breakfast basics for tomorrow.</span></div></div>
+              <div class="list"><div class="list-item"><span>Wipe counters</span><span>8 pm</span></div><div class="list-item"><span>Refill hand soap</span><span>Bath</span></div><div class="list-item"><span>Order coffee beans</span><span>List</span></div></div>
+            </div>
+          </div>
+          <div class="feature-grid"><div class="feature-box"><strong>Warm utility</strong>Useful without feeling dry.</div><div class="feature-box"><strong>Real home energy</strong>Feels domestic, not tech-branded.</div><div class="feature-box"><strong>Strong anchor</strong>Leather keeps it from floating.</div></div>
+        </div>
+      </div>
+      <div class="mockup-card">
+        <div class="mockup-label">Dashboard mockup</div>
+        <div class="dashboard-shell">
+          <div class="dash-top"><div class="brand">Maison</div><div class="subbar"><span class="chip">This week</span><span class="chip">Whole home</span><span class="chip">Victor + Riah</span></div></div>
+          <div><div class="dash-title">Your home feels steady tonight.</div><div class="dash-copy">This palette makes the dashboard feel branded and calm at the same time. It’s one of the better balances we’ve hit.</div></div>
+          <div class="stats-grid"><div class="stat gold"><span>Due soon</span><strong>4</strong><p>Things to handle by Sunday</p></div><div class="stat terracotta"><span>Shopping</span><strong>7</strong><p>Restocks waiting</p></div><div class="stat leather"><span>Completed</span><strong>12</strong><p>Finished this week</p></div><div class="stat"><span>Rooms</span><strong>5</strong><p>Tracked in Maison</p></div></div>
+          <div class="dash-body">
+            <div>
+              <div class="panel leather"><small>Priority flow</small><strong>Kitchen + pantry reset</strong><p>Replace the water filter, restock three staples, and clear the counter before the new week starts.</p><div class="task-list"><div class="task"><strong>Replace fridge filter</strong><p>Ready to swap now.</p></div><div class="task terracotta"><strong>Reorder dish soap</strong><p>Will run out before Tuesday.</p></div><div class="task"><strong>Restock breakfast basics</strong><p>Eggs, yogurt, and coffee are low.</p></div></div></div>
+              <div class="calendar-grid"><div class="shot"><div class="shot-title">Weekend</div><p>Bathroom refresh, guest-room linens, and a pantry wipe-down.</p></div><div class="shot dark"><div class="shot-title">Design read</div><p>The gold should stay editorial, not everywhere. Leather should do the grounding work.</p></div></div>
+            </div>
+            <div>
+              <div class="panel"><small>Shopping list</small><strong>Market run</strong><div class="rail-list"><div class="rail-item"><strong>Paper towels</strong><p>Restock before Monday</p></div><div class="rail-item"><strong>Coffee beans</strong><p>Main pantry shelf</p></div><div class="rail-item dark"><strong>Recommendation</strong><p>Very strong candidate if you want the brand to feel warmer and more designed.</p></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note"><span>Maison terracotta gold story</span><span>Antique Hearth</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Recommendation</div>
+    <h2 class="story-name">My take</h2>
+    <div class="note-card" style="margin-bottom:14px;"><h3>What this solves</h3><p>This gives Maison a warmer, more confident center without the earlier flatness or the more generic startup energy.</p></div>
+    <div class="note-card" style="margin-bottom:14px;"><h3>What to watch</h3><p>Do not let terracotta and gold both shout at once. Gold should feel like trim, exactly like the palette calls it, and Leather should do a lot of the grounding.</p></div>
+    <div class="note-card"><h3>Recommendation</h3><p>This is worth sitting next to Richer Walnut. It feels a little more domestic and a little less formal, which might be exactly the right Maison balance.</p></div>
+    <div class="footer-note"><span>Maison terracotta gold story</span><span>Recommendation: sit with this one</span></div>
+  </section>
+</body>
+</html>
