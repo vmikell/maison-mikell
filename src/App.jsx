@@ -5,6 +5,7 @@ import { starterHouseProfile } from './lib/data'
 import { usePlannerState } from './hooks/usePlannerState'
 import { createEmailPasswordAccount, deleteSignedInAuthUser, ensureRecentLogin, sendPasswordReset, signInWithEmailPassword, signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
 import { useNativeDiagnostics } from './lib/nativeDiagnostics'
+import heroImage from './assets/hero.png'
 
 const emptyTaskForm = {
   id: '', title: '', area: '', category: 'Cleaning', room: '', system: '', assetName: '', vendor: '', supplyNote: '', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
@@ -204,6 +205,19 @@ function App() {
   const inviteInstructions = 'Open Maison, sign in or create an account, tap “I already have an invite code,” and enter the code.'
   const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join our Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\n${inviteInstructions}`)}`
   const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
+  const landingFeatures = [
+    { title: 'Shared shopping', body: 'Keep one live household shopping list that everyone can update.' },
+    { title: 'Home maintenance', body: 'Track recurring tasks and the upkeep that keeps a home running.' },
+    { title: 'Reminders that matter', body: 'Send household reminders without relying on memory or nagging.' },
+    { title: 'Household planning', body: 'See the important shared home tasks and dates in one place.' },
+    { title: 'Multi-member access', body: 'Built for a shared household, not just one person managing everything alone.' },
+  ]
+  const landingAudience = ['Couples living together', 'Busy homeowners', 'Households managing recurring home responsibilities', 'People who want one shared source of truth']
+  const landingFaqs = [
+    { question: 'Is Maison Mikell for individuals or households?', answer: 'It is built for shared household coordination, especially couples living together.' },
+    { question: 'Is there a free plan?', answer: 'No. Maison Mikell is positioned as a paid household product from launch.' },
+    { question: 'What does one subscription cover?', answer: 'One household. Final billing language should match the actual product setup.' },
+  ]
 
   const categories = useMemo(() => ['All', ...new Set(enrichedTasks.map((task) => task.category))], [enrichedTasks])
   const inAppBrowserWarning = useMemo(() => {
@@ -358,75 +372,206 @@ function App() {
     return (
       <div className="shell auth-shell">
         <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
-        <section className="hero-card auth-landing-card onboarding-card goodbye-card">
-          <div>
-            <p className="eyebrow">{maisonLabel}</p>
-            <h1>{showDeletedAccountView ? 'Goodbye for now.' : 'Welcome home.'}</h1>
-            {showDeletedAccountView ? (
+        <section className="hero-card auth-landing-card onboarding-card goodbye-card maison-landing-shell">
+          <div className="maison-landing-main">
+            <section className="maison-hero">
+              <div className="maison-hero-copy">
+                <p className="eyebrow">A calmer way to run your home</p>
+                <h1>{showDeletedAccountView ? 'Goodbye for now.' : 'The home operating system for couples'}</h1>
+                {showDeletedAccountView ? (
+                  <>
+                    <p className="hero-copy">{deletedAccountSummary.message}</p>
+                    <p className="hero-copy">Your Maison session has been closed cleanly, so you should not see a blank screen here anymore.</p>
+                    {deletedAccountSummary.deletedHousehold
+                      ? <p className="hero-copy">That home is fully gone. If you come back later, you’ll be starting fresh.</p>
+                      : <p className="hero-copy">If you ever come back, you can sign in again and either join a household with an invite code or create a new one.</p>}
+                  </>
+                ) : (
+                  <>
+                    <p className="hero-copy">Maison Mikell brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.</p>
+                    <p className="hero-copy maison-hero-support">Built for real shared homes, not generic productivity hacks.</p>
+                  </>
+                )}
+                {!showDeletedAccountView ? <div className="maison-hero-actions">
+                  <a className="primary-button invite-link-button" href="#maison-auth">Join the founding launch</a>
+                  <a className="secondary-button invite-link-button" href="#how-maison-works">See how it works</a>
+                </div> : null}
+              </div>
+              <div className="maison-hero-visual">
+                <div className="maison-hero-frame">
+                  <img src={heroImage} alt="Maison home illustration" className="maison-hero-image" />
+                </div>
+                <div className="maison-hero-statline">
+                  <div className="maison-metric-card">
+                    <span>Shared home flow</span>
+                    <strong>Shopping, upkeep, reminders</strong>
+                  </div>
+                  <div className="maison-metric-card">
+                    <span>Designed for</span>
+                    <strong>Couples sharing one home</strong>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            {!showDeletedAccountView ? (
               <>
-                <p className="hero-copy">{deletedAccountSummary.message}</p>
-                <p className="hero-copy">Your Maison session has been closed cleanly, so you should not see a blank screen here anymore.</p>
-                {deletedAccountSummary.deletedHousehold
-                  ? <p className="hero-copy">That home is fully gone. If you come back later, you’ll be starting fresh.</p>
-                  : <p className="hero-copy">If you ever come back, you can sign in again and either join a household with an invite code or create a new one.</p>}
+                <section className="maison-section" id="how-maison-works">
+                  <div className="section-head">
+                    <p className="panel-label">The problem</p>
+                    <h2>Home life gets messy when everything lives in six different places.</h2>
+                  </div>
+                  <div className="maison-problem-grid">
+                    <p className="hero-copy">Most households are stitching things together across texts, notes apps, calendars, mental reminders, and half-finished shopping lists. Nothing feels fully shared, and the same tasks keep slipping through the cracks.</p>
+                    <p className="hero-copy">Maison Mikell is designed to bring those moving parts together into one calm system you can actually live with.</p>
+                  </div>
+                </section>
+
+                <section className="maison-section">
+                  <div className="section-head">
+                    <p className="panel-label">Value</p>
+                    <h2>Everything your household needs, in one calm flow.</h2>
+                  </div>
+                  <div className="maison-feature-grid">
+                    {landingFeatures.map((feature) => (
+                      <article key={feature.title} className="maison-feature-card">
+                        <h3>{feature.title}</h3>
+                        <p className="hero-copy">{feature.body}</p>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="maison-section maison-promise-band">
+                  <div className="section-head">
+                    <p className="panel-label">Emotional promise</p>
+                    <h2>Less coordination friction. More calm.</h2>
+                  </div>
+                  <p className="hero-copy">Maison Mikell is not trying to turn your home into a startup. It is built to reduce the tiny coordination failures that make home life feel heavier than it should.</p>
+                  <p className="hero-copy">The goal is simple: fewer dropped balls, fewer repeated conversations, and a smoother shared rhythm at home.</p>
+                </section>
+
+                <section className="maison-section maison-two-column">
+                  <article className="maison-audience-card">
+                    <div className="section-head">
+                      <p className="panel-label">Who it is for</p>
+                      <h2>Built for couples and households who actually share responsibility.</h2>
+                    </div>
+                    <div className="onboarding-bullet-list maison-check-list">
+                      {landingAudience.map((item) => <span key={item}>{item}</span>)}
+                    </div>
+                  </article>
+                  <article className="maison-offer-card">
+                    <div className="section-head">
+                      <p className="panel-label">Founding launch pricing</p>
+                      <h2>Founding launch pricing</h2>
+                    </div>
+                    <p className="hero-copy">Maison Mikell is launching as a paid product from day one.</p>
+                    <div className="maison-price-lockup">
+                      <span>First 7 days</span>
+                      <strong>Lifetime access for $179</strong>
+                    </div>
+                    <div className="maison-price-grid">
+                      <div className="maison-price-card">
+                        <span>After the window</span>
+                        <strong>$12/month</strong>
+                      </div>
+                      <div className="maison-price-card">
+                        <span>Annual option</span>
+                        <strong>$96/year</strong>
+                      </div>
+                    </div>
+                    <p className="hero-copy">The founding offer is for early households helping shape the product, not a discount that stays open forever.</p>
+                  </article>
+                </section>
+
+                <section className="maison-section">
+                  <div className="section-head">
+                    <p className="panel-label">FAQ preview</p>
+                    <h2>What early households usually ask first.</h2>
+                  </div>
+                  <div className="maison-faq-grid">
+                    {landingFaqs.map((faq) => (
+                      <article key={faq.question} className="maison-faq-card">
+                        <h3>{faq.question}</h3>
+                        <p className="hero-copy">{faq.answer}</p>
+                      </article>
+                    ))}
+                  </div>
+                </section>
+
+                <section className="maison-section maison-final-cta">
+                  <div>
+                    <p className="panel-label">Final CTA</p>
+                    <h2>Bring your home into one calm system.</h2>
+                    <p className="hero-copy">Join the founding launch and be one of the first households to use Maison Mikell as your shared home operating system.</p>
+                  </div>
+                  <a className="primary-button invite-link-button" href="#maison-auth">Join the founding launch</a>
+                </section>
               </>
-            ) : (
-              <>
-                <p className="hero-copy">A calmer way to run your home, with maintenance, shopping, reminders, and shared household coordination in one place.</p>
-                <p className="hero-copy">Google now uses a full-page sign-in flow, not a popup, and Maison also supports email and password accounts.</p>
-                <p className="hero-copy">If your session has expired, just sign in again and you’ll land back in the household flow.</p>
-              </>
-            )}
-            {!hasFirebaseConfig ? <p className="auth-help error">Maison auth is not configured in this live build yet, so sign-in and account creation cannot start until the Firebase build env is fixed.</p> : null}
-            {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
-            {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
+            ) : null}
           </div>
-          <div className="auth-landing-actions onboarding-actions">
-            {showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card goodbye-note"><strong>Signed out cleanly</strong><span>{deletedAccountSummary.email || 'This account'} has been removed, and Maison is now back at a safe resting state.</span></div> : null}
-            <button className="primary-button" onClick={async () => {
-              setInviteChoice(false)
-              setAuthMessage('Redirecting you to Google sign-in…')
-              setAuthError('')
-              setAuthErrorCode('')
-              const result = await signInWithGoogle()
-              if (result?.error) {
-                setAuthMessage(result.error)
-                setAuthError(result.error)
-                setAuthErrorCode(result.rawCode || '')
-              }
-            }}>{showDeletedAccountView ? 'Sign in again with Google' : 'Continue with Google'}</button>
-            <button className="secondary-button" onClick={() => setInviteChoice(true)}>I already have an invite code</button>
-            <div className="auth-divider"><span>or use email</span></div>
-            <form className="auth-email-form onboarding-section-block" onSubmit={submitEmailAuth}>
+
+          <aside className="auth-landing-actions onboarding-actions maison-auth-rail" id="maison-auth">
+            <div className="maison-auth-card onboarding-section-block">
               <div>
-                <p className="panel-label">Email and password</p>
-                <h3>{emailAuthMode === 'signup' ? 'Create your Maison account' : 'Sign in with email'}</h3>
-                <p className="hero-copy">{emailAuthMode === 'signup' ? 'Use email if you want a direct Maison login alongside Google.' : 'Use the email and password already tied to your Maison account.'}</p>
+                <p className="panel-label">Access Maison</p>
+                <h3>{showDeletedAccountView ? 'Sign back in when you are ready' : 'Sign in or start with your invite'}</h3>
+                <p className="hero-copy">{showDeletedAccountView ? 'Maison is back at a safe resting state. You can return with Google or email whenever you want.' : 'Choose Google or email below. If a partner already invited you, keep the invite path selected and Maison will take you to code entry right after sign-in.'}</p>
               </div>
-              {emailAuthMode === 'signup' ? <input className="invite-code-input no-caps-input" type="text" placeholder="Your name" value={emailAuthForm.name} onChange={(event) => setEmailAuthForm((current) => ({ ...current, name: event.target.value }))} autoComplete="name" required /> : null}
-              <input className="invite-code-input no-caps-input" type="email" placeholder="Email address" value={emailAuthForm.email} onChange={(event) => setEmailAuthForm((current) => ({ ...current, email: event.target.value }))} autoComplete="email" required />
-              <input className="invite-code-input no-caps-input" type="password" placeholder="Password" value={emailAuthForm.password} onChange={(event) => setEmailAuthForm((current) => ({ ...current, password: event.target.value }))} autoComplete={emailAuthMode === 'signup' ? 'new-password' : 'current-password'} minLength={6} required />
-              <div className="form-actions">
-                <button className="primary-button" type="submit" disabled={isEmailAuthLoading}>{isEmailAuthLoading ? (emailAuthMode === 'signup' ? 'Creating…' : 'Signing in…') : (emailAuthMode === 'signup' ? 'Create email account' : 'Sign in with email')}</button>
-                <button className="secondary-button" type="button" onClick={() => {
-                  setEmailAuthMode((current) => current === 'signup' ? 'signin' : 'signup')
-                  setAuthMessage('')
-                  setAuthError('')
-                  setAuthErrorCode('')
-                  setEmailAuthForm((current) => ({ ...current, password: '' }))
-                }}>{emailAuthMode === 'signup' ? 'I already have an account' : 'Create an email account'}</button>
-                {emailAuthMode === 'signin' ? <button className="secondary-button" type="button" onClick={handlePasswordReset} disabled={isEmailAuthLoading}>Reset password</button> : null}
-              </div>
-            </form>
-            {inAppBrowserWarning && !showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
-              <strong>Open in your main browser if Google loops</strong>
-              <span>{inAppBrowserWarning}'s in-app browser can break Google sign-in handoff. If login bounces back here, open Maison in Safari or Chrome and try again there.</span>
-            </div> : null}
-            {!showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
-              <strong>Private household access</strong>
-              <span>After sign-in, non-members can either create their own household or join one with a valid invite code from an owner.</span>
-            </div> : null}
-          </div>
+              {!hasFirebaseConfig ? <p className="auth-help error">Maison auth is not configured in this live build yet, so sign-in and account creation cannot start until the Firebase build env is fixed.</p> : null}
+              {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
+              {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
+              {showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card goodbye-note"><strong>Signed out cleanly</strong><span>{deletedAccountSummary.email || 'This account'} has been removed, and Maison is now back at a safe resting state.</span></div> : null}
+              <button className="primary-button" onClick={async () => {
+                setInviteChoice(false)
+                setAuthMessage('Redirecting you to Google sign-in…')
+                setAuthError('')
+                setAuthErrorCode('')
+                const result = await signInWithGoogle()
+                if (result?.error) {
+                  setAuthMessage(result.error)
+                  setAuthError(result.error)
+                  setAuthErrorCode(result.rawCode || '')
+                }
+              }}>{showDeletedAccountView ? 'Sign in again with Google' : 'Continue with Google'}</button>
+              <button className="secondary-button" onClick={() => setInviteChoice(true)}>{showDeletedAccountView ? 'Join with an invite code later' : 'I already have an invite code'}</button>
+              {!showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card maison-invite-note">
+                <strong>Invite code flow</strong>
+                <span>Select the invite option before you sign in, and Maison will take you directly to household join after authentication.</span>
+              </div> : null}
+              <div className="auth-divider"><span>or use email</span></div>
+              <form className="auth-email-form onboarding-section-block" onSubmit={submitEmailAuth}>
+                <div>
+                  <p className="panel-label">Email and password</p>
+                  <h3>{emailAuthMode === 'signup' ? 'Create your Maison account' : 'Sign in with email'}</h3>
+                  <p className="hero-copy">{emailAuthMode === 'signup' ? 'Use email if you want a direct Maison login alongside Google.' : 'Use the email and password already tied to your Maison account.'}</p>
+                </div>
+                {emailAuthMode === 'signup' ? <input className="invite-code-input no-caps-input" type="text" placeholder="Your name" value={emailAuthForm.name} onChange={(event) => setEmailAuthForm((current) => ({ ...current, name: event.target.value }))} autoComplete="name" required /> : null}
+                <input className="invite-code-input no-caps-input" type="email" placeholder="Email address" value={emailAuthForm.email} onChange={(event) => setEmailAuthForm((current) => ({ ...current, email: event.target.value }))} autoComplete="email" required />
+                <input className="invite-code-input no-caps-input" type="password" placeholder="Password" value={emailAuthForm.password} onChange={(event) => setEmailAuthForm((current) => ({ ...current, password: event.target.value }))} autoComplete={emailAuthMode === 'signup' ? 'new-password' : 'current-password'} minLength={6} required />
+                <div className="form-actions">
+                  <button className="primary-button" type="submit" disabled={isEmailAuthLoading}>{isEmailAuthLoading ? (emailAuthMode === 'signup' ? 'Creating…' : 'Signing in…') : (emailAuthMode === 'signup' ? 'Create email account' : 'Sign in with email')}</button>
+                  <button className="secondary-button" type="button" onClick={() => {
+                    setEmailAuthMode((current) => current === 'signup' ? 'signin' : 'signup')
+                    setAuthMessage('')
+                    setAuthError('')
+                    setAuthErrorCode('')
+                    setEmailAuthForm((current) => ({ ...current, password: '' }))
+                  }}>{emailAuthMode === 'signup' ? 'I already have an account' : 'Create an email account'}</button>
+                  {emailAuthMode === 'signin' ? <button className="secondary-button" type="button" onClick={handlePasswordReset} disabled={isEmailAuthLoading}>Reset password</button> : null}
+                </div>
+              </form>
+              {inAppBrowserWarning && !showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
+                <strong>Open in your main browser if Google loops</strong>
+                <span>{inAppBrowserWarning}'s in-app browser can break Google sign-in handoff. If login bounces back here, open Maison in Safari or Chrome and try again there.</span>
+              </div> : null}
+              {!showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
+                <strong>Private household access</strong>
+                <span>After sign-in, non-members can either create their own household or join one with a valid invite code from an owner.</span>
+              </div> : null}
+            </div>
+          </aside>
         </section>
       </div>
     )
