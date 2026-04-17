@@ -1,0 +1,373 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Sunwashed Tight Round</title>
+  <style>
+    :root {
+      --ink: #31261f;
+      --body: #5b4a3f;
+      --muted: #87786c;
+      --line: #e5d7ca;
+      --paper: #faf5ee;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+    }
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto;
+      padding: 0.62in;
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+      background: #fbf6ef;
+    }
+    .page:last-child { page-break-after: auto; }
+    .cover::before, .cover::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+    .cover::before { width: 290px; height: 290px; right: -100px; top: -95px; background: #eddac9; }
+    .cover::after { width: 220px; height: 220px; left: -70px; bottom: -70px; background: #e3cfbc; }
+    .eyebrow {
+      margin-bottom: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8b694e;
+      position: relative;
+      z-index: 1;
+    }
+    h1,h2,h3,p { margin: 0; }
+    h1 {
+      max-width: 660px;
+      margin-bottom: 16px;
+      font-size: 42px;
+      line-height: 0.96;
+      letter-spacing: -0.045em;
+      position: relative;
+      z-index: 1;
+    }
+    .subhead {
+      max-width: 650px;
+      margin-bottom: 22px;
+      font-size: 18px;
+      line-height: 1.56;
+      color: var(--body);
+      position: relative;
+      z-index: 1;
+    }
+    .quote {
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 26px;
+      background: rgba(255,255,255,0.76);
+      font-size: 27px;
+      line-height: 1.18;
+      font-weight: 700;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+    .quote small {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.52;
+      font-weight: 500;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; position: relative; z-index: 1; }
+    .card, .note-card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px;
+      background: rgba(255,255,255,0.8);
+    }
+    .card h3, .note-card h3 {
+      margin-bottom: 8px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #8b694e;
+    }
+    .card p, .note-card p, .note-card li { color: var(--body); }
+    .section-tag {
+      margin-bottom: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8b694e;
+    }
+    .story-name {
+      margin-bottom: 8px;
+      font-size: 34px;
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+    .story-copy {
+      margin-bottom: 16px;
+      font-size: 16px;
+      line-height: 1.62;
+      color: var(--body);
+      max-width: 690px;
+    }
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+    .swatch {
+      min-height: 76px;
+      padding: 10px;
+      display: flex;
+      align-items: end;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.25;
+    }
+    .swatch span { display:block; font-size:10px; margin-top:3px; opacity:0.9; }
+    .mockup-grid { display: grid; grid-template-columns: 1.18fr 1fr; gap: 16px; }
+    .mockup-card {
+      border-radius: 28px;
+      padding: 18px;
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 22px 60px rgba(57, 41, 31, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+    .mockup-card::after {
+      content: "";
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 999px;
+      right: -108px;
+      top: -108px;
+      opacity: 0.82;
+      pointer-events: none;
+    }
+    .mockup-label {
+      margin-bottom: 12px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-weight: 800;
+      opacity: 0.74;
+    }
+    .landing-nav, .dash-top, .hero-actions, .feature-row, .stat-grid, .mini-list, .dash-actions {
+      display: flex; gap: 8px; flex-wrap: wrap;
+    }
+    .landing-nav, .dash-top { justify-content: space-between; align-items: center; }
+    .nav-brand, .hero-brand { font-size: 21px; line-height: 1; letter-spacing: -0.04em; font-weight: 700; }
+    .pill, .chip, .nav-chip, .button {
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+    .landing-hero { margin-top: 16px; display: grid; grid-template-columns: 1.25fr 0.95fr; gap: 14px; align-items: stretch; }
+    .hero-copy-block { display: grid; gap: 12px; align-content: start; }
+    .hero-title { font-size: 33px; line-height: 0.96; letter-spacing: -0.05em; max-width: 330px; }
+    .hero-body { font-size: 14px; line-height: 1.56; max-width: 340px; }
+    .button { font-size: 12px; font-weight: 800; padding: 10px 14px; }
+    .hero-note, .panel, .metric, .task, .phone-card, .feature-box {
+      border-radius: 20px;
+      padding: 14px;
+      border: 1px solid rgba(0,0,0,0.06);
+      background: rgba(255,255,255,0.56);
+    }
+    .phone-card { min-height: 280px; display: grid; gap: 10px; align-content: start; }
+    .phone-top { display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:700; }
+    .phone-house { padding: 14px; border-radius: 18px; min-height: 94px; display:grid; gap:6px; align-content:end; }
+    .phone-house strong { font-size: 18px; line-height: 1.02; }
+    .phone-list { display:grid; gap:8px; }
+    .phone-item, .item { padding: 10px 12px; border-radius: 14px; font-size: 12px; font-weight: 600; }
+    .feature-row { margin-top: 12px; }
+    .feature-box { flex: 1 1 0; min-width: 0; font-size: 12px; }
+    .feature-box strong { display:block; margin-bottom:4px; font-size:13px; }
+    .dash-headline { margin-top: 14px; display:grid; gap:8px; }
+    .dash-title { font-size: 28px; line-height: 0.98; letter-spacing: -0.05em; max-width: 310px; }
+    .dash-copy { font-size: 13px; line-height: 1.54; max-width: 310px; }
+    .stat-grid { margin: 14px 0; display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
+    .metric strong { display:block; margin-top:8px; font-size:24px; line-height:1; }
+    .metric span, .task small, .panel small { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 800; opacity: 0.72; }
+    .dash-panels { display:grid; grid-template-columns: 1.18fr 0.9fr; gap: 12px; }
+    .task-list { display:grid; gap:8px; margin-top: 10px; }
+    .task { display:grid; gap:4px; }
+    .task strong, .panel strong { display:block; font-size:14px; line-height:1.24; }
+    .task p, .panel p, .metric p { margin-top:4px; font-size:12px; line-height:1.45; }
+    .mini-list { margin-top: 10px; display:grid; gap:8px; }
+    .variant-a { background: linear-gradient(180deg, #f8f2e7 0%, #f0e4cf 100%); color:#3f3328; }
+    .variant-a::after { background: radial-gradient(circle, rgba(208,168,74,0.24), transparent 68%); }
+    .variant-a .button.primary, .variant-a .phone-house { background: linear-gradient(135deg, #d0a84a, #4d8c86); color:#fff9f0; }
+    .variant-a .button.secondary, .variant-a .hero-note, .variant-a .metric, .variant-a .task, .variant-a .panel, .variant-a .feature-box, .variant-a .nav-chip, .variant-a .chip, .variant-a .pill, .variant-a .phone-item, .variant-a .item { background: rgba(255,250,243,0.78); color:#4b3c31; }
+    .variant-a .metric.gold { background: linear-gradient(180deg, rgba(216,180,93,0.94), rgba(179,139,49,0.96)); color:#fff9f1; }
+    .variant-a .metric.teal, .variant-a .panel.teal { background: linear-gradient(180deg, rgba(93,147,141,0.94), rgba(64,110,105,0.96)); color:#f8f4ef; }
+    .variant-a .metric.rose, .variant-a .task.rose { background: linear-gradient(180deg, rgba(198,129,108,0.92), rgba(144,89,73,0.96)); color:#fff9f4; }
+    .variant-b { background: linear-gradient(180deg, #fbf6ee 0%, #f4ead8 100%); color:#403328; }
+    .variant-b::after { background: radial-gradient(circle, rgba(94,146,140,0.20), transparent 68%); }
+    .variant-b .button.primary, .variant-b .phone-house { background: linear-gradient(135deg, #cda04a, #5e928c); color:#fff9f0; }
+    .variant-b .button.secondary, .variant-b .hero-note, .variant-b .metric, .variant-b .task, .variant-b .panel, .variant-b .feature-box, .variant-b .nav-chip, .variant-b .chip, .variant-b .pill, .variant-b .phone-item, .variant-b .item { background: rgba(255,252,247,0.84); color:#4a3c31; }
+    .variant-b .metric.gold { background: linear-gradient(180deg, rgba(207,166,84,0.92), rgba(181,143,60,0.96)); color:#fffaf3; }
+    .variant-b .metric.teal, .variant-b .panel.teal { background: linear-gradient(180deg, rgba(94,146,140,0.92), rgba(69,112,108,0.96)); color:#f7f3ed; }
+    .variant-b .metric.rose, .variant-b .task.rose { background: linear-gradient(180deg, rgba(226,202,159,0.92), rgba(194,167,120,0.96)); color:#4f3f2f; }
+    .variant-c { background: linear-gradient(180deg, #f5eee1 0%, #eadbc5 100%); color:#392d25; }
+    .variant-c::after { background: radial-gradient(circle, rgba(75,57,45,0.24), transparent 68%); }
+    .variant-c .button.primary, .variant-c .phone-house { background: linear-gradient(135deg, #4b392d, #4d8c86); color:#fff8f1; }
+    .variant-c .button.secondary, .variant-c .hero-note, .variant-c .metric, .variant-c .task, .variant-c .panel, .variant-c .feature-box, .variant-c .nav-chip, .variant-c .chip, .variant-c .pill, .variant-c .phone-item, .variant-c .item { background: rgba(255,248,239,0.74); color:#493b31; }
+    .variant-c .metric.gold { background: linear-gradient(180deg, rgba(208,168,74,0.94), rgba(171,133,48,0.96)); color:#fff8ef; }
+    .variant-c .metric.teal, .variant-c .panel.teal { background: linear-gradient(180deg, rgba(76,112,108,0.94), rgba(57,86,83,0.96)); color:#f5f1eb; }
+    .variant-c .metric.rose, .variant-c .task.rose { background: linear-gradient(180deg, rgba(75,57,45,0.94), rgba(55,41,33,0.96)); color:#f8f1e8; }
+    .footer-note {
+      position: absolute;
+      left: 0.62in;
+      right: 0.62in;
+      bottom: 0.42in;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+    }
+    @media print { body { background: var(--paper); } .page { margin: 0; } }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div class="eyebrow">Maison • Tighter Round</div>
+    <h1>Refining the leading direction before we move into typography</h1>
+    <p class="subhead">Sunwashed Market is still the strongest overall, so this deck tightens that direction instead of starting over. The point here is to figure out what kind of warmth it should have when it gets more intentional.</p>
+    <div class="quote">“Before we move onto typography.”<small>That means the visual direction itself should get sharper first. These are three tighter Sunwashed Market variants, each still living in the same family but pulling the emotional balance a little differently.</small></div>
+    <div class="grid-2">
+      <div class="card"><h3>What stays fixed</h3><p>The family stays cream, mustard, teal, and walnut. The question is what leads: brightness, refinement, or depth.</p></div>
+      <div class="card"><h3>What I’m testing</h3><p>How far Maison can move toward premium-home identity without losing clarity, friendliness, and daily usability.</p></div>
+    </div>
+    <div class="footer-note"><span>Prepared on April 17, 2026</span><span>Maison tighter round</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Variant 01</div>
+    <h2 class="story-name">Balanced Warm</h2>
+    <p class="story-copy">This is the most stable version of Sunwashed Market. Mustard and teal share the work evenly, walnut stays supportive, and the whole thing feels approachable, clean, and quietly premium.</p>
+    <div class="swatches">
+      <div class="swatch" style="background:#F8F2E7;color:#3F3328;">Morning Cream<span>#F8F2E7</span></div>
+      <div class="swatch" style="background:#F0E4CF;color:#3F3328;">Soft Butter<span>#F0E4CF</span></div>
+      <div class="swatch" style="background:#D0A84A;color:#FFF9EF;">Warm Mustard<span>#D0A84A</span></div>
+      <div class="swatch" style="background:#4D8C86;color:#F7F3ED;">Kitchen Teal<span>#4D8C86</span></div>
+      <div class="swatch" style="background:#4B392D;color:#FFF9F3;">Walnut<span>#4B392D</span></div>
+    </div>
+    <div class="mockup-grid">
+      <div class="mockup-card variant-a">
+        <div class="mockup-label">Landing page</div>
+        <div class="landing-nav"><div class="nav-brand">Maison</div><div><span class="nav-chip">How it works</span> <span class="nav-chip">Pricing</span> <span class="nav-chip">Sign in</span></div></div>
+        <div class="landing-hero">
+          <div class="hero-copy-block">
+            <div class="hero-title">A calmer way to run a home together.</div>
+            <div class="hero-body">The most balanced version. Useful, warm, and a little polished, but not precious.</div>
+            <div class="hero-actions"><span class="button primary">Join the founding launch</span><span class="button secondary">See how it works</span></div>
+            <div class="hero-note">Feels like the best first-launch direction if Maison should be broadly likable and clearly differentiated.</div>
+          </div>
+          <div class="phone-card"><div class="phone-top"><span>Today at home</span><span class="pill">3 due soon</span></div><div class="phone-house"><strong>Saturday reset</strong><span>Kitchen filters, patio sweep, grocery restock.</span></div><div class="phone-list"><div class="phone-item">Water basil</div><div class="phone-item">Order air filters</div><div class="phone-item">Pick up lemons</div></div></div>
+        </div>
+        <div class="feature-row"><div class="feature-box"><strong>Fresh</strong>Still has lift.</div><div class="feature-box"><strong>Warm</strong>Doesn’t feel synthetic.</div><div class="feature-box"><strong>Usable</strong>Easy to imagine in production.</div></div>
+      </div>
+      <div class="mockup-card variant-a">
+        <div class="mockup-label">Dashboard</div>
+        <div class="dash-top"><div class="hero-brand">Maison</div><div class="dash-actions"><span class="chip">This week</span><span class="chip">All rooms</span></div></div>
+        <div class="dash-headline"><div class="dash-title">Good evening, your home is in good shape.</div><div class="dash-copy">This version feels controlled and welcoming without going soft.</div></div>
+        <div class="stat-grid"><div class="metric gold"><span>Due soon</span><strong>4</strong><p>By Sunday</p></div><div class="metric teal"><span>Completed</span><strong>12</strong><p>This week</p></div><div class="metric rose"><span>Shopping</span><strong>9</strong><p>Waiting</p></div></div>
+        <div class="dash-panels"><div class="panel teal"><small>Next up</small><strong>Kitchen + pantry reset</strong><p>Replace water filter, check produce, and wipe cabinet fronts before the week starts.</p><div class="task-list"><div class="task"><strong>Replace fridge filter</strong><p>Ready to swap.</p></div><div class="task rose"><strong>Restock cleaning spray</strong><p>Add to errands.</p></div></div></div><div class="panel"><small>Shopping list</small><strong>Market run</strong><div class="mini-list"><div class="item">Paper towels</div><div class="item">Dishwasher pods</div><div class="item">Fresh herbs</div></div></div></div>
+      </div>
+    </div>
+    <div class="footer-note"><span>Maison tighter round</span><span>Balanced Warm</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Variant 02</div>
+    <h2 class="story-name">Brighter Editorial</h2>
+    <p class="story-copy">This version pushes the cream and teal a little more and softens the mustard. It feels airier and more editorial, with a cleaner magazine-like calm.</p>
+    <div class="swatches">
+      <div class="swatch" style="background:#FBF6EE;color:#403328;">Porcelain Cream<span>#FBF6EE</span></div>
+      <div class="swatch" style="background:#F4EAD8;color:#403328;">Linen Glow<span>#F4EAD8</span></div>
+      <div class="swatch" style="background:#CDA04A;color:#FFF9F1;">Quiet Mustard<span>#CDA04A</span></div>
+      <div class="swatch" style="background:#5E928C;color:#F8F4EE;">Washed Teal<span>#5E928C</span></div>
+      <div class="swatch" style="background:#CDBD9F;color:#4C3C2E;">Warm Sand<span>#CDBD9F</span></div>
+    </div>
+    <div class="mockup-grid">
+      <div class="mockup-card variant-b">
+        <div class="mockup-label">Landing page</div>
+        <div class="landing-nav"><div class="nav-brand">Maison</div><div><span class="nav-chip">Why Maison</span> <span class="nav-chip">Plans</span> <span class="nav-chip">Sign in</span></div></div>
+        <div class="landing-hero"><div class="hero-copy-block"><div class="hero-title">A beautiful home starts with less mental clutter.</div><div class="hero-body">This is the lightest and most editorial pass. It feels polished, airy, and slightly more design-forward.</div><div class="hero-actions"><span class="button primary">See the launch offer</span><span class="button secondary">Explore the flow</span></div><div class="hero-note">Great if Maison should feel a touch more aesthetic and less operational.</div></div><div class="phone-card"><div class="phone-top"><span>Household view</span><span class="pill">Steady week</span></div><div class="phone-house"><strong>Sunday home check</strong><span>Maintenance, pantry, and next week’s reset.</span></div><div class="phone-list"><div class="phone-item">Refill pantry staples</div><div class="phone-item">Vacuum stairs</div><div class="phone-item">Replace shower spray</div></div></div></div>
+        <div class="feature-row"><div class="feature-box"><strong>Airier</strong>Feels lighter.</div><div class="feature-box"><strong>Sharper</strong>More editorial calm.</div><div class="feature-box"><strong>Risk</strong>Less grounded than A.</div></div>
+      </div>
+      <div class="mockup-card variant-b">
+        <div class="mockup-label">Dashboard</div>
+        <div class="dash-top"><div class="hero-brand">Maison</div><div class="dash-actions"><span class="chip">This month</span><span class="chip">Whole home</span></div></div>
+        <div class="dash-headline"><div class="dash-title">A tidy, low-stress week at home.</div><div class="dash-copy">This is the cleanest version, and maybe the most elegant, but it sacrifices a little character.</div></div>
+        <div class="stat-grid"><div class="metric gold"><span>Scheduled</span><strong>7</strong><p>Across the week</p></div><div class="metric teal"><span>Finished</span><strong>15</strong><p>This month</p></div><div class="metric rose"><span>Restock</span><strong>5</strong><p>Low items</p></div></div>
+        <div class="dash-panels"><div class="panel teal"><small>House care</small><strong>Weekend upkeep plan</strong><p>Bathroom reset, vacuum high-traffic rooms, and reorder two basics before Monday.</p><div class="task-list"><div class="task"><strong>Replace sponge set</strong><p>Auto-repeat ready.</p></div><div class="task rose"><strong>Freshen linens</strong><p>Guest room and main bed.</p></div></div></div><div class="panel"><small>Shopping</small><strong>Essentials</strong><div class="mini-list"><div class="item">Laundry pods</div><div class="item">Olive oil</div><div class="item">Toilet paper</div></div></div></div>
+      </div>
+    </div>
+    <div class="footer-note"><span>Maison tighter round</span><span>Brighter Editorial</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Variant 03</div>
+    <h2 class="story-name">Richer Walnut</h2>
+    <p class="story-copy">This version leans harder on walnut depth and uses mustard more sparingly. It feels more expensive, more intimate, and closer to the eventual typography direction.</p>
+    <div class="swatches">
+      <div class="swatch" style="background:#F5EEE1;color:#392D25;">Oat Light<span>#F5EEE1</span></div>
+      <div class="swatch" style="background:#EADBC5;color:#392D25;">Toasted Linen<span>#EADBC5</span></div>
+      <div class="swatch" style="background:#D0A84A;color:#FFF8EF;">Mustard Accent<span>#D0A84A</span></div>
+      <div class="swatch" style="background:#4D8C86;color:#F7F3ED;">Utility Teal<span>#4D8C86</span></div>
+      <div class="swatch" style="background:#4B392D;color:#FFF8F1;">Deep Walnut<span>#4B392D</span></div>
+    </div>
+    <div class="mockup-grid">
+      <div class="mockup-card variant-c">
+        <div class="mockup-label">Landing page</div>
+        <div class="landing-nav"><div class="nav-brand">Maison</div><div><span class="nav-chip">The idea</span> <span class="nav-chip">Founding access</span> <span class="nav-chip">Sign in</span></div></div>
+        <div class="landing-hero"><div class="hero-copy-block"><div class="hero-title">A home feels calmer when it is remembered well.</div><div class="hero-body">This is the richest version. It feels most like a home brand and least like a startup product, but it needs stronger type to fully land.</div><div class="hero-actions"><span class="button primary">Join Maison</span><span class="button secondary">View the approach</span></div><div class="hero-note">The closest bridge between the visual direction and the wordmark direction.</div></div><div class="phone-card"><div class="phone-top"><span>Home rhythm</span><span class="pill">Tonight</span></div><div class="phone-house"><strong>Evening reset</strong><span>Kitchen close, candle restock, prep the house for tomorrow.</span></div><div class="phone-list"><div class="phone-item">Wipe counters</div><div class="phone-item">Refill hand soap</div><div class="phone-item">Order coffee beans</div></div></div></div>
+        <div class="feature-row"><div class="feature-box"><strong>Most character</strong>Feels branded.</div><div class="feature-box"><strong>Most depth</strong>Feels richer.</div><div class="feature-box"><strong>Risk</strong>Could get heavy if overused.</div></div>
+      </div>
+      <div class="mockup-card variant-c">
+        <div class="mockup-label">Dashboard</div>
+        <div class="dash-top"><div class="hero-brand">Maison</div><div class="dash-actions"><span class="chip">Tonight</span><span class="chip">Kitchen</span></div></div>
+        <div class="dash-headline"><div class="dash-title">A warmer, more characterful dashboard.</div><div class="dash-copy">This is the strongest emotional identity, especially if the wordmark goes warm and sculpted.</div></div>
+        <div class="stat-grid"><div class="metric gold"><span>Pending</span><strong>3</strong><p>Tonight</p></div><div class="metric teal"><span>Handled</span><strong>10</strong><p>This week</p></div><div class="metric rose"><span>Shopping</span><strong>6</strong><p>Restocks</p></div></div>
+        <div class="dash-panels"><div class="panel teal"><small>Home rhythm</small><strong>Kitchen close routine</strong><p>Reset the sink, wipe the stove, and set tomorrow’s breakfast basics so the morning feels easy.</p><div class="task-list"><div class="task"><strong>Refill dish soap</strong><p>Low after this week.</p></div><div class="task rose"><strong>Swap hand towel</strong><p>Fresh one from the linen drawer.</p></div></div></div><div class="panel"><small>Restock</small><strong>Pantry + bath</strong><div class="mini-list"><div class="item">Coffee beans</div><div class="item">Hand soap</div><div class="item">Candle matches</div></div></div></div>
+      </div>
+    </div>
+    <div class="footer-note"><span>Maison tighter round</span><span>Richer Walnut</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Recommendation</div>
+    <h2 class="story-name">What I would carry forward</h2>
+    <div class="note-card" style="margin-bottom:14px;"><h3>Best overall next step</h3><p><strong>Balanced Warm</strong> is the strongest path if we want Maison to feel distinctive, warm, and still easy to trust in product form. It is the safest path into a real brand system.</p></div>
+    <div class="note-card" style="margin-bottom:14px;"><h3>Most elegant</h3><p><strong>Brighter Editorial</strong> is the prettiest and lightest, but it loses a little of Maison’s grounding.</p></div>
+    <div class="note-card" style="margin-bottom:14px;"><h3>Most brand-rich</h3><p><strong>Richer Walnut</strong> is the most emotionally interesting, and it may become the best long-term identity once the typography gets stronger.</p></div>
+    <div class="note-card"><h3>My recommendation</h3><p>I would keep <strong>Balanced Warm</strong> as the production-leading direction, while borrowing a little of the walnut depth from <strong>Richer Walnut</strong> when we move into typography and final brand polish.</p></div>
+    <div class="footer-note"><span>Maison tighter round</span><span>Recommendation: Balanced Warm</span></div>
+  </section>
+</body>
+</html>
