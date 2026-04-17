@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Antique Walnut Merge</title>
+  <style>
+    :root {
+      --ink: #3e2318;
+      --body: #5d4438;
+      --muted: #8a7568;
+      --line: #e4d8cb;
+      --paper: #faf4e8;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+    }
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto;
+      padding: 0.62in;
+      position: relative;
+      overflow: hidden;
+      background: #fbf6ee;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    .cover::before,
+    .cover::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+    .cover::before { width: 300px; height: 300px; right: -100px; top: -90px; background: rgba(75,57,45,0.14); }
+    .cover::after { width: 220px; height: 220px; left: -70px; bottom: -70px; background: rgba(137,82,61,0.14); }
+    .eyebrow { position: relative; z-index: 1; margin-bottom: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #917043; }
+    h1,h2,h3,p { margin: 0; }
+    h1 { position: relative; z-index: 1; max-width: 660px; margin-bottom: 16px; font-size: 42px; line-height: 0.96; letter-spacing: -0.045em; }
+    .subhead { position: relative; z-index: 1; max-width: 660px; margin-bottom: 22px; font-size: 18px; line-height: 1.56; color: var(--body); }
+    .quote { position: relative; z-index: 1; border: 1px solid var(--line); border-radius: 28px; padding: 26px; background: rgba(255,255,255,0.76); font-size: 27px; line-height: 1.18; font-weight: 700; margin-bottom: 18px; }
+    .quote small { display:block; margin-top:10px; color: var(--muted); font-size:14px; line-height:1.54; font-weight:500; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; position: relative; z-index: 1; }
+    .card, .note-card { border: 1px solid var(--line); border-radius: 24px; padding: 18px; background: rgba(255,255,255,0.8); }
+    .card h3, .note-card h3 { margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em; color: #917043; }
+    .card p, .note-card p, .note-card li { color: var(--body); }
+    .section-tag { margin-bottom: 8px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #917043; }
+    .story-name { margin-bottom: 8px; font-size: 34px; line-height: 1.02; letter-spacing: -0.04em; }
+    .story-copy { margin-bottom: 18px; font-size: 16px; line-height: 1.62; color: var(--body); max-width: 690px; }
+    .swatches { display: grid; grid-template-columns: repeat(5, 1fr); border-radius: 18px; overflow: hidden; border: 1px solid var(--line); margin-bottom: 18px; }
+    .swatch { min-height: 92px; padding: 12px; display: flex; align-items: end; font-size: 11px; font-weight: 700; line-height: 1.28; }
+    .swatch span { display:block; margin-top:3px; font-size:10px; opacity:0.92; }
+    .mockup-grid { display: grid; grid-template-columns: 1.08fr 0.98fr; gap: 16px; }
+    .mockup-card {
+      border-radius: 28px;
+      padding: 18px;
+      border: 1px solid rgba(0,0,0,0.06);
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 24px 60px rgba(62,35,24,0.11);
+      background: linear-gradient(180deg, #faf3e0 0%, #eadbc5 100%);
+      color: #3e2318;
+    }
+    .mockup-card::after {
+      content: "";
+      position: absolute;
+      width: 240px;
+      height: 240px;
+      border-radius: 999px;
+      right: -108px;
+      top: -108px;
+      opacity: 0.76;
+      pointer-events: none;
+      background: radial-gradient(circle, rgba(75,57,45,0.2), transparent 68%);
+    }
+    .mockup-label { margin-bottom: 12px; font-size: 10px; text-transform: uppercase; letter-spacing: 0.16em; font-weight: 800; opacity: 0.74; }
+    .topbar, .nav-links, .hero-actions, .stats-grid, .subbar { display:flex; gap:8px; flex-wrap:wrap; }
+    .topbar, .dash-top { display:flex; justify-content:space-between; align-items:center; gap:10px; }
+    .brand { font-size: 22px; line-height: 1; letter-spacing: -0.04em; font-weight: 700; }
+    .nav-chip, .chip, .status-chip, .button { border-radius: 999px; padding: 8px 12px; font-size: 11px; font-weight: 700; border: 1px solid rgba(62,35,24,0.08); background: rgba(255,249,241,0.72); color: #4e392f; }
+    .landing-shell, .dashboard-shell { display:grid; gap:14px; }
+    .hero-shell { display:grid; grid-template-columns: 1.08fr 0.94fr; gap: 14px; align-items: stretch; }
+    .hero-copy { display:grid; gap:12px; align-content:start; }
+    .hero-title { font-size: 35px; line-height: 0.95; letter-spacing: -0.05em; max-width: 340px; }
+    .hero-body { font-size: 14px; line-height: 1.58; max-width: 350px; }
+    .button.primary, .surface-hero { background: linear-gradient(135deg, #4b392d, #89523d); color: #fff8f2; border-color: transparent; }
+    .button.secondary { background: rgba(255,249,241,0.82); }
+    .surface, .panel, .stat, .task, .feature-box, .list-item, .rail-item, .shot { border-radius: 20px; border: 1px solid rgba(62,35,24,0.08); background: rgba(255,249,241,0.74); padding: 14px; }
+    .surface-stack { display:grid; gap:10px; }
+    .surface-head { display:flex; justify-content:space-between; align-items:center; font-size:12px; font-weight:700; }
+    .surface-hero { display:grid; gap:6px; padding:16px; min-height:104px; align-content:end; border-radius: 18px; }
+    .surface-hero strong { font-size:18px; line-height:1.02; }
+    .list { display:grid; gap:8px; }
+    .list-item { display:flex; justify-content:space-between; gap:10px; font-size:12px; font-weight:600; }
+    .feature-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap:10px; }
+    .feature-box { min-width:0; font-size:12px; }
+    .feature-box strong { display:block; margin-bottom:4px; font-size:13px; }
+    .dash-title { font-size: 29px; line-height: 0.98; letter-spacing: -0.05em; max-width: 330px; }
+    .dash-copy { font-size: 13px; line-height: 1.54; max-width: 340px; }
+    .stats-grid { display:grid; grid-template-columns: repeat(4, 1fr); gap:10px; }
+    .stat strong { display:block; margin-top:8px; font-size:24px; line-height:1; }
+    .stat span, .task small, .panel small, .rail-item small { font-size:10px; text-transform:uppercase; letter-spacing:0.12em; font-weight:800; opacity:0.72; }
+    .stat.terracotta, .task.terracotta { background: linear-gradient(180deg, rgba(137,82,61,0.94), rgba(106,60,43,0.96)); color:#fff8f2; }
+    .stat.gold, .panel.gold { background: linear-gradient(180deg, rgba(145,112,67,0.94), rgba(118,91,55,0.96)); color:#fff8f0; }
+    .stat.leather, .panel.leather, .rail-item.dark, .shot.dark { background: linear-gradient(180deg, rgba(75,57,45,0.97), rgba(49,28,20,0.97)); color:#f8efe6; }
+    .panel.teal, .stat.teal { background: linear-gradient(180deg, rgba(93,147,141,0.92), rgba(64,110,105,0.96)); color:#f8f3ed; }
+    .dash-body { display:grid; grid-template-columns: 1.16fr 0.92fr; gap:12px; }
+    .task-list, .rail-list { display:grid; gap:8px; margin-top:10px; }
+    .task strong, .panel strong, .rail-item strong { display:block; font-size:14px; line-height:1.24; }
+    .task p, .panel p, .rail-item p, .stat p { margin-top:4px; font-size:12px; line-height:1.44; }
+    .calendar-grid { display:grid; grid-template-columns: 1fr 1fr; gap:10px; margin-top:12px; }
+    .shot-title { font-size:13px; font-weight:800; margin-bottom:8px; }
+    .footer-note { position: absolute; left: 0.62in; right: 0.62in; bottom: 0.42in; display:flex; justify-content:space-between; align-items:center; font-size:11px; color: var(--muted); border-top:1px solid var(--line); padding-top:10px; }
+    @media print { body { background: var(--paper); } .page { margin: 0; } }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div class="eyebrow">Maison • Merged Direction</div>
+    <h1>Antique Hearth merged with Richer Walnut</h1>
+    <p class="subhead">This merge keeps the warmth and domestic feel of Antique Hearth, but borrows the stronger structure and deeper grounding from Richer Walnut. It is less soft than Antique Hearth on its own and less formal than Richer Walnut on its own.</p>
+    <div class="quote">This is probably the real synthesis.<small>Antique Hearth had the better emotional warmth. Richer Walnut had the better brand discipline. Together they feel closer to a final Maison direction than either one alone.</small></div>
+    <div class="grid-2">
+      <div class="card"><h3>What stays</h3><p>Antique, Natural Cotton, Terracotta, Gold Trimming, and Leather remain the core palette.</p></div>
+      <div class="card"><h3>What changes</h3><p>Leather leads more of the structure, Terracotta becomes more intentional, and the overall layout feels more controlled and premium.</p></div>
+    </div>
+    <div class="footer-note"><span>Prepared on April 17, 2026</span><span>Maison Antique Walnut Merge</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Merged story</div>
+    <h2 class="story-name">Antique Walnut</h2>
+    <p class="story-copy">This is Maison as a warm, editorial home brand with a stronger backbone. The cream and cotton keep it breathable, the terracotta keeps it human, the gold keeps it polished, and the leather gives it the authority Antique Hearth was hinting at but not fully pushing.</p>
+    <div class="swatches">
+      <div class="swatch" style="background:#FAF3E0;color:#3E2318;">Antique<span>#FAF3E0</span></div>
+      <div class="swatch" style="background:#EADBC5;color:#3E2318;">Toasted Cotton<span>#EADBC5</span></div>
+      <div class="swatch" style="background:#89523D;color:#FFF8F2;">Terracotta<span>#89523D</span></div>
+      <div class="swatch" style="background:#917043;color:#FFF8F0;">Gold Trimming<span>#917043</span></div>
+      <div class="swatch" style="background:#4B392D;color:#FFF8F1;">Deep Walnut Leather<span>#4B392D</span></div>
+    </div>
+    <div class="note-card" style="margin-bottom:16px;"><h3>Read</h3><p>This feels more final. It keeps the beautiful-home warmth, but it now has enough structure to support real product surfaces and a stronger future wordmark without getting muddy or overly rustic.</p></div>
+    <div class="mockup-grid">
+      <div class="mockup-card">
+        <div class="mockup-label">Landing page mockup</div>
+        <div class="landing-shell">
+          <div class="topbar"><div class="brand">Maison</div><div class="nav-links"><span class="nav-chip">How it works</span><span class="nav-chip">Founding access</span><span class="nav-chip">Sign in</span></div></div>
+          <div class="hero-shell">
+            <div class="hero-copy">
+              <div class="hero-title">A home feels better when it’s held together with taste.</div>
+              <div class="hero-body">Maison keeps the maintenance, shopping, reminders, and household flow in one place that feels warm and human, but now with a clearer premium center.</div>
+              <div class="hero-actions"><span class="button primary">Join the founding launch</span><span class="button secondary">See the dashboard</span></div>
+              <div class="panel gold"><small>Brand read</small><strong>Warmer than Richer Walnut, stronger than Antique Hearth.</strong><p>This is the blend that feels most like a real Maison brand system instead of just a nice palette.</p></div>
+            </div>
+            <div class="surface-stack">
+              <div class="surface"><div class="surface-head"><span>Tonight at home</span><span class="status-chip">Focus view</span></div><div class="surface-hero"><strong>Evening reset</strong><span>Kitchen close, refill soap, prep breakfast basics, and reset the house for tomorrow.</span></div></div>
+              <div class="list"><div class="list-item"><span>Wipe counters</span><span>8 pm</span></div><div class="list-item"><span>Refill hand soap</span><span>Bath</span></div><div class="list-item"><span>Order coffee beans</span><span>List</span></div></div>
+            </div>
+          </div>
+          <div class="feature-grid"><div class="feature-box"><strong>Warm utility</strong>Still domestic and calm.</div><div class="feature-box"><strong>More authority</strong>Feels more branded and intentional.</div><div class="feature-box"><strong>Type-ready</strong>Better bridge into the typography system.</div></div>
+        </div>
+      </div>
+      <div class="mockup-card">
+        <div class="mockup-label">Dashboard mockup</div>
+        <div class="dashboard-shell">
+          <div class="dash-top"><div class="brand">Maison</div><div class="subbar"><span class="chip">This week</span><span class="chip">Whole home</span><span class="chip">Victor + Riah</span></div></div>
+          <div><div class="dash-title">Your home feels steady, and the dashboard finally does too.</div><div class="dash-copy">This keeps the warmth of the terracotta-gold direction, but uses walnut structure so the app surface feels more premium and less soft.</div></div>
+          <div class="stats-grid"><div class="stat gold"><span>Due soon</span><strong>4</strong><p>Things to handle by Sunday</p></div><div class="stat terracotta"><span>Shopping</span><strong>7</strong><p>Restocks waiting</p></div><div class="stat leather"><span>Completed</span><strong>12</strong><p>Finished this week</p></div><div class="stat teal"><span>Routines</span><strong>14</strong><p>Tracked in Maison</p></div></div>
+          <div class="dash-body">
+            <div>
+              <div class="panel leather"><small>Priority flow</small><strong>Kitchen + pantry reset</strong><p>Replace the water filter, restock three staples, and clear the counter before the new week starts.</p><div class="task-list"><div class="task"><strong>Replace fridge filter</strong><p>Ready to swap now.</p></div><div class="task terracotta"><strong>Reorder dish soap</strong><p>Will run out before Tuesday.</p></div><div class="task"><strong>Restock breakfast basics</strong><p>Eggs, yogurt, and coffee are low.</p></div></div></div>
+              <div class="calendar-grid"><div class="shot"><div class="shot-title">Weekend</div><p>Bathroom refresh, guest-room linens, pantry wipe-down, and a quick dining-room reset.</p></div><div class="shot dark"><div class="shot-title">Design read</div><p>This feels like the strongest merge of warmth, seriousness, and brand identity so far.</p></div></div>
+            </div>
+            <div>
+              <div class="panel"><small>Shopping list</small><strong>Market run</strong><div class="rail-list"><div class="rail-item"><strong>Paper towels</strong><p>Restock before Monday</p></div><div class="rail-item"><strong>Coffee beans</strong><p>Main pantry shelf</p></div><div class="rail-item dark"><strong>Recommendation</strong><p>If you want one direction to keep pushing, this is the one I’d keep in front.</p></div></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note"><span>Maison merged direction</span><span>Antique Walnut</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Recommendation</div>
+    <h2 class="story-name">My take</h2>
+    <div class="note-card" style="margin-bottom:14px;"><h3>What improved</h3><p>The warmth now feels less tentative, and the dashboard has more backbone. This is much closer to a final product identity than Antique Hearth alone.</p></div>
+    <div class="note-card" style="margin-bottom:14px;"><h3>What to watch</h3><p>Leather should carry structure, not take over the whole surface. Gold should remain trim, and terracotta should be the emotional accent, not the background default.</p></div>
+    <div class="note-card"><h3>Recommendation</h3><p>This is the strongest combined direction so far. If you want one palette path to keep refining, I’d put this ahead of the separate Antique Hearth and Richer Walnut branches.</p></div>
+    <div class="footer-note"><span>Maison merged direction</span><span>Recommendation: keep pushing this</span></div>
+  </section>
+</body>
+</html>
