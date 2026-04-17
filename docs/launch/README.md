@@ -20,6 +20,8 @@ This folder is the operating base for turning Maison Mikell from a working house
 - `app-store-listing-copy.md`
 - `screenshot-shotlist.md`
 - `founding-offer-faq.md`
+- `maison-organic-marketing-report-2026-04-16.html`
+- `maison-organic-marketing-report-2026-04-16.pdf`
 - `ops-recovery-runbook.md`
 - `onboarding-flow-spec.md`
 - `onboarding-implementation-plan.md`

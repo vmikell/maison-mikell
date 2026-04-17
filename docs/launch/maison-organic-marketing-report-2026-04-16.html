@@ -1,0 +1,611 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Mikell Organic Marketing Report</title>
+  <style>
+    :root {
+      --ink: #221933;
+      --muted: #6e6681;
+      --paper: #fffdfd;
+      --line: #eadff0;
+      --lavender: #f6efff;
+      --rose: #fff1f7;
+      --rose-deep: #ff8ecf;
+      --violet: #8f6bff;
+      --violet-deep: #6d50d8;
+      --shadow: 0 18px 48px rgba(44, 25, 76, 0.10);
+      --accent: linear-gradient(135deg, #ff8ecf 0%, #b18cff 100%);
+      --success: #1e8f6b;
+      --warn: #9a5f16;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+    .page {
+      min-height: 100vh;
+      padding: 56px 60px;
+      page-break-after: always;
+      position: relative;
+    }
+    .page:last-child { page-break-after: auto; }
+    .cover {
+      background:
+        radial-gradient(circle at top right, rgba(255, 142, 207, 0.24), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(177, 140, 255, 0.20), transparent 28%),
+        linear-gradient(180deg, #fffdfd 0%, #fff8fc 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--lavender);
+      color: var(--violet-deep);
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      font-weight: 800;
+    }
+    h1 {
+      font-size: 46px;
+      line-height: 1.02;
+      margin: 18px 0 14px;
+      max-width: 680px;
+      letter-spacing: -0.03em;
+    }
+    .subtitle {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 690px;
+      margin: 0;
+    }
+    .cover-grid {
+      display: grid;
+      grid-template-columns: 1.3fr 0.9fr;
+      gap: 26px;
+      margin-top: 42px;
+      align-items: stretch;
+    }
+    .card, .mini, .metric, .callout, .pillar, .quote, .decision {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.92);
+      box-shadow: var(--shadow);
+    }
+    .card {
+      padding: 30px;
+    }
+    .card h2 {
+      font-size: 21px;
+      margin: 0 0 10px;
+    }
+    .card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .stack { display: grid; gap: 14px; }
+    .mini {
+      padding: 18px 18px 16px;
+      background: linear-gradient(180deg, #fff 0%, #fcf8ff 100%);
+    }
+    .mini strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    .mini span {
+      display: block;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .footer-note {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 20px;
+    }
+    h2.section-title {
+      font-size: 30px;
+      margin: 0 0 8px;
+      letter-spacing: -0.02em;
+    }
+    .section-intro {
+      color: var(--muted);
+      font-size: 15px;
+      margin: 0 0 24px;
+      max-width: 760px;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+    }
+    .three-col {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .callout {
+      padding: 22px;
+      background: linear-gradient(180deg, #fff 0%, #fff8fb 100%);
+      margin-bottom: 16px;
+    }
+    .callout h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+    .callout p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .callout ul, .pillar ul, .decision ul { margin: 12px 0 0; padding-left: 18px; }
+    .callout li, .pillar li, .decision li { margin: 8px 0; }
+    .metrics {
+      margin-top: 18px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .metric {
+      padding: 18px;
+      background: linear-gradient(180deg, #fff 0%, #fcf8ff 100%);
+    }
+    .metric strong {
+      display: block;
+      font-size: 28px;
+      margin-bottom: 6px;
+    }
+    .metric span {
+      color: var(--muted);
+      font-size: 13px;
+      display: block;
+    }
+    .pillars {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 10px;
+    }
+    .pillar {
+      padding: 20px;
+      background: linear-gradient(180deg, #fff 0%, #fbf6ff 100%);
+    }
+    .pillar h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+    }
+    .pillar p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .quote {
+      padding: 24px 26px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.94), rgba(250,243,255,0.95));
+      margin-top: 24px;
+      font-size: 21px;
+      line-height: 1.35;
+      font-weight: 700;
+    }
+    .quote small {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .decision {
+      padding: 20px 22px;
+      margin-bottom: 16px;
+      background: linear-gradient(180deg, #fff 0%, #fffaf6 100%);
+    }
+    .decision h3 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    .label {
+      display: inline-block;
+      margin-bottom: 8px;
+      padding: 5px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    .label.green { background: rgba(30,143,107,0.12); color: var(--success); }
+    .label.gold { background: rgba(154,95,22,0.12); color: var(--warn); }
+    .label.violet { background: rgba(143,107,255,0.12); color: var(--violet-deep); }
+    .timeline {
+      display: grid;
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .step {
+      border-left: 4px solid #dbc9ff;
+      padding: 10px 0 10px 16px;
+    }
+    .step strong {
+      display: block;
+      margin-bottom: 3px;
+      font-size: 15px;
+    }
+    .step span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+    .banner {
+      margin-top: 24px;
+      padding: 18px 20px;
+      border-radius: 20px;
+      background: var(--accent);
+      color: white;
+      font-weight: 800;
+      font-size: 17px;
+      box-shadow: 0 18px 38px rgba(111, 70, 160, 0.22);
+    }
+    .grid-note {
+      margin-top: 18px;
+      color: var(--muted);
+      font-size: 13px;
+    }
+    @page {
+      size: Letter;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div>
+      <span class="eyebrow">Maison Mikell • Organic Marketing Report</span>
+      <h1>A no-budget launch plan for growing Maison Mikell through social, story, and sharp execution.</h1>
+      <p class="subtitle">Prepared for Victor and Riah. This report packages Maison’s positioning, launch message, organic growth approach, operating model, and the access stack needed for Henry to own the marketing process under Victor’s approval.</p>
+      <div class="cover-grid">
+        <div class="card">
+          <h2>Core thesis</h2>
+          <p>Maison Mikell should not be marketed like a generic organizer app. It should be framed as a calm home operating system for couples, then grown through founder-led organic distribution, polished assets, and disciplined feedback loops instead of paid ads.</p>
+        </div>
+        <div class="stack">
+          <div class="mini">
+            <strong>Primary positioning</strong>
+            <span>The home operating system for couples.</span>
+          </div>
+          <div class="mini">
+            <strong>Go-to-market style</strong>
+            <span>No-budget, organic, founder-led social and community distribution.</span>
+          </div>
+          <div class="mini">
+            <strong>Offer structure</strong>
+            <span>$179 founding lifetime for 7 days, then $12 monthly or $96 yearly.</span>
+          </div>
+          <div class="mini">
+            <strong>Working authority</strong>
+            <span>Henry drafts posts, captions, replies, DMs, and outreach. Victor approves everything before publishing.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note">Prepared on April 16, 2026. Designed as a shareable planning report for Maison Mikell.</div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">1. The marketable story</h2>
+    <p class="section-intro">Maison’s edge is emotional clarity, not feature sprawl. The marketing story has to make the product feel like relief, not just productivity.</p>
+    <div class="two-col">
+      <div>
+        <div class="callout">
+          <h3>What Maison is</h3>
+          <ul>
+            <li>A calm shared system for running a home.</li>
+            <li>A product for couples and households, not just solo list-making.</li>
+            <li>A place for shopping, maintenance, reminders, and household planning to live together.</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3>What Maison is not</h3>
+          <ul>
+            <li>Not another generic family organizer.</li>
+            <li>Not a hyper-optimized productivity app.</li>
+            <li>Not a feature blob trying to be everything for everyone.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="callout">
+          <h3>Primary audience</h3>
+          <ul>
+            <li>Couples sharing a home.</li>
+            <li>Busy homeowners.</li>
+            <li>Households feeling recurring coordination friction.</li>
+            <li>People who want calm more than hustle-culture productivity.</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3>Hero message</h3>
+          <p><strong>The home operating system for couples.</strong><br /><br />Maison Mikell brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.</p>
+        </div>
+      </div>
+    </div>
+    <div class="quote">
+      “The first job is not to reach everyone. The first job is to make the right households say: this actually makes our home life easier.”
+      <small>Guiding launch principle for Maison Mikell</small>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">2. The no-budget growth model</h2>
+    <p class="section-intro">Without paid acquisition, Maison has to grow through content, narrative, founder credibility, and deliberate outreach. That means discipline matters more than volume.</p>
+    <div class="pillars">
+      <div class="pillar">
+        <h3>Social content</h3>
+        <p>Short-form posts and videos that translate household friction into a sharp, relatable story.</p>
+        <ul>
+          <li>Instagram</li>
+          <li>TikTok</li>
+          <li>X</li>
+        </ul>
+      </div>
+      <div class="pillar">
+        <h3>Founder-led distribution</h3>
+        <p>Use Victor and Riah’s voice, story, and lived use cases to make the product feel real instead of corporate.</p>
+        <ul>
+          <li>Founder posts</li>
+          <li>Warm network outreach</li>
+          <li>Direct launch invites</li>
+        </ul>
+      </div>
+      <div class="pillar">
+        <h3>Careful community outreach</h3>
+        <p>Selective participation in communities where household coordination pain is already visible.</p>
+        <ul>
+          <li>Reddit, carefully</li>
+          <li>Facebook groups, carefully</li>
+          <li>Couples/homeowner spaces</li>
+        </ul>
+      </div>
+    </div>
+    <div class="metrics">
+      <div class="metric">
+        <strong>01</strong>
+        <span>Build attention with emotionally precise, useful content.</span>
+      </div>
+      <div class="metric">
+        <strong>02</strong>
+        <span>Convert attention into landing page visits and early household signups.</span>
+      </div>
+      <div class="metric">
+        <strong>03</strong>
+        <span>Learn from objections fast and feed those lessons back into onboarding, paywall, and messaging.</span>
+      </div>
+    </div>
+    <div class="banner">Maison should grow like a tastefully run founder-led product, not like a desperate app begging for attention.</div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">3. Operating model and authority</h2>
+    <p class="section-intro">Henry can own the process only if the boundaries are clear. This approval model is strong enough to move quickly without becoming sloppy.</p>
+    <div class="two-col">
+      <div>
+        <div class="decision">
+          <span class="label green">approved</span>
+          <h3>Henry may draft</h3>
+          <ul>
+            <li>Social posts and captions</li>
+            <li>Replies</li>
+            <li>DMs</li>
+            <li>Outreach messages</li>
+            <li>Launch copy and supporting assets</li>
+          </ul>
+        </div>
+        <div class="decision">
+          <span class="label green">approved</span>
+          <h3>Brand voice rule</h3>
+          <ul>
+            <li>Henry may speak as “we” for Maison.</li>
+            <li>The voice should remain calm, premium, warm, and grounded.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="decision">
+          <span class="label gold">approval required</span>
+          <h3>Publishing workflow</h3>
+          <ul>
+            <li>Everything is drafted first.</li>
+            <li>Victor approves before it goes live.</li>
+            <li>Publishing happens only after approval.</li>
+          </ul>
+        </div>
+        <div class="decision">
+          <span class="label violet">open decision</span>
+          <h3>Commenting as Maison</h3>
+          <ul>
+            <li>Still undecided.</li>
+            <li>Recommendation: revisit after the first batch of posts and audience response.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="quote">
+      Henry should own the drafting, system, cadence, and feedback loop. Victor should keep the final publishing check until trust and rhythm are fully established.
+    </div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">4. Tools and access needed</h2>
+    <p class="section-intro">To actually run this, Henry needs a lean but real operating stack. No paid ads does not mean no system.</p>
+    <div class="two-col">
+      <div>
+        <div class="callout">
+          <h3>Channel access</h3>
+          <ul>
+            <li>Instagram account access or scheduler access</li>
+            <li>TikTok account access or scheduler access</li>
+            <li>X account access</li>
+            <li>Optional: Facebook group posting access later</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3>Creative stack</h3>
+          <ul>
+            <li>Canva or Figma for graphics and carousels</li>
+            <li>CapCut for short-form videos</li>
+            <li>Google Drive or shared folder for assets</li>
+            <li>Notion or Airtable for content pipeline</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="callout">
+          <h3>Distribution and scheduling</h3>
+          <ul>
+            <li>Meta Business Suite for Instagram/Facebook scheduling</li>
+            <li>Optional: Buffer or Later for lightweight multi-platform scheduling</li>
+            <li>Landing page with email capture or waitlist form</li>
+            <li>Google Sheet or Airtable for warm leads and feedback tracking</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3>Product asset access</h3>
+          <ul>
+            <li>App access for live screenshots and recordings</li>
+            <li>Brand assets, icons, colors, and mockups</li>
+            <li>Founder story inputs from Victor</li>
+            <li>Riah’s perspective, if she wants to shape the voice</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="grid-note">Important security note: do not pass raw passwords through chat or store them in workspace files. Use role access or a password manager whenever possible.</div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">5. Content system</h2>
+    <p class="section-intro">Maison content should feel aesthetic, emotionally sharp, and specific. The goal is not to “post often,” it is to build the right signal.</p>
+    <div class="three-col">
+      <div class="pillar">
+        <h3>Content pillars</h3>
+        <ul>
+          <li>Shared-home friction</li>
+          <li>Calm systems for couples</li>
+          <li>Shopping and maintenance routines</li>
+          <li>Founder perspective</li>
+          <li>Soft product demos</li>
+        </ul>
+      </div>
+      <div class="pillar">
+        <h3>Formats</h3>
+        <ul>
+          <li>Short videos</li>
+          <li>Carousel posts</li>
+          <li>Static quote-style graphics</li>
+          <li>Founder notes</li>
+          <li>Launch DMs and outreach</li>
+        </ul>
+      </div>
+      <div class="pillar">
+        <h3>Tone rules</h3>
+        <ul>
+          <li>Calm, not loud</li>
+          <li>Premium, not sterile</li>
+          <li>Domestic, not corporate</li>
+          <li>Specific, not generic</li>
+          <li>Warm, not cheesy</li>
+        </ul>
+      </div>
+    </div>
+    <div class="timeline">
+      <div class="step">
+        <strong>Weekly rhythm</strong>
+        <span>1 hero post, 2–3 supporting social posts, 1 founder-style note, and a small batch of warm outreach messages.</span>
+      </div>
+      <div class="step">
+        <strong>Creative rule</strong>
+        <span>Every post should either sharpen desire, validate the problem, or make the product feel more real.</span>
+      </div>
+      <div class="step">
+        <strong>Feedback loop</strong>
+        <span>Track saves, shares, clicks, objections, and repeated questions, then update copy and onboarding from what people actually respond to.</span>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">6. Assets already prepared</h2>
+    <p class="section-intro">The marketing foundation is no longer theoretical. Key launch assets are already drafted and sitting in the repo.</p>
+    <div class="two-col">
+      <div>
+        <div class="callout">
+          <h3>Completed docs</h3>
+          <ul>
+            <li><strong>marketing-plan.md</strong></li>
+            <li><strong>landing-page-copy.md</strong></li>
+            <li><strong>app-store-listing-copy.md</strong></li>
+            <li><strong>screenshot-shotlist.md</strong></li>
+            <li><strong>founding-offer-faq.md</strong></li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="callout">
+          <h3>What these unlock</h3>
+          <ul>
+            <li>A coherent landing page</li>
+            <li>Store-ready messaging direction</li>
+            <li>Screenshot planning that feels staged and premium</li>
+            <li>A clean explanation of the founding offer</li>
+            <li>A base for content and outreach writing</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="quote">
+      Maison’s next marketing step is not “more ideas.” It is turning these assets into a real content and launch pipeline.
+    </div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">7. Immediate next moves</h2>
+    <p class="section-intro">This is the best sequence for the next phase so Maison builds momentum without getting scattered.</p>
+    <div class="timeline">
+      <div class="step">
+        <strong>1. Finalize the channel stack</strong>
+        <span>Choose the exact platforms for launch, recommended: Instagram, TikTok, X, and optional careful community outreach later.</span>
+      </div>
+      <div class="step">
+        <strong>2. Grant access and tool permissions</strong>
+        <span>Set up channel access, scheduling access, asset folder access, and the content pipeline workspace.</span>
+      </div>
+      <div class="step">
+        <strong>3. Build the landing page</strong>
+        <span>Use the drafted copy to turn Maison’s positioning into a public conversion surface.</span>
+      </div>
+      <div class="step">
+        <strong>4. Produce the first launch assets</strong>
+        <span>Create screenshot visuals, short-form videos, and the first wave of social posts.</span>
+      </div>
+      <div class="step">
+        <strong>5. Run approval-based publishing</strong>
+        <span>Henry drafts, Victor reviews, then Maison starts publishing with a clean feedback loop.</span>
+      </div>
+      <div class="step">
+        <strong>6. Use the Mac mini arrival as an execution unlock</strong>
+        <span>When the Mac mini lands, pair the improved marketing pipeline with real device access and better asset production for Maison.</span>
+      </div>
+    </div>
+    <div class="banner">Recommended next deliverable: a Maison content calendar plus the first batch of actual social post drafts.</div>
+  </section>
+</body>
+</html>
