@@ -85,6 +85,7 @@ function App() {
   const [launchInterestMessage, setLaunchInterestMessage] = useState('')
   const [launchInterestTone, setLaunchInterestTone] = useState('success')
   const [deleteAccountPassword, setDeleteAccountPassword] = useState('')
+  const [deleteAccountConfirmText, setDeleteAccountConfirmText] = useState('')
 
   async function submitEmailAuth(event) {
     event.preventDefault()
@@ -345,7 +346,22 @@ function App() {
     ? `${filteredTasks.length} task${filteredTasks.length === 1 ? '' : 's'} match your current filters.`
     : `${summary.overdue} overdue, ${summary.remind} in the reminder window, and ${dueSoonTasks.length} due soon.`
   const isResolvingSignedInState = Boolean(user) && (authLoading || isRemoteLoading)
-  const showDeletedAccountView = !user && Boolean(deletedAccountSummary)
+  const isNativeShell = nativeDiagnostics.isNativeShell
+  const showDeletedAccountNotice = !user && Boolean(deletedAccountSummary)
+  const showDeletedAccountView = showDeletedAccountNotice && !isNativeShell
+  const remainingHouseholdMembers = householdMembers.filter((member) => member.id !== user?.uid)
+  const fallbackSuccessorOwner = membership?.role === 'owner'
+    ? remainingHouseholdMembers.find((member) => member.role === 'owner') || remainingHouseholdMembers[0] || null
+    : null
+  const deletingLastMember = remainingHouseholdMembers.length === 0
+  const deleteAccountImpactLabel = membership?.role === 'owner' && deletingLastMember
+    ? 'Delete the entire household and every shared record'
+    : membership?.role === 'owner' && fallbackSuccessorOwner
+      ? `Pass ownership to ${fallbackSuccessorOwner.name || fallbackSuccessorOwner.email || 'another member'} and remove your account`
+      : 'Remove only your account from this household'
+  const deleteAccountActionLabel = membership?.role === 'owner' && deletingLastMember
+    ? 'Delete household and account'
+    : 'Delete my account'
 
   function openTaskModal(task) { setSelectedTask(task) }
   function closeTaskModal() { setSelectedTask(null) }
@@ -371,6 +387,36 @@ function App() {
     event.preventDefault()
     const saved = await handleSaveShoppingItem(listId, getShoppingForm(listId))
     if (saved) resetShoppingForm(listId)
+  }
+
+  async function runDeleteAccountFlow() {
+    if (deleteAccountConfirmText.trim().toUpperCase() !== 'DELETE') {
+      window.alert('Type DELETE to confirm this offboarding step.')
+      return
+    }
+
+    const recentLogin = await ensureRecentLogin({ email: user?.email || '', password: deleteAccountPassword })
+    if (!recentLogin.ok) {
+      window.alert(recentLogin.error)
+      return
+    }
+
+    const result = await handleDeleteCurrentAccount()
+    if (!result?.ok) return
+
+    const authResult = await deleteSignedInAuthUser()
+    if (!authResult.ok) {
+      window.alert(authResult.error)
+      return
+    }
+
+    setAuthMessage('')
+    setAuthError('')
+    setAuthErrorCode('')
+    finalizeDeletedAccount(result, user?.email || '')
+    setDeleteAccountPassword('')
+    setDeleteAccountConfirmText('')
+    await signOutUser()
   }
 
   const normalizedResolvedActor = (resolvedActorName || '').trim().toLowerCase()
@@ -412,149 +458,166 @@ function App() {
         <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
         <section className="hero-card auth-landing-card onboarding-card goodbye-card maison-landing-shell">
           <div className="maison-landing-main">
-            <section className="maison-hero">
-              <div className="maison-hero-copy">
-                <p className="eyebrow">A calmer way to run your home</p>
-                <h1>{showDeletedAccountView ? 'Goodbye for now.' : 'The home operating system for couples'}</h1>
-                {showDeletedAccountView ? (
-                  <>
-                    <p className="hero-copy">{deletedAccountSummary.message}</p>
-                    <p className="hero-copy">Your Maison session has been closed cleanly, so you should not see a blank screen here anymore.</p>
-                    {deletedAccountSummary.deletedHousehold
-                      ? <p className="hero-copy">That home is fully gone. If you come back later, you’ll be starting fresh.</p>
-                      : <p className="hero-copy">If you ever come back, you can sign in again and either join a household with an invite code or create a new one.</p>}
-                  </>
-                ) : (
-                  <>
-                    <p className="hero-copy">Maison Mikell brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.</p>
-                    <p className="hero-copy maison-hero-support">For couples who want their home life to feel calmer, cleaner, and less dependent on memory.</p>
-                  </>
-                )}
-                {!showDeletedAccountView ? <div className="maison-hero-actions">
-                  <a className="primary-button invite-link-button" href="#maison-waitlist">Join the founding launch</a>
-                  <a className="secondary-button invite-link-button" href="#how-maison-works">See how it works</a>
-                </div> : null}
-              </div>
-              <div className="maison-hero-visual">
-                <div className="maison-hero-frame">
-                  <img src={heroImage} alt="Maison home illustration" className="maison-hero-image" />
+            {showDeletedAccountNotice && isNativeShell ? (
+              <section className="maison-section maison-offboarding-shell">
+                <div className="section-head">
+                  <p className="panel-label">Maison offboarding</p>
+                  <h1>Account removed</h1>
                 </div>
-                <div className="maison-hero-statline">
-                  <div className="maison-metric-card">
-                    <span>Shared home flow</span>
-                    <strong>Shopping, upkeep, reminders, planning</strong>
-                  </div>
-                  <div className="maison-metric-card">
-                    <span>Positioning</span>
-                    <strong>The home operating system for couples</strong>
-                  </div>
+                <p className="hero-copy">{deletedAccountSummary.message}</p>
+                <p className="hero-copy">Your mobile app session is closed cleanly, and Maison is back at a safe resting state.</p>
+                <div className="onboarding-bullet-list maison-check-list compact">
+                  <span>{deletedAccountSummary.email || 'This account'} is signed out on this device.</span>
+                  <span>{deletedAccountSummary.deletedHousehold ? 'That household is gone, so coming back later means starting fresh.' : 'If you come back later, you can sign in again and either join a household or create a new one.'}</span>
                 </div>
-              </div>
-            </section>
-
-            {!showDeletedAccountView ? (
+              </section>
+            ) : (
               <>
-                <section className="maison-section" id="how-maison-works">
-                  <div className="section-head">
-                    <p className="panel-label">The problem</p>
-                    <h2>Home life gets messy when everything lives in six different places.</h2>
+                <section className="maison-hero">
+                  <div className="maison-hero-copy">
+                    <p className="eyebrow">A calmer way to run your home</p>
+                    <h1>{showDeletedAccountView ? 'Goodbye for now.' : 'The home operating system for couples'}</h1>
+                    {showDeletedAccountView ? (
+                      <>
+                        <p className="hero-copy">{deletedAccountSummary.message}</p>
+                        <p className="hero-copy">Your Maison session has been closed cleanly, so you should not see a blank screen here anymore.</p>
+                        {deletedAccountSummary.deletedHousehold
+                          ? <p className="hero-copy">That home is fully gone. If you come back later, you’ll be starting fresh.</p>
+                          : <p className="hero-copy">If you ever come back, you can sign in again and either join a household with an invite code or create a new one.</p>}
+                      </>
+                    ) : (
+                      <>
+                        <p className="hero-copy">Maison Mikell brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.</p>
+                        <p className="hero-copy maison-hero-support">For couples who want their home life to feel calmer, cleaner, and less dependent on memory.</p>
+                      </>
+                    )}
+                    {!showDeletedAccountNotice ? <div className="maison-hero-actions">
+                      <a className="primary-button invite-link-button" href="#maison-waitlist">Join the founding launch</a>
+                      <a className="secondary-button invite-link-button" href="#how-maison-works">See how it works</a>
+                    </div> : null}
                   </div>
-                  <div className="maison-problem-grid">
-                    <p className="hero-copy">Most households are stitching things together across texts, notes apps, calendars, mental reminders, and half-finished shopping lists. Nothing feels fully shared, and the same tasks keep slipping through the cracks.</p>
-                    <p className="hero-copy">Maison Mikell is designed to bring those moving parts together into one calm system you can actually live with.</p>
-                  </div>
-                </section>
-
-                <section className="maison-section">
-                  <div className="section-head">
-                    <p className="panel-label">Value</p>
-                    <h2>Everything your household needs, in one calm flow.</h2>
-                  </div>
-                  <div className="maison-feature-grid">
-                    {landingFeatures.map((feature) => (
-                      <article key={feature.title} className="maison-feature-card">
-                        <h3>{feature.title}</h3>
-                        <p className="hero-copy">{feature.body}</p>
-                      </article>
-                    ))}
-                  </div>
-                </section>
-
-                <section className="maison-section maison-promise-band">
-                  <div className="section-head">
-                    <p className="panel-label">Emotional promise</p>
-                    <h2>Less coordination friction. More calm.</h2>
-                  </div>
-                  <p className="hero-copy">Maison Mikell is not trying to turn your home into a startup. It is built to reduce the tiny coordination failures that make home life feel heavier than it should.</p>
-                  <p className="hero-copy">The goal is simple: fewer dropped balls, fewer repeated conversations, and a smoother shared rhythm at home.</p>
-                </section>
-
-                <section className="maison-section maison-two-column">
-                  <article className="maison-audience-card">
-                    <div className="section-head">
-                      <p className="panel-label">Who it is for</p>
-                      <h2>Built for couples and households who actually share responsibility.</h2>
+                  <div className="maison-hero-visual">
+                    <div className="maison-hero-frame">
+                      <img src={heroImage} alt="Maison home illustration" className="maison-hero-image" />
                     </div>
-                    <div className="onboarding-bullet-list maison-check-list">
-                      {landingAudience.map((item) => <span key={item}>{item}</span>)}
-                    </div>
-                  </article>
-                  <article className="maison-offer-card">
-                    <div className="section-head">
-                      <p className="panel-label">Founding launch pricing</p>
-                      <h2>Paid from day one, with a short founding window.</h2>
-                    </div>
-                    <p className="hero-copy">Maison Mikell is launching as a paid product from day one.</p>
-                    <div className="maison-price-lockup">
-                      <span>First 7 days</span>
-                      <strong>Lifetime access for $179</strong>
-                    </div>
-                    <div className="maison-price-grid">
-                      <div className="maison-price-card">
-                        <span>After the window</span>
-                        <strong>$12/month</strong>
+                    <div className="maison-hero-statline">
+                      <div className="maison-metric-card">
+                        <span>Shared home flow</span>
+                        <strong>Shopping, upkeep, reminders, planning</strong>
                       </div>
-                      <div className="maison-price-card">
-                        <span>Annual option</span>
-                        <strong>$96/year</strong>
+                      <div className="maison-metric-card">
+                        <span>Positioning</span>
+                        <strong>The home operating system for couples</strong>
                       </div>
                     </div>
-                    <p className="hero-copy">The founding offer is for early households helping shape the product, not a discount that stays open forever.</p>
-                  </article>
+                  </div>
                 </section>
 
-                <section className="maison-section">
-                  <div className="section-head">
-                    <p className="panel-label">FAQ preview</p>
-                    <h2>What early households usually ask first.</h2>
-                  </div>
-                  <div className="maison-faq-grid">
-                    {landingFaqs.map((faq) => (
-                      <article key={faq.question} className="maison-faq-card">
-                        <h3>{faq.question}</h3>
-                        <p className="hero-copy">{faq.answer}</p>
+                {!showDeletedAccountNotice ? (
+                  <>
+                    <section className="maison-section" id="how-maison-works">
+                      <div className="section-head">
+                        <p className="panel-label">The problem</p>
+                        <h2>Home life gets messy when everything lives in six different places.</h2>
+                      </div>
+                      <div className="maison-problem-grid">
+                        <p className="hero-copy">Most households are stitching things together across texts, notes apps, calendars, mental reminders, and half-finished shopping lists. Nothing feels fully shared, and the same tasks keep slipping through the cracks.</p>
+                        <p className="hero-copy">Maison Mikell is designed to bring those moving parts together into one calm system you can actually live with.</p>
+                      </div>
+                    </section>
+
+                    <section className="maison-section">
+                      <div className="section-head">
+                        <p className="panel-label">Value</p>
+                        <h2>Everything your household needs, in one calm flow.</h2>
+                      </div>
+                      <div className="maison-feature-grid">
+                        {landingFeatures.map((feature) => (
+                          <article key={feature.title} className="maison-feature-card">
+                            <h3>{feature.title}</h3>
+                            <p className="hero-copy">{feature.body}</p>
+                          </article>
+                        ))}
+                      </div>
+                    </section>
+
+                    <section className="maison-section maison-promise-band">
+                      <div className="section-head">
+                        <p className="panel-label">Emotional promise</p>
+                        <h2>Less coordination friction. More calm.</h2>
+                      </div>
+                      <p className="hero-copy">Maison Mikell is not trying to turn your home into a startup. It is built to reduce the tiny coordination failures that make home life feel heavier than it should.</p>
+                      <p className="hero-copy">The goal is simple: fewer dropped balls, fewer repeated conversations, and a smoother shared rhythm at home.</p>
+                    </section>
+
+                    <section className="maison-section maison-two-column">
+                      <article className="maison-audience-card">
+                        <div className="section-head">
+                          <p className="panel-label">Who it is for</p>
+                          <h2>Built for couples and households who actually share responsibility.</h2>
+                        </div>
+                        <div className="onboarding-bullet-list maison-check-list">
+                          {landingAudience.map((item) => <span key={item}>{item}</span>)}
+                        </div>
                       </article>
-                    ))}
-                  </div>
-                </section>
+                      <article className="maison-offer-card">
+                        <div className="section-head">
+                          <p className="panel-label">Founding launch pricing</p>
+                          <h2>Paid from day one, with a short founding window.</h2>
+                        </div>
+                        <p className="hero-copy">Maison Mikell is launching as a paid product from day one.</p>
+                        <div className="maison-price-lockup">
+                          <span>First 7 days</span>
+                          <strong>Lifetime access for $179</strong>
+                        </div>
+                        <div className="maison-price-grid">
+                          <div className="maison-price-card">
+                            <span>After the window</span>
+                            <strong>$12/month</strong>
+                          </div>
+                          <div className="maison-price-card">
+                            <span>Annual option</span>
+                            <strong>$96/year</strong>
+                          </div>
+                        </div>
+                        <p className="hero-copy">The founding offer is for early households helping shape the product, not a discount that stays open forever.</p>
+                      </article>
+                    </section>
 
-                <section className="maison-section maison-final-cta">
-                  <div>
-                    <p className="panel-label">Final CTA</p>
-                    <h2>Bring your home into one calm system.</h2>
-                    <p className="hero-copy">Join the founding launch and be one of the first households to use Maison Mikell as your shared home operating system.</p>
-                  </div>
-                  <div className="maison-hero-actions">
-                    <a className="primary-button invite-link-button" href="#maison-waitlist">Join the founding launch</a>
-                    <a className="secondary-button invite-link-button" href="#maison-auth">Sign in now</a>
-                  </div>
-                </section>
+                    <section className="maison-section">
+                      <div className="section-head">
+                        <p className="panel-label">FAQ preview</p>
+                        <h2>What early households usually ask first.</h2>
+                      </div>
+                      <div className="maison-faq-grid">
+                        {landingFaqs.map((faq) => (
+                          <article key={faq.question} className="maison-faq-card">
+                            <h3>{faq.question}</h3>
+                            <p className="hero-copy">{faq.answer}</p>
+                          </article>
+                        ))}
+                      </div>
+                    </section>
+
+                    <section className="maison-section maison-final-cta">
+                      <div>
+                        <p className="panel-label">Final CTA</p>
+                        <h2>Bring your home into one calm system.</h2>
+                        <p className="hero-copy">Join the founding launch and be one of the first households to use Maison Mikell as your shared home operating system.</p>
+                      </div>
+                      <div className="maison-hero-actions">
+                        <a className="primary-button invite-link-button" href="#maison-waitlist">Join the founding launch</a>
+                        <a className="secondary-button invite-link-button" href="#maison-auth">Sign in now</a>
+                      </div>
+                    </section>
+                  </>
+                ) : null}
               </>
-            ) : null}
+            )}
           </div>
 
           <aside className="auth-landing-actions onboarding-actions maison-auth-rail" id="maison-auth">
-            {!showDeletedAccountView ? <div className="maison-auth-card onboarding-section-block maison-waitlist-card" id="maison-waitlist">
+            {!showDeletedAccountNotice ? <div className="maison-auth-card onboarding-section-block maison-waitlist-card" id="maison-waitlist">
               <div>
                 <p className="panel-label">Founding launch</p>
                 <h3>Request early access</h3>
@@ -579,13 +642,13 @@ function App() {
             <div className="maison-auth-card onboarding-section-block">
               <div>
                 <p className="panel-label">Access Maison</p>
-                <h3>{showDeletedAccountView ? 'Sign back in when you are ready' : 'Sign in or start with your invite'}</h3>
-                <p className="hero-copy">{showDeletedAccountView ? 'Maison is back at a safe resting state. You can return with Google or email whenever you want.' : 'Choose Google or email below. If a partner already invited you, keep the invite path selected and Maison will take you to code entry right after sign-in.'}</p>
+                <h3>{showDeletedAccountNotice ? 'Sign back in when you are ready' : 'Sign in or start with your invite'}</h3>
+                <p className="hero-copy">{showDeletedAccountNotice ? 'Maison is back at a safe resting state. You can return with Google or email whenever you want.' : 'Choose Google or email below. If a partner already invited you, keep the invite path selected and Maison will take you to code entry right after sign-in.'}</p>
               </div>
               {!hasFirebaseConfig ? <p className="auth-help error">Maison auth is not configured in this live build yet, so sign-in and account creation cannot start until the Firebase build env is fixed.</p> : null}
               {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
               {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
-              {showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card goodbye-note"><strong>Signed out cleanly</strong><span>{deletedAccountSummary.email || 'This account'} has been removed, and Maison is now back at a safe resting state.</span></div> : null}
+              {showDeletedAccountNotice ? <div className="auth-landing-note onboarding-note-card goodbye-note"><strong>Signed out cleanly</strong><span>{deletedAccountSummary.email || 'This account'} has been removed, and Maison is now back at a safe resting state.</span></div> : null}
               <button className="primary-button" onClick={async () => {
                 setInviteChoice(false)
                 setAuthMessage('Redirecting you to Google sign-in…')
@@ -597,9 +660,9 @@ function App() {
                   setAuthError(result.error)
                   setAuthErrorCode(result.rawCode || '')
                 }
-              }}>{showDeletedAccountView ? 'Sign in again with Google' : 'Continue with Google'}</button>
-              <button className="secondary-button" onClick={() => setInviteChoice(true)}>{showDeletedAccountView ? 'Join with an invite code later' : 'I already have an invite code'}</button>
-              {!showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card maison-invite-note">
+              }}>{showDeletedAccountNotice ? 'Sign in again with Google' : 'Continue with Google'}</button>
+              <button className="secondary-button" onClick={() => setInviteChoice(true)}>{showDeletedAccountNotice ? 'Join with an invite code later' : 'I already have an invite code'}</button>
+              {!showDeletedAccountNotice ? <div className="auth-landing-note onboarding-note-card maison-invite-note">
                 <strong>Invite code flow</strong>
                 <span>Select the invite option before you sign in, and Maison will take you directly to household join after authentication.</span>
               </div> : null}
@@ -625,11 +688,11 @@ function App() {
                   {emailAuthMode === 'signin' ? <button className="secondary-button" type="button" onClick={handlePasswordReset} disabled={isEmailAuthLoading}>Reset password</button> : null}
                 </div>
               </form>
-              {inAppBrowserWarning && !showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
+              {inAppBrowserWarning && !showDeletedAccountNotice ? <div className="auth-landing-note onboarding-note-card">
                 <strong>Open in your main browser if Google loops</strong>
                 <span>{inAppBrowserWarning}'s in-app browser can break Google sign-in handoff. If login bounces back here, open Maison in Safari or Chrome and try again there.</span>
               </div> : null}
-              {!showDeletedAccountView ? <div className="auth-landing-note onboarding-note-card">
+              {!showDeletedAccountNotice ? <div className="auth-landing-note onboarding-note-card">
                 <strong>Private household access</strong>
                 <span>After sign-in, non-members can either create their own household or join one with a valid invite code from an owner.</span>
               </div> : null}
@@ -1075,7 +1138,45 @@ function App() {
             </div>
           </section>
 
-          {membership?.role === 'owner' ? <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2>{settingsMessage ? <p className={`auth-help ${settingsMessageClass}`}>{settingsMessage}</p> : null}</div></div><div className="completion-list">{householdMembers.length ? householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>) : <p className="empty-copy">No household members are listed yet.</p>}</div><div className="form-actions" style={{ marginTop: 16, flexDirection: 'column', alignItems: 'stretch' }}>{deleteAccountNeedsPassword ? <input className="invite-code-input no-caps-input" type="password" placeholder="Current password to confirm deletion" value={deleteAccountPassword} onChange={(event) => setDeleteAccountPassword(event.target.value)} autoComplete="current-password" /> : null}<button className="danger-button" onClick={async () => { const confirmed = window.confirm('Delete your Maison account? This cannot be undone.'); if (!confirmed) return; const recentLogin = await ensureRecentLogin({ email: user?.email || '', password: deleteAccountPassword }); if (!recentLogin.ok) { window.alert(recentLogin.error); return; } const result = await handleDeleteCurrentAccount(); if (!result?.ok) return; const authResult = await deleteSignedInAuthUser(); if (!authResult.ok) { window.alert(authResult.error); return; } setAuthMessage(''); setAuthError(''); setAuthErrorCode(''); finalizeDeletedAccount(result, user?.email || ''); setDeleteAccountPassword(''); await signOutUser(); }} disabled={isDeletingAccount}>{isDeletingAccount ? 'Deleting account…' : 'Delete my account'}</button>{deleteAccountNeedsPassword ? <p className="hero-copy">Enter your current password before deleting this account.</p> : null}</div></section> : <section className="panel"><p className="empty-copy">Only owners can manage household roles and invite codes.</p></section>}
+          {membership?.role === 'owner' ? <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2>{settingsMessage ? <p className={`auth-help ${settingsMessageClass}`}>{settingsMessage}</p> : null}</div></div><div className="completion-list">{householdMembers.length ? householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>) : <p className="empty-copy">No household members are listed yet.</p>}</div></section> : <section className="panel"><p className="empty-copy">Only owners can manage household roles and invite codes.</p></section>}
+
+          <section className="panel offboarding-panel">
+            <div className="section-head">
+              <div>
+                <p className="panel-label">Offboarding</p>
+                <h2>Leave Maison cleanly</h2>
+                <p className="hero-copy">This flow removes your account, signs you out everywhere on this device, and makes the outcome explicit before anything destructive happens.</p>
+                {deleteAccountError ? <p className="auth-help error">{deleteAccountError}</p> : null}
+                {deleteAccountSuccess ? <p className="auth-help success">{deleteAccountSuccess}</p> : null}
+              </div>
+            </div>
+            <div className="offboarding-impact-grid">
+              <article className="offboarding-impact-card">
+                <span>What happens</span>
+                <strong>{deleteAccountImpactLabel}</strong>
+              </article>
+              <article className="offboarding-impact-card">
+                <span>Household result</span>
+                <strong>{membership?.role === 'owner' && deletingLastMember ? 'Maison deletes the household because no members remain.' : membership?.role === 'owner' && fallbackSuccessorOwner ? `${fallbackSuccessorOwner.name || fallbackSuccessorOwner.email || 'Another member'} becomes the owner.` : 'The household stays active for everyone else.'}</strong>
+              </article>
+              <article className="offboarding-impact-card">
+                <span>Next time you open Maison</span>
+                <strong>{isNativeShell ? 'You land on a clean signed-out state in the app.' : 'You land on a web goodbye page instead of a blank screen.'}</strong>
+              </article>
+            </div>
+            <div className="onboarding-bullet-list maison-check-list compact">
+              <span>{membership?.role === 'owner' && deletingLastMember ? 'This removes shared tasks, shopping lists, reminders, and invite access. It cannot be undone.' : 'Shared household data stays available to the remaining members after you leave.'}</span>
+              <span>{deleteAccountNeedsPassword ? 'Because you use email and password, Maison needs your current password before deletion can finish.' : 'Google-based accounts still require a fresh recent sign-in if the session is stale.'}</span>
+              <span>Type DELETE below to confirm you want Maison to complete this offboarding step.</span>
+            </div>
+            <div className="offboarding-confirmation-stack">
+              {deleteAccountNeedsPassword ? <input className="invite-code-input no-caps-input" type="password" placeholder="Current password to confirm deletion" value={deleteAccountPassword} onChange={(event) => setDeleteAccountPassword(event.target.value)} autoComplete="current-password" /> : null}
+              <input className="invite-code-input no-caps-input" type="text" placeholder="Type DELETE to confirm" value={deleteAccountConfirmText} onChange={(event) => setDeleteAccountConfirmText(event.target.value)} autoComplete="off" />
+              <div className="form-actions">
+                <button className="danger-button" onClick={runDeleteAccountFlow} disabled={isDeletingAccount}>{isDeletingAccount ? 'Deleting account…' : deleteAccountActionLabel}</button>
+              </div>
+            </div>
+          </section>
 
           {membership?.role === 'owner' ? <section className="panel reminder-panel">
             <div className="section-head"><div><p className="panel-label">Reminder operations</p><h2>Delivery queue and history</h2></div></div>

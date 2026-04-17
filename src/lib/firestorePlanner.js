@@ -506,6 +506,7 @@ export async function deleteCurrentUserData(currentUser, membership) {
   const household = householdSnap.data()
   const members = household.members ?? []
   const remainingMembers = members.filter((member) => member.id !== currentUser.uid)
+  const currentMember = members.find((member) => member.id === currentUser.uid)
 
   if (remainingMembers.length === 0) {
     const reminderSnaps = await getDocs(remindersRef(householdId))
@@ -527,15 +528,19 @@ export async function deleteCurrentUserData(currentUser, membership) {
     return { ok: true, deletedHousehold: true }
   }
 
+  const nextMembers = currentMember?.role === 'owner' && !remainingMembers.some((member) => member.role === 'owner')
+    ? remainingMembers.map((member, index) => index === 0 ? { ...member, role: 'owner' } : member)
+    : remainingMembers
+
   const batch = writeBatch(firestore)
   batch.update(householdRef(householdId), {
-    members: remainingMembers,
+    members: nextMembers,
     updatedAt: serverTimestamp(),
   })
   if (household.inviteCode) {
-    await syncInviteCodeRecord(batch, householdId, household.inviteCode, remainingMembers)
+    await syncInviteCodeRecord(batch, householdId, household.inviteCode, nextMembers)
   }
-  syncMemberRecords(batch, remainingMembers, household.inviteCode || '')
+  syncMemberRecords(batch, nextMembers, household.inviteCode || '')
   batch.delete(userMembershipRef(currentUser.uid))
   await batch.commit()
   return { ok: true, deletedHousehold: false }

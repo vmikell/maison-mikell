@@ -32,6 +32,7 @@
 .maison-price-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .maison-price-card { padding: 14px 16px; border-radius: 18px; background: rgba(255,255,255,0.05); }
 .maison-final-cta { align-items: center; background: linear-gradient(145deg, rgba(60, 27, 54, 0.9), rgba(26, 28, 46, 0.88)); }
+.maison-offboarding-shell { background: linear-gradient(145deg, rgba(36, 24, 57, 0.96), rgba(15, 19, 33, 0.92)); }
 .maison-auth-rail { align-content: start; }
 .maison-auth-card { position: relative; display: grid; gap: 12px; padding: 20px; background: linear-gradient(180deg, rgba(30, 32, 64, 0.95), rgba(17, 18, 33, 0.92)); box-shadow: 0 20px 54px rgba(7, 7, 14, 0.3); }
 .maison-waitlist-card { background: linear-gradient(180deg, rgba(54, 29, 70, 0.96), rgba(19, 18, 35, 0.94)); border-color: rgba(255, 203, 230, 0.14); }
@@ -195,6 +196,12 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
 .reminder-item.sent { opacity: 0.7; }
 .reminder-item strong,.completion-item strong { color: #fff; }
 .completion-panel { background: linear-gradient(180deg, rgba(28, 58, 40, 0.96), rgba(16, 28, 21, 0.92)); }
+.offboarding-panel { background: linear-gradient(180deg, rgba(63, 24, 44, 0.96), rgba(26, 18, 31, 0.92)); }
+.offboarding-impact-grid { display: grid; gap: 12px; margin-top: 14px; }
+.offboarding-impact-card { display: grid; gap: 6px; padding: 16px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.08); background: rgba(255,255,255,0.06); }
+.offboarding-impact-card span { text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.68rem; color: #c9bddf; }
+.offboarding-impact-card strong { color: #fff; line-height: 1.45; }
+.offboarding-confirmation-stack { display: grid; gap: 12px; margin-top: 16px; }
 .task-form-panel { background: linear-gradient(180deg, rgba(38, 22, 56, 0.95), rgba(19, 17, 34, 0.92)); }
 .editor-toggle { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 12px; text-align: left; border: 0; background: transparent; color: #fff; padding: 0; }
 .editor-toggle span { color: #f5d2ff; font-weight: 700; }
@@ -296,6 +303,7 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
   .maison-hero { padding: 22px; border-radius: 26px; }
   .maison-hero-frame { min-height: 220px; padding: 14px; }
   .maison-price-grid { grid-template-columns: 1fr; }
+  .offboarding-impact-grid { grid-template-columns: 1fr; }
   .onboarding-bullet-list { gap: 6px; margin-top: 12px; }
   .onboarding-bullet-list span,.auth-landing-note,.onboarding-section-block { padding: 12px; border-radius: 16px; }
   .create-household-progress { grid-template-columns: 1fr; justify-items: start; }
@@ -321,6 +329,7 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
   .maison-feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .maison-faq-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .maison-two-column,.maison-problem-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .offboarding-impact-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .maison-auth-rail { position: sticky; top: 28px; }
   .stats-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
   .spotlight-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
