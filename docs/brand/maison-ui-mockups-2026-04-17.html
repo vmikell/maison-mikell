@@ -1,0 +1,559 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Visual Mockups</title>
+  <style>
+    :root {
+      --ink: #2f241f;
+      --body: #5e5047;
+      --muted: #8a796c;
+      --line: #e5d8cc;
+      --paper: #faf6ef;
+      --card: rgba(255,255,255,0.82);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+    }
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto;
+      padding: 0.62in;
+      position: relative;
+      overflow: hidden;
+      page-break-after: always;
+      background: #fbf7f1;
+    }
+    .page:last-child { page-break-after: auto; }
+    .cover::before,
+    .cover::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+    .cover::before { width: 280px; height: 280px; right: -90px; top: -90px; background: #eddccf; }
+    .cover::after { width: 220px; height: 220px; left: -70px; bottom: -60px; background: #e4d3c4; }
+    .eyebrow {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 12px;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8c6a4d;
+      font-weight: 700;
+    }
+    h1,h2,h3,p { margin: 0; }
+    h1 {
+      position: relative;
+      z-index: 1;
+      max-width: 650px;
+      margin-bottom: 16px;
+      font-size: 42px;
+      line-height: 0.96;
+      letter-spacing: -0.045em;
+    }
+    .subhead {
+      position: relative;
+      z-index: 1;
+      max-width: 650px;
+      margin-bottom: 22px;
+      font-size: 18px;
+      line-height: 1.56;
+      color: var(--body);
+    }
+    .quote {
+      position: relative;
+      z-index: 1;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      padding: 26px;
+      background: rgba(255,255,255,0.75);
+      font-size: 27px;
+      line-height: 1.2;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    .quote small {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.55;
+      font-weight: 500;
+    }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; position: relative; z-index: 1; }
+    .intro-card, .compare-card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px;
+      background: rgba(255,255,255,0.78);
+    }
+    .intro-card h3, .compare-card h3 {
+      margin-bottom: 8px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #8c6a4d;
+    }
+    .intro-card p, .compare-card p { color: var(--body); }
+    .section-tag {
+      margin-bottom: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8c6a4d;
+    }
+    .story-name {
+      margin-bottom: 8px;
+      font-size: 34px;
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+    .story-copy {
+      margin-bottom: 18px;
+      font-size: 16px;
+      line-height: 1.62;
+      color: var(--body);
+      max-width: 680px;
+    }
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      border-radius: 18px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+    .swatch {
+      min-height: 82px;
+      padding: 10px;
+      display: flex;
+      align-items: end;
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1.28;
+    }
+    .swatch span { display:block; font-size:10px; margin-top:3px; opacity:0.92; }
+    .mockup-grid { display: grid; grid-template-columns: 1.18fr 1fr; gap: 18px; }
+    .mockup-card {
+      border-radius: 28px;
+      padding: 18px;
+      border: 1px solid rgba(0,0,0,0.06);
+      box-shadow: 0 22px 60px rgba(57, 41, 31, 0.08);
+      overflow: hidden;
+      position: relative;
+    }
+    .mockup-card::after {
+      content: "";
+      position: absolute;
+      width: 220px;
+      height: 220px;
+      border-radius: 999px;
+      right: -100px;
+      top: -100px;
+      opacity: 0.8;
+      pointer-events: none;
+    }
+    .mockup-label {
+      margin-bottom: 14px;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.16em;
+      font-weight: 800;
+      opacity: 0.74;
+    }
+    .landing-nav, .dash-top, .dash-actions, .dash-panels, .hero-actions, .feature-row, .stat-grid, .mini-list { display: flex; gap: 10px; }
+    .landing-nav, .dash-top { justify-content: space-between; align-items: center; }
+    .nav-brand, .hero-brand {
+      font-size: 21px;
+      line-height: 1;
+      letter-spacing: -0.04em;
+      font-weight: 700;
+    }
+    .nav-links, .dash-actions, .feature-row, .mini-list { display: flex; gap: 8px; flex-wrap: wrap; }
+    .pill, .chip, .nav-chip {
+      border-radius: 999px;
+      padding: 8px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+    .landing-hero { margin-top: 18px; display: grid; grid-template-columns: 1.25fr 0.95fr; gap: 14px; align-items: stretch; }
+    .hero-copy-block { display: grid; gap: 12px; align-content: start; }
+    .hero-title {
+      font-size: 34px;
+      line-height: 0.95;
+      letter-spacing: -0.05em;
+      max-width: 320px;
+    }
+    .hero-body { font-size: 14px; line-height: 1.58; max-width: 330px; }
+    .hero-actions { flex-wrap: wrap; }
+    .button {
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-size: 12px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid transparent;
+    }
+    .hero-note, .panel, .metric, .task, .phone-card {
+      border-radius: 20px;
+      padding: 14px;
+      border: 1px solid rgba(0,0,0,0.06);
+      background: rgba(255,255,255,0.52);
+    }
+    .phone-card {
+      min-height: 290px;
+      display: grid;
+      gap: 10px;
+      align-content: start;
+    }
+    .phone-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .phone-house {
+      padding: 14px;
+      border-radius: 18px;
+      min-height: 96px;
+      display: grid;
+      gap: 6px;
+      align-content: end;
+    }
+    .phone-house strong { font-size: 18px; line-height: 1.02; }
+    .phone-list { display: grid; gap: 8px; }
+    .phone-item {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .feature-row { margin-top: 12px; }
+    .feature-box {
+      flex: 1 1 0;
+      min-width: 0;
+      padding: 12px;
+      border-radius: 18px;
+      border: 1px solid rgba(0,0,0,0.06);
+      font-size: 12px;
+    }
+    .feature-box strong { display:block; margin-bottom:4px; font-size:13px; }
+    .dash-headline { margin-top: 16px; display: grid; gap: 8px; }
+    .dash-title {
+      font-size: 28px;
+      line-height: 0.98;
+      letter-spacing: -0.05em;
+      max-width: 300px;
+    }
+    .dash-copy { font-size: 13px; line-height: 1.56; max-width: 310px; }
+    .stat-grid { margin: 14px 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+    .metric strong { display:block; font-size:24px; line-height:1; margin-top:8px; }
+    .metric span, .task small, .panel small { font-size: 10px; text-transform: uppercase; letter-spacing: 0.12em; font-weight: 800; opacity: 0.7; }
+    .dash-panels { display: grid; grid-template-columns: 1.2fr 0.9fr; gap: 12px; }
+    .task-list { display: grid; gap: 8px; margin-top: 10px; }
+    .task { display:grid; gap:4px; }
+    .task strong, .panel strong { display:block; font-size:14px; line-height:1.25; }
+    .task p, .panel p, .metric p { margin-top:4px; font-size:12px; line-height:1.45; }
+    .mini-list { margin-top:10px; display:grid; gap:8px; }
+    .mini-list .item {
+      padding: 10px 12px;
+      border-radius: 14px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .theme-sunwashed {
+      background: linear-gradient(180deg, #f7f1e5 0%, #efe3cd 100%);
+      color: #3f3328;
+    }
+    .theme-sunwashed::after { background: radial-gradient(circle, rgba(208,168,74,0.24), transparent 68%); }
+    .theme-sunwashed .nav-chip, .theme-sunwashed .chip, .theme-sunwashed .pill, .theme-sunwashed .phone-item, .theme-sunwashed .item {
+      background: rgba(255,248,240,0.84); color:#4b3d32; border-color: rgba(75,57,45,0.1);
+    }
+    .theme-sunwashed .button.primary, .theme-sunwashed .phone-house { background: linear-gradient(135deg, #d0a84a, #4d8c86); color:#fff8f0; }
+    .theme-sunwashed .button.secondary, .theme-sunwashed .hero-note, .theme-sunwashed .metric, .theme-sunwashed .task, .theme-sunwashed .panel, .theme-sunwashed .feature-box { background: rgba(255,250,243,0.76); color:#4b3d32; }
+    .theme-sunwashed .metric.gold { background: linear-gradient(180deg, rgba(216,180,93,0.92), rgba(179,139,49,0.96)); color:#fff9f1; }
+    .theme-sunwashed .metric.teal, .theme-sunwashed .panel.teal { background: linear-gradient(180deg, rgba(93,147,141,0.92), rgba(64,110,105,0.96)); color:#f8f3ed; }
+    .theme-sunwashed .metric.rose, .theme-sunwashed .task.rose { background: linear-gradient(180deg, rgba(197,128,108,0.92), rgba(143,88,73,0.96)); color:#fff9f4; }
+
+    .theme-sage {
+      background: linear-gradient(180deg, #f6f1e8 0%, #ece3d5 100%);
+      color: #40382f;
+    }
+    .theme-sage::after { background: radial-gradient(circle, rgba(143,154,119,0.24), transparent 68%); }
+    .theme-sage .nav-chip, .theme-sage .chip, .theme-sage .pill, .theme-sage .phone-item, .theme-sage .item {
+      background: rgba(255,251,246,0.84); color:#4e453b; border-color: rgba(86,75,60,0.1);
+    }
+    .theme-sage .button.primary, .theme-sage .phone-house { background: linear-gradient(135deg, #8f9a77, #c2a46a); color:#fffaf3; }
+    .theme-sage .button.secondary, .theme-sage .hero-note, .theme-sage .metric, .theme-sage .task, .theme-sage .panel, .theme-sage .feature-box { background: rgba(255,252,248,0.76); color:#4e453b; }
+    .theme-sage .metric.gold { background: linear-gradient(180deg, rgba(194,164,106,0.92), rgba(159,131,77,0.96)); color:#fff9f3; }
+    .theme-sage .metric.teal, .theme-sage .panel.teal { background: linear-gradient(180deg, rgba(143,154,119,0.94), rgba(106,117,86,0.96)); color:#faf8f3; }
+    .theme-sage .metric.rose, .theme-sage .task.rose { background: linear-gradient(180deg, rgba(188,131,114,0.92), rgba(145,95,82,0.96)); color:#fffaf5; }
+
+    .theme-clay {
+      background: linear-gradient(180deg, #f8f1e8 0%, #eee0d1 100%);
+      color: #3f3028;
+    }
+    .theme-clay::after { background: radial-gradient(circle, rgba(180,111,84,0.22), transparent 68%); }
+    .theme-clay .nav-chip, .theme-clay .chip, .theme-clay .pill, .theme-clay .phone-item, .theme-clay .item {
+      background: rgba(255,251,247,0.84); color:#4b3c34; border-color: rgba(92,66,52,0.1);
+    }
+    .theme-clay .button.primary, .theme-clay .phone-house { background: linear-gradient(135deg, #b46f54, #7d523c); color:#fff9f4; }
+    .theme-clay .button.secondary, .theme-clay .hero-note, .theme-clay .metric, .theme-clay .task, .theme-clay .panel, .theme-clay .feature-box { background: rgba(255,252,248,0.76); color:#4b3c34; }
+    .theme-clay .metric.gold { background: linear-gradient(180deg, rgba(198,160,112,0.92), rgba(161,126,84,0.96)); color:#fff8f2; }
+    .theme-clay .metric.teal, .theme-clay .panel.teal { background: linear-gradient(180deg, rgba(132,92,63,0.92), rgba(97,68,47,0.96)); color:#fff8f2; }
+    .theme-clay .metric.rose, .theme-clay .task.rose { background: linear-gradient(180deg, rgba(178,111,84,0.94), rgba(131,74,54,0.96)); color:#fff8f3; }
+
+    .footer-note {
+      position: absolute;
+      left: 0.62in;
+      right: 0.62in;
+      bottom: 0.42in;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+    }
+    @media print { body { background: var(--paper); } .page { margin: 0; } }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div class="eyebrow">Maison • Visual Mockups</div>
+    <h1>Landing page and dashboard mockups for each Maison color story</h1>
+    <p class="subhead">Prepared for Victor. These are visual direction mockups, not coded product screens. The goal is to see how each palette behaves on the two surfaces that matter most right now: first impression and daily use.</p>
+    <div class="quote">“Can you make visual mockups of what the dashboard and landing page would look like for each palette?”<small>Yes. This deck shows each color story on both surfaces so the differences are easier to feel, not just describe.</small></div>
+    <div class="grid-2">
+      <div class="intro-card">
+        <h3>What to look for</h3>
+        <p>Which palette makes Maison feel most like a home brand, which one makes the dashboard easiest to trust, and which one feels distinct enough to carry the identity long term.</p>
+      </div>
+      <div class="intro-card">
+        <h3>My bias</h3>
+        <p>I still think Sunwashed Market is the strongest first test overall, but Clay Hearth gets more interesting once the type gets stronger.</p>
+      </div>
+    </div>
+    <div class="footer-note"><span>Prepared on April 17, 2026</span><span>Maison UI Mockups</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Color Story 01</div>
+    <h2 class="story-name">Sunwashed Market</h2>
+    <p class="story-copy">Bright cream, mustard, teal, and walnut. This direction feels fresh, welcoming, and surprisingly premium without losing friendliness.</p>
+    <div class="swatches">
+      <div class="swatch" style="background:#F7F1E5;color:#3F3328;">Antique Cream<span>#F7F1E5</span></div>
+      <div class="swatch" style="background:#EFE3CD;color:#3F3328;">Butter Linen<span>#EFE3CD</span></div>
+      <div class="swatch" style="background:#D0A84A;color:#FFF9EF;">Harvest Mustard<span>#D0A84A</span></div>
+      <div class="swatch" style="background:#4D8C86;color:#F7F3ED;">Kitchen Teal<span>#4D8C86</span></div>
+      <div class="swatch" style="background:#4B392D;color:#FFF9F3;">Walnut<span>#4B392D</span></div>
+    </div>
+    <div class="mockup-grid">
+      <div class="mockup-card theme-sunwashed">
+        <div class="mockup-label">Landing page mockup</div>
+        <div class="landing-nav">
+          <div class="nav-brand">Maison</div>
+          <div class="nav-links"><span class="nav-chip">How it works</span><span class="nav-chip">Pricing</span><span class="nav-chip">Sign in</span></div>
+        </div>
+        <div class="landing-hero">
+          <div class="hero-copy-block">
+            <div class="hero-title">A calmer way to run a home together.</div>
+            <div class="hero-body">Maison keeps home maintenance, shopping, reminders, and the little things that usually fall through the cracks in one warm, useful place.</div>
+            <div class="hero-actions"><span class="button primary">Join the founding launch</span><span class="button secondary">See how it works</span></div>
+            <div class="hero-note">For new homeowners, busy couples, families, roommates, and anyone who wants home life to feel less scattered.</div>
+          </div>
+          <div class="phone-card">
+            <div class="phone-top"><span>Today at home</span><span class="pill">3 due soon</span></div>
+            <div class="phone-house"><strong>Saturday reset</strong><span>Kitchen filters, patio sweep, grocery restock.</span></div>
+            <div class="phone-list">
+              <div class="phone-item"><span>Water basil</span><span>Today</span></div>
+              <div class="phone-item"><span>Order air filters</span><span>Sun</span></div>
+              <div class="phone-item"><span>Pick up lemons</span><span>List</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="feature-box"><strong>Shared rhythm</strong>One calm place for the home stuff everyone forgets.</div>
+          <div class="feature-box"><strong>Shopping that sticks</strong>Save ideas, links, and repeat buys without a mess.</div>
+          <div class="feature-box"><strong>Less mental load</strong>Know what matters next without a giant dashboard vibe.</div>
+        </div>
+      </div>
+      <div class="mockup-card theme-sunwashed">
+        <div class="mockup-label">Dashboard mockup</div>
+        <div class="dash-top"><div class="hero-brand">Maison</div><div class="dash-actions"><span class="chip">This week</span><span class="chip">All rooms</span><span class="chip">Riah + Victor</span></div></div>
+        <div class="dash-headline"><div class="dash-title">Good evening, your home is in good shape.</div><div class="dash-copy">A few practical things need attention, but nothing feels chaotic. That’s the point.</div></div>
+        <div class="stat-grid">
+          <div class="metric gold"><span>Due soon</span><strong>4</strong><p>Things to handle by Sunday</p></div>
+          <div class="metric teal"><span>Completed</span><strong>12</strong><p>Done this week</p></div>
+          <div class="metric rose"><span>Shopping</span><strong>9</strong><p>Items waiting on the list</p></div>
+        </div>
+        <div class="dash-panels">
+          <div class="panel teal"><small>Next up</small><strong>Kitchen + pantry reset</strong><p>Replace water filter, check produce, and wipe cabinet fronts before the week starts.</p><div class="task-list"><div class="task"><strong>Replace fridge filter</strong><p>Ordered last month, ready to swap.</p></div><div class="task rose"><strong>Restock cleaning spray</strong><p>Add to Saturday errands.</p></div></div></div>
+          <div class="panel"><small>Shopping list</small><strong>Market run</strong><div class="mini-list"><div class="item">Paper towels</div><div class="item">Dishwasher pods</div><div class="item">Fresh herbs</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note"><span>Maison visual mockups</span><span>Sunwashed Market</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Color Story 02</div>
+    <h2 class="story-name">Sage Linen</h2>
+    <p class="story-copy">Linen, oat, sage, olive, and muted gold. This direction is quieter, more composed, and slightly more mature. It makes Maison feel deeply trustworthy.</p>
+    <div class="swatches">
+      <div class="swatch" style="background:#F6F1E8;color:#40382F;">Linen<span>#F6F1E8</span></div>
+      <div class="swatch" style="background:#ECE3D5;color:#40382F;">Oat<span>#ECE3D5</span></div>
+      <div class="swatch" style="background:#8F9A77;color:#FAF8F3;">Soft Sage<span>#8F9A77</span></div>
+      <div class="swatch" style="background:#6B7656;color:#FAF8F3;">Olive Shade<span>#6B7656</span></div>
+      <div class="swatch" style="background:#C2A46A;color:#FFF9F2;">Muted Gold<span>#C2A46A</span></div>
+    </div>
+    <div class="mockup-grid">
+      <div class="mockup-card theme-sage">
+        <div class="mockup-label">Landing page mockup</div>
+        <div class="landing-nav">
+          <div class="nav-brand">Maison</div>
+          <div class="nav-links"><span class="nav-chip">Why Maison</span><span class="nav-chip">Plans</span><span class="nav-chip">Sign in</span></div>
+        </div>
+        <div class="landing-hero">
+          <div class="hero-copy-block">
+            <div class="hero-title">Home feels better when someone actually keeps track.</div>
+            <div class="hero-body">Maison helps households stay ahead of maintenance, restocks, reminders, and the dozens of little tasks that make a house feel cared for.</div>
+            <div class="hero-actions"><span class="button primary">See the launch offer</span><span class="button secondary">Explore the flow</span></div>
+            <div class="hero-note">Calm, useful, and designed to feel like part of the home, not another app shouting for attention.</div>
+          </div>
+          <div class="phone-card">
+            <div class="phone-top"><span>Household view</span><span class="pill">Steady week</span></div>
+            <div class="phone-house"><strong>Sunday home check</strong><span>Maintenance, pantry, and next week’s reset.</span></div>
+            <div class="phone-list">
+              <div class="phone-item"><span>Refill pantry staples</span><span>Sat</span></div>
+              <div class="phone-item"><span>Vacuum stairs</span><span>Sun</span></div>
+              <div class="phone-item"><span>Replace shower spray</span><span>List</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="feature-box"><strong>Routine without clutter</strong>Everything essential stays visible and easy.</div>
+          <div class="feature-box"><strong>Shared awareness</strong>Everyone knows what is handled and what is next.</div>
+          <div class="feature-box"><strong>Better home memory</strong>Track the repeating things no one wants to mentally store.</div>
+        </div>
+      </div>
+      <div class="mockup-card theme-sage">
+        <div class="mockup-label">Dashboard mockup</div>
+        <div class="dash-top"><div class="hero-brand">Maison</div><div class="dash-actions"><span class="chip">This month</span><span class="chip">Whole home</span><span class="chip">2 members</span></div></div>
+        <div class="dash-headline"><div class="dash-title">A tidy, low-stress week at home.</div><div class="dash-copy">Nothing dramatic, just the right things surfaced at the right time.</div></div>
+        <div class="stat-grid">
+          <div class="metric gold"><span>Scheduled</span><strong>7</strong><p>Planned across the week</p></div>
+          <div class="metric teal"><span>Finished</span><strong>15</strong><p>Handled this month</p></div>
+          <div class="metric rose"><span>Restock</span><strong>5</strong><p>Low pantry and bath items</p></div>
+        </div>
+        <div class="dash-panels">
+          <div class="panel teal"><small>House care</small><strong>Weekend upkeep plan</strong><p>Bathroom reset, vacuum high-traffic rooms, and reorder two basics before Monday.</p><div class="task-list"><div class="task"><strong>Replace sponge set</strong><p>Auto-repeat suggestion ready.</p></div><div class="task rose"><strong>Freshen linens</strong><p>Guest room and main bed this weekend.</p></div></div></div>
+          <div class="panel"><small>Shopping</small><strong>Essentials</strong><div class="mini-list"><div class="item">Laundry pods</div><div class="item">Olive oil</div><div class="item">Toilet paper</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note"><span>Maison visual mockups</span><span>Sage Linen</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Color Story 03</div>
+    <h2 class="story-name">Clay Hearth</h2>
+    <p class="story-copy">Parchment, terracotta, cedar, and espresso. This direction has the richest personality and the strongest emotional signature, especially once the typography gets more custom.</p>
+    <div class="swatches">
+      <div class="swatch" style="background:#F8F1E8;color:#3F3028;">Parchment<span>#F8F1E8</span></div>
+      <div class="swatch" style="background:#EEE0D1;color:#3F3028;">Warm Oat<span>#EEE0D1</span></div>
+      <div class="swatch" style="background:#B46F54;color:#FFF9F4;">Terracotta<span>#B46F54</span></div>
+      <div class="swatch" style="background:#7D523C;color:#FFF9F4;">Cedar<span>#7D523C</span></div>
+      <div class="swatch" style="background:#34241D;color:#F9F4EE;">Espresso<span>#34241D</span></div>
+    </div>
+    <div class="mockup-grid">
+      <div class="mockup-card theme-clay">
+        <div class="mockup-label">Landing page mockup</div>
+        <div class="landing-nav">
+          <div class="nav-brand">Maison</div>
+          <div class="nav-links"><span class="nav-chip">The idea</span><span class="nav-chip">Founding access</span><span class="nav-chip">Sign in</span></div>
+        </div>
+        <div class="landing-hero">
+          <div class="hero-copy-block">
+            <div class="hero-title">A home feels calmer when it is remembered well.</div>
+            <div class="hero-body">Maison brings together the routines, supplies, upkeep, and shared awareness that make a home feel lived in and cared for instead of constantly catching up.</div>
+            <div class="hero-actions"><span class="button primary">Join Maison</span><span class="button secondary">View the approach</span></div>
+            <div class="hero-note">The warmest route. More soul, more texture, more brand character.</div>
+          </div>
+          <div class="phone-card">
+            <div class="phone-top"><span>Home ritual</span><span class="pill">Tonight</span></div>
+            <div class="phone-house"><strong>Evening reset</strong><span>Kitchen close, candle restock, prep the house for tomorrow.</span></div>
+            <div class="phone-list">
+              <div class="phone-item"><span>Wipe counters</span><span>8 pm</span></div>
+              <div class="phone-item"><span>Refill hand soap</span><span>Bath</span></div>
+              <div class="phone-item"><span>Order coffee beans</span><span>List</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="feature-row">
+          <div class="feature-box"><strong>Home with memory</strong>The repeating things finally have a place to live.</div>
+          <div class="feature-box"><strong>Less catching up</strong>Maison surfaces what matters before it becomes annoying.</div>
+          <div class="feature-box"><strong>Character, not coldness</strong>The product feels like part of the home itself.</div>
+        </div>
+      </div>
+      <div class="mockup-card theme-clay">
+        <div class="mockup-label">Dashboard mockup</div>
+        <div class="dash-top"><div class="hero-brand">Maison</div><div class="dash-actions"><span class="chip">Tonight</span><span class="chip">Kitchen</span><span class="chip">Home rhythm</span></div></div>
+        <div class="dash-headline"><div class="dash-title">A warmer, more characterful dashboard.</div><div class="dash-copy">This feels the least like software and the most like a designed home brand, if we keep the UI disciplined.</div></div>
+        <div class="stat-grid">
+          <div class="metric gold"><span>Pending</span><strong>3</strong><p>Small resets for tonight</p></div>
+          <div class="metric teal"><span>Handled</span><strong>10</strong><p>Quiet wins this week</p></div>
+          <div class="metric rose"><span>Shopping</span><strong>6</strong><p>Restocks waiting</p></div>
+        </div>
+        <div class="dash-panels">
+          <div class="panel teal"><small>Home rhythm</small><strong>Kitchen close routine</strong><p>Reset the sink, wipe the stove, and set tomorrow’s breakfast basics so the morning feels easy.</p><div class="task-list"><div class="task"><strong>Refill dish soap</strong><p>Low after this week.</p></div><div class="task rose"><strong>Swap hand towel</strong><p>Fresh one from the linen drawer.</p></div></div></div>
+          <div class="panel"><small>Restock</small><strong>Pantry + bath</strong><div class="mini-list"><div class="item">Coffee beans</div><div class="item">Hand soap</div><div class="item">Candle matches</div></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note"><span>Maison visual mockups</span><span>Clay Hearth</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Recommendation</div>
+    <h2 class="story-name">What stands out after seeing them visually</h2>
+    <div class="compare-card" style="margin-bottom:14px;">
+      <h3>Strongest overall</h3>
+      <p><strong>Sunwashed Market</strong> still wins as the most balanced direction. It feels warm and human without losing energy, and it holds together well on both the landing page and the dashboard.</p>
+    </div>
+    <div class="compare-card" style="margin-bottom:14px;">
+      <h3>Most trustworthy dashboard</h3>
+      <p><strong>Sage Linen</strong> is the easiest to imagine using every day. It feels calm and stable, which is a real advantage for a product people return to constantly.</p>
+    </div>
+    <div class="compare-card" style="margin-bottom:14px;">
+      <h3>Strongest brand personality</h3>
+      <p><strong>Clay Hearth</strong> becomes really compelling once the typography sharpens up. It has the most soul, but it needs a stronger wordmark and more disciplined UI handling.</p>
+    </div>
+    <div class="compare-card">
+      <h3>Next move I’d recommend</h3>
+      <p>Pick one of these for a tighter second pass, then I’ll turn it into a more refined landing page direction and a real dashboard style system with stronger type, spacing, and component rules.</p>
+    </div>
+    <div class="footer-note"><span>Maison visual mockups</span><span>Recommendation: Sunwashed Market first</span></div>
+  </section>
+</body>
+</html>
