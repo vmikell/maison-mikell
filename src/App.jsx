@@ -3,6 +3,7 @@ import { addDoc, collection } from 'firebase/firestore'
 import './App.css'
 import { formatDate, addDays } from './lib/model'
 import { starterHouseProfile } from './lib/data'
+import { sendWelcomeEmail } from './lib/welcomeEmail'
 import { usePlannerState } from './hooks/usePlannerState'
 import { createEmailPasswordAccount, deleteSignedInAuthUser, ensureRecentLogin, sendPasswordReset, signInWithEmailPassword, signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
 import { useNativeDiagnostics } from './lib/nativeDiagnostics'
@@ -122,7 +123,8 @@ function App() {
       setAuthErrorCode(result?.rawCode || '')
       return
     }
-    setAuthMessage('Password reset email sent. Check your inbox and spam folder.')
+    setAuthMessage('Password reset email sent. Check your inbox and spam folder, then come back and sign in with the new password.')
+    setEmailAuthForm((current) => ({ ...current, password: '' }))
   }
 
   async function submitLaunchInterest(event) {
@@ -267,6 +269,33 @@ function App() {
     if (/FBAN|FBAV|FB_IAB|FB4A/i.test(ua)) return 'Facebook'
     return null
   }, [])
+
+  useEffect(() => {
+    if (!user?.uid || !user?.email || typeof window === 'undefined') return
+
+    const createdAt = Date.parse(user.metadata?.creationTime || '')
+    const lastSignInAt = Date.parse(user.metadata?.lastSignInTime || '')
+    if (!createdAt || !lastSignInAt || Math.abs(lastSignInAt - createdAt) > 60_000) return
+
+    const markerKey = `maison:welcome-email:${user.uid}:${createdAt}`
+    const existingMarker = window.localStorage.getItem(markerKey)
+    if (existingMarker === 'sent' || existingMarker === 'pending') return
+
+    window.localStorage.setItem(markerKey, 'pending')
+
+    sendWelcomeEmail({
+      email: user.email,
+      name: user.displayName || '',
+      provider: user.providerData?.map((provider) => provider.providerId).filter(Boolean).join(', ') || 'unknown',
+    })
+      .then(() => {
+        window.localStorage.setItem(markerKey, 'sent')
+      })
+      .catch(() => {
+        window.localStorage.removeItem(markerKey)
+      })
+  }, [user?.uid, user?.email, user?.displayName, user?.metadata?.creationTime, user?.metadata?.lastSignInTime, user?.providerData])
+
   const currentInviteCode = houseProfile.inviteCode || freshInviteCode || ''
   const inviteCodeVisibilityKey = membership?.householdId ? `maison:invite-code-visible:${membership.householdId}` : ''
 
@@ -716,6 +745,7 @@ function App() {
                 {emailAuthMode === 'signup' ? <input className="invite-code-input no-caps-input" type="text" placeholder="Your name" value={emailAuthForm.name} onChange={(event) => setEmailAuthForm((current) => ({ ...current, name: event.target.value }))} autoComplete="name" required /> : null}
                 <input className="invite-code-input no-caps-input" type="email" placeholder="Email address" value={emailAuthForm.email} onChange={(event) => setEmailAuthForm((current) => ({ ...current, email: event.target.value }))} autoComplete="email" required />
                 <input className="invite-code-input no-caps-input" type="password" placeholder="Password" value={emailAuthForm.password} onChange={(event) => setEmailAuthForm((current) => ({ ...current, password: event.target.value }))} autoComplete={emailAuthMode === 'signup' ? 'new-password' : 'current-password'} minLength={6} required />
+                {emailAuthMode === 'signin' ? <p className="auth-help auth-inline-help">Forgot your password? Enter your email first, then tap the reset button.</p> : null}
                 <div className="form-actions">
                   <button className="primary-button" type="submit" disabled={isEmailAuthLoading}>{isEmailAuthLoading ? (emailAuthMode === 'signup' ? 'Creating…' : 'Signing in…') : (emailAuthMode === 'signup' ? 'Create email account' : 'Sign in with email')}</button>
                   <button className="secondary-button" type="button" onClick={() => {
@@ -725,7 +755,7 @@ function App() {
                     setAuthErrorCode('')
                     setEmailAuthForm((current) => ({ ...current, password: '' }))
                   }}>{emailAuthMode === 'signup' ? 'I already have an account' : 'Create an email account'}</button>
-                  {emailAuthMode === 'signin' ? <button className="secondary-button" type="button" onClick={handlePasswordReset} disabled={isEmailAuthLoading}>Reset password</button> : null}
+                  {emailAuthMode === 'signin' ? <button className="secondary-button" type="button" onClick={handlePasswordReset} disabled={isEmailAuthLoading}>Forgot password?</button> : null}
                 </div>
               </form>
               {inAppBrowserWarning && !showDeletedAccountNotice ? <div className="auth-landing-note onboarding-note-card">

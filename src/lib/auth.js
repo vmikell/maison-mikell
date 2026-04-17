@@ -28,6 +28,14 @@ function getCurrentPageUrl() {
   return `${window.location.origin}${window.location.pathname}${window.location.search}${window.location.hash}`
 }
 
+function getPasswordResetContinueUrl() {
+  if (typeof window === 'undefined') return 'https://maison-mikell.netlify.app'
+
+  const host = window.location.hostname || ''
+  if (host === 'maison-reset.web.app' || host === 'maison-reset.firebaseapp.com') return 'https://maison-mikell.netlify.app'
+  return window.location.origin || 'https://maison-mikell.netlify.app'
+}
+
 function recordAuthDiagnostic(type, detail) {
   try {
     appendDiagnosticsEvent(type, detail)
@@ -286,7 +294,10 @@ export async function createEmailPasswordAccount(input = {}) {
 export async function sendPasswordReset(input = {}) {
   if (!hasFirebaseConfig || !auth) return missingFirebaseConfigResult()
   try {
-    await sendPasswordResetEmail(auth, normalizeEmail(input.email))
+    await sendPasswordResetEmail(auth, normalizeEmail(input.email), {
+      url: getPasswordResetContinueUrl(),
+      handleCodeInApp: false,
+    })
     return { ok: true }
   } catch (error) {
     return {
