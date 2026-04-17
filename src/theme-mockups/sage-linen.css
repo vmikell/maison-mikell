@@ -1,5 +1,5 @@
 /* Maison theme mockup: Sage Linen
-   Palette: linen, oat, sage, olive, walnut
+   Palette: linen, oat, sage, terracotta, muted gold
 */
 
 :root {
@@ -7,7 +7,7 @@
   color: #40382f;
   background:
     radial-gradient(circle at top, rgba(154, 164, 136, 0.17), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(191, 158, 110, 0.14), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(190, 123, 99, 0.14), transparent 34%),
     linear-gradient(180deg, #f6f1e8 0%, #ece3d5 100%);
 }
 
@@ -15,13 +15,13 @@ body {
   color: #40382f;
   background:
     radial-gradient(circle at top, rgba(154, 164, 136, 0.17), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(191, 158, 110, 0.14), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(190, 123, 99, 0.14), transparent 34%),
     linear-gradient(180deg, #f6f1e8 0%, #ece3d5 100%);
 }
 
 .maison-landing-shell::before,
 .onboarding-card::after {
-  background: radial-gradient(circle, rgba(160, 168, 141, 0.16), transparent 70%);
+  background: radial-gradient(circle, rgba(190, 123, 99, 0.16), transparent 70%);
 }
 
 .maison-hero {
@@ -52,7 +52,7 @@ body {
   border-color: rgba(86, 75, 60, 0.1);
   background:
     radial-gradient(circle at top, rgba(160, 168, 141, 0.16), transparent 34%),
-    radial-gradient(circle at bottom right, rgba(191, 158, 110, 0.14), transparent 38%),
+    radial-gradient(circle at bottom right, rgba(190, 123, 99, 0.14), transparent 38%),
     linear-gradient(160deg, rgba(242, 236, 226, 0.98), rgba(229, 221, 207, 0.96));
 }
 
@@ -176,10 +176,10 @@ body {
 .chip.active,
 .primary-button,
 .shopping-tab.active {
-  background: linear-gradient(135deg, #8f9a77, #c2a46a);
+  background: linear-gradient(135deg, #be7b63, #8f9a77);
   color: #fffdf8;
   border-color: transparent;
-  box-shadow: 0 10px 26px rgba(124, 128, 95, 0.18);
+  box-shadow: 0 10px 26px rgba(151, 106, 89, 0.18);
 }
 
 .secondary-button,
@@ -207,8 +207,8 @@ body {
 }
 
 .status-banner.remote {
-  background: rgba(143, 154, 119, 0.16);
-  color: #5b6648;
+  background: rgba(190, 123, 99, 0.16);
+  color: #8a5a4a;
 }
 
 .status-banner.error {
@@ -276,7 +276,7 @@ h3,
 .shopping-card.rose,
 .overdue-panel,
 .offboarding-panel {
-  background: linear-gradient(180deg, rgba(188, 131, 114, 0.92), rgba(145, 95, 82, 0.96));
+  background: linear-gradient(180deg, rgba(190, 123, 99, 0.94), rgba(145, 95, 82, 0.96));
   color: #fffaf5;
 }
 
@@ -321,12 +321,12 @@ h3,
 .shopping-item input,
 input[type='checkbox'],
 input[type='radio'] {
-  accent-color: #8f9a77;
+  accent-color: #be7b63;
 }
 
 .puzzle-piece {
-  background: linear-gradient(135deg, rgba(143, 154, 119, 0.98), rgba(194, 164, 106, 0.98));
-  box-shadow: 0 8px 20px rgba(124, 128, 95, 0.14);
+  background: linear-gradient(135deg, rgba(190, 123, 99, 0.98), rgba(143, 154, 119, 0.98));
+  box-shadow: 0 8px 20px rgba(151, 106, 89, 0.14);
 }
 
 .house-outline,
