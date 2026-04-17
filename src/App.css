@@ -33,6 +33,9 @@
 .maison-price-card { padding: 14px 16px; border-radius: 18px; background: rgba(255,255,255,0.05); }
 .maison-final-cta { align-items: center; background: linear-gradient(145deg, rgba(60, 27, 54, 0.9), rgba(26, 28, 46, 0.88)); }
 .maison-offboarding-shell { background: linear-gradient(145deg, rgba(36, 24, 57, 0.96), rgba(15, 19, 33, 0.92)); }
+.maison-goodbye-panel { background: linear-gradient(145deg, rgba(42, 24, 56, 0.9), rgba(18, 20, 37, 0.88)); }
+.maison-goodbye-grid { display: grid; gap: 12px; }
+.maison-goodbye-card { padding: 18px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.08); background: linear-gradient(180deg, rgba(255,255,255,0.08), rgba(255,255,255,0.03)); display: grid; gap: 8px; }
 .maison-auth-rail { align-content: start; }
 .maison-auth-card { position: relative; display: grid; gap: 12px; padding: 20px; background: linear-gradient(180deg, rgba(30, 32, 64, 0.95), rgba(17, 18, 33, 0.92)); box-shadow: 0 20px 54px rgba(7, 7, 14, 0.3); }
 .maison-waitlist-card { background: linear-gradient(180deg, rgba(54, 29, 70, 0.96), rgba(19, 18, 35, 0.94)); border-color: rgba(255, 203, 230, 0.14); }
@@ -303,6 +306,7 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
   .maison-hero { padding: 22px; border-radius: 26px; }
   .maison-hero-frame { min-height: 220px; padding: 14px; }
   .maison-price-grid { grid-template-columns: 1fr; }
+  .maison-goodbye-grid { grid-template-columns: 1fr; }
   .offboarding-impact-grid { grid-template-columns: 1fr; }
   .onboarding-bullet-list { gap: 6px; margin-top: 12px; }
   .onboarding-bullet-list span,.auth-landing-note,.onboarding-section-block { padding: 12px; border-radius: 16px; }
@@ -329,6 +333,7 @@ h3 { font-size: 1.05rem; color: #fff7ff; }
   .maison-feature-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .maison-faq-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .maison-two-column,.maison-problem-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .maison-goodbye-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .offboarding-impact-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .maison-auth-rail { position: sticky; top: 28px; }
   .stats-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); }

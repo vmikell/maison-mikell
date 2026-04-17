@@ -349,6 +349,24 @@ function App() {
   const isNativeShell = nativeDiagnostics.isNativeShell
   const showDeletedAccountNotice = !user && Boolean(deletedAccountSummary)
   const showDeletedAccountView = showDeletedAccountNotice && !isNativeShell
+  const deletedAccountNextSteps = showDeletedAccountNotice ? [
+    {
+      title: deletedAccountSummary.deletedHousehold ? 'That home is gone' : 'Your old household is untouched',
+      body: deletedAccountSummary.deletedHousehold
+        ? 'Maison removed the shared household because no members were left in it.'
+        : 'Maison removed only this account, so the remaining household data stays where it is.',
+    },
+    {
+      title: 'This device is signed out',
+      body: `${deletedAccountSummary.email || 'This account'} is no longer active on this browser session.`,
+    },
+    {
+      title: 'Coming back is simple',
+      body: deletedAccountSummary.deletedHousehold
+        ? 'If you come back later, sign in again and start a fresh household.'
+        : 'If you come back later, sign in again and either join a household or start a new one.',
+    },
+  ] : []
   const remainingHouseholdMembers = householdMembers.filter((member) => member.id !== user?.uid)
   const fallbackSuccessorOwner = membership?.role === 'owner'
     ? remainingHouseholdMembers.find((member) => member.role === 'owner') || remainingHouseholdMembers[0] || null
@@ -475,15 +493,19 @@ function App() {
               <>
                 <section className="maison-hero">
                   <div className="maison-hero-copy">
-                    <p className="eyebrow">A calmer way to run your home</p>
+                    <p className="eyebrow">{showDeletedAccountView ? 'Maison goodbye' : 'A calmer way to run your home'}</p>
                     <h1>{showDeletedAccountView ? 'Goodbye for now.' : 'The home operating system for couples'}</h1>
                     {showDeletedAccountView ? (
                       <>
                         <p className="hero-copy">{deletedAccountSummary.message}</p>
-                        <p className="hero-copy">Your Maison session has been closed cleanly, so you should not see a blank screen here anymore.</p>
+                        <p className="hero-copy">Your Maison session has been closed cleanly, so you land here instead of getting dumped into a broken or blank state.</p>
                         {deletedAccountSummary.deletedHousehold
-                          ? <p className="hero-copy">That home is fully gone. If you come back later, you’ll be starting fresh.</p>
+                          ? <p className="hero-copy">That household was fully removed. If you return later, you will be starting fresh.</p>
                           : <p className="hero-copy">If you ever come back, you can sign in again and either join a household with an invite code or create a new one.</p>}
+                        <div className="maison-hero-actions">
+                          <a className="primary-button invite-link-button" href="#maison-auth">Sign back in</a>
+                          <a className="secondary-button invite-link-button" href="#maison-next-steps">See what changed</a>
+                        </div>
                       </>
                     ) : (
                       <>
@@ -512,6 +534,24 @@ function App() {
                     </div>
                   </div>
                 </section>
+
+                {showDeletedAccountView ? (
+                  <section className="maison-section maison-goodbye-panel" id="maison-next-steps">
+                    <div className="section-head">
+                      <p className="panel-label">What just happened</p>
+                      <h2>Maison closed the loop cleanly.</h2>
+                      <p className="hero-copy">This page is intentionally web-only. It gives a clear ending state, then makes the next step obvious if you want to come back.</p>
+                    </div>
+                    <div className="maison-goodbye-grid">
+                      {deletedAccountNextSteps.map((item) => (
+                        <article key={item.title} className="maison-goodbye-card">
+                          <h3>{item.title}</h3>
+                          <p className="hero-copy">{item.body}</p>
+                        </article>
+                      ))}
+                    </div>
+                  </section>
+                ) : null}
 
                 {!showDeletedAccountNotice ? (
                   <>

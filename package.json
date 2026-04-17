@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "smoke:live": "node scripts/live_smoke_test.mjs",
+    "test:offboarding:live": "npx --yes -p playwright node scripts/test_live_offboarding.mjs",
     "auth:list-email": "node scripts/cleanup_email_auth_accounts.mjs",
     "auth:cleanup-example": "node scripts/cleanup_email_auth_accounts.mjs --domain example.com --password MaisonTest123! --confirm",
     "reminders:dry-run": "node scripts/send_due_reminders.mjs --dry-run",
