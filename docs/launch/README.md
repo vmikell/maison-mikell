@@ -16,6 +16,10 @@ This folder is the operating base for turning Maison Mikell from a working house
 - `app-store-packaging-roadmap.md`
 - `pricing-and-offer.md`
 - `marketing-plan.md`
+- `landing-page-copy.md`
+- `app-store-listing-copy.md`
+- `screenshot-shotlist.md`
+- `founding-offer-faq.md`
 - `ops-recovery-runbook.md`
 - `onboarding-flow-spec.md`
 - `onboarding-implementation-plan.md`
