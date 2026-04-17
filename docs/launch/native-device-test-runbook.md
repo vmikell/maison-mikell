@@ -1,6 +1,6 @@
 # Native Device Test Runbook
 
-Use this once the Maison Mikell Capacitor shells are opened in Xcode and Android Studio.
+Use this once the Maison Capacitor shells are opened in Xcode and Android Studio.
 
 ## Goal
 

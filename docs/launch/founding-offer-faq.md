@@ -1,4 +1,4 @@
-# Maison Mikell Founding Offer FAQ
+# Maison Founding Offer FAQ
 
 ## What is the founding offer?
 
@@ -17,26 +17,26 @@ Recommended standard pricing:
 - **$12/month**
 - **$96/year**
 
-## Why is Maison Mikell paid from the start?
+## Why is Maison paid from the start?
 
-Maison Mikell is built to support real household coordination. It is meant to feel like a premium, dependable household product, not a free toy or a generic checklist app.
+Maison is built to support real household coordination. It is meant to feel like a premium, dependable household product, not a free toy or a generic checklist app.
 
 ## Is there a free plan?
 
 Recommended answer:
 No, not at launch.
 
-## Who is Maison Mikell for?
+## Who is Maison for?
 
-Maison Mikell is built for:
+Maison is built for:
 - couples living together
 - busy households
 - homeowners managing recurring responsibilities
 - people who want one shared place for home coordination
 
-## What does Maison Mikell actually help with?
+## What does Maison actually help with?
 
-Maison Mikell helps households manage:
+Maison helps households manage:
 - shared shopping lists
 - recurring home maintenance
 - reminders
@@ -53,13 +53,13 @@ This should be finalized in billing and legal copy before launch.
 
 Because early households are helping shape the product, give feedback, and prove the positioning. The founding offer rewards early belief and early commitment.
 
-## Is Maison Mikell trying to replace every household app?
+## Is Maison trying to replace every household app?
 
 No. The goal is not to be everything. The goal is to become the calm shared system a household actually uses to stay aligned.
 
 ## What if I miss the founding offer?
 
-You can still join Maison Mikell on the standard monthly or yearly pricing after the launch window ends.
+You can still join Maison on the standard monthly or yearly pricing after the launch window ends.
 
 ## Tone guidance
 

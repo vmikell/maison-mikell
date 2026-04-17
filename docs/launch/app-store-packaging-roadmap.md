@@ -1,4 +1,4 @@
-# Maison Mikell App Store Packaging Roadmap
+# Maison App Store Packaging Roadmap
 
 ## Recommendation
 
@@ -29,13 +29,13 @@ Why this is the right path now:
 ## Phase 2: Add Capacitor
 
 - [x] Install Capacitor packages.
-- [x] Initialize Capacitor in the Maison Mikell project.
+- [x] Initialize Capacitor in the Maison project.
 - [x] Set app id and app name.
 - [x] Point Capacitor to the Vite build output.
 - [x] Generate iOS and Android projects.
 
 Recommended app identity draft:
-- App name: Maison Mikell
+- App name: Maison
 - Bundle ID: `com.maisonmikell.app`
 
 ## Phase 3: Native shell setup

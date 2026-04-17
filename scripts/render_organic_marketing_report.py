@@ -229,8 +229,8 @@ doc = SimpleDocTemplate(
 
 story = []
 
-story.append(Paragraph("Maison Mikell • Organic Marketing Report", styles["Eyebrow"]))
-story.append(Paragraph("A no-budget launch plan for growing Maison Mikell through social, story, and sharp execution.", styles["ReportTitle"]))
+story.append(Paragraph("Maison • Organic Marketing Report", styles["Eyebrow"]))
+story.append(Paragraph("A no-budget launch plan for growing Maison through social, story, and sharp execution.", styles["ReportTitle"]))
 story.append(Paragraph(
     "Prepared for Victor and Riah. This report packages Maison’s positioning, organic growth strategy, working approval model, required access stack, and the immediate next moves for letting Henry own the marketing process under Victor’s review.",
     styles["HeroSub"],
@@ -238,7 +238,7 @@ story.append(Paragraph(
 story.append(Spacer(1, 18))
 cover_left = box(
     "Core thesis",
-    "Maison Mikell should not be marketed like a generic organizer app. It should be framed as a calm home operating system for couples, then grown through founder-led organic distribution, polished assets, and disciplined feedback loops instead of paid ads.",
+    "Maison should not be marketed like a generic organizer app. It should be framed as a calm home operating system for couples, then grown through founder-led organic distribution, polished assets, and disciplined feedback loops instead of paid ads.",
     bg=colors.white,
 )
 cover_right = Table([
@@ -248,7 +248,7 @@ cover_right = Table([
 cover_right.setStyle(TableStyle([("VALIGN", (0,0), (-1,-1), "TOP"), ("LEFTPADDING", (0,0), (-1,-1), 0), ("RIGHTPADDING", (0,0), (-1,-1), 0), ("TOPPADDING", (0,0), (-1,-1), 0), ("BOTTOMPADDING", (0,0), (-1,-1), 10)]))
 story.append(Table([[cover_left, cover_right]], colWidths=[3.05 * inch, 3.45 * inch], style=[("VALIGN", (0,0), (-1,-1), "TOP")]))
 story.append(Spacer(1, 28))
-story.append(Paragraph("Prepared on April 16, 2026. Designed as a shareable planning report for Maison Mikell.", styles["FooterNote"]))
+story.append(Paragraph("Prepared on April 16, 2026. Designed as a shareable planning report for Maison.", styles["FooterNote"]))
 story.append(PageBreak())
 
 story.append(Paragraph("1. The marketable story", styles["SectionTitle"]))
@@ -274,13 +274,13 @@ right = [
         "People who want calm more than hustle-culture productivity.",
     ], bg=colors.white),
     Spacer(1, 12),
-    box("Hero message", body="<b>The home operating system for couples.</b><br/><br/>Maison Mikell brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.", bg=LAV),
+    box("Hero message", body="<b>The home operating system for couples.</b><br/><br/>Maison brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.", bg=LAV),
 ]
 story.append(Table([[left, right]], colWidths=[3.2 * inch, 3.2 * inch], style=[("VALIGN", (0,0), (-1,-1), "TOP")]))
 story.append(Spacer(1, 18))
 story.append(quote_box(
     '“The first job is not to reach everyone. The first job is to make the right households say: this actually makes our home life easier.”',
-    "Guiding launch principle for Maison Mikell",
+    "Guiding launch principle for Maison",
 ))
 story.append(Spacer(1, 18))
 story.append(banner("Maison should grow like a tastefully run founder-led product, not like a desperate app begging for attention."))

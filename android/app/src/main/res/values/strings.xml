@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <resources>
-    <string name="app_name">Maison Mikell</string>
-    <string name="title_activity_main">Maison Mikell</string>
+    <string name="app_name">Maison</string>
+    <string name="title_activity_main">Maison</string>
     <string name="package_name">com.maisonmikell.app</string>
     <string name="custom_url_scheme">com.maisonmikell.app</string>
 </resources>

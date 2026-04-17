@@ -1,8 +1,8 @@
-# Maison Mikell Pricing and Offer
+# Maison Pricing and Offer
 
 ## Pricing stance
 
-Maison Mikell should launch as a paid product.
+Maison should launch as a paid product.
 
 Recommendation:
 - no free tier
@@ -46,7 +46,7 @@ Why:
 
 ## Launch messaging
 
-Maison Mikell should be framed as:
+Maison should be framed as:
 - the home operating system for couples
 - one calm place for maintenance, shopping, reminders, and household coordination
 - built for real homes, not generic productivity hacks

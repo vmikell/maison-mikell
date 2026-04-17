@@ -1,4 +1,4 @@
-# Maison Mikell Write Scenario Matrix - 2026-04-11
+# Maison Write Scenario Matrix - 2026-04-11
 
 Status legend:
 - VERIFIED: confirmed in real deployed behavior

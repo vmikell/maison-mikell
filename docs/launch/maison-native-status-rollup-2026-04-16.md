@@ -1,10 +1,10 @@
-# Maison Mikell Native Readiness Rollup
+# Maison Native Readiness Rollup
 
 Prepared for Victor, April 16, 2026
 
 ## Bottom line
 
-Maison Mikell is meaningfully further along on native packaging than it was a day ago, but it is **not yet store-ready**.
+Maison is meaningfully further along on native packaging than it was a day ago, but it is **not yet store-ready**.
 
 The current state is:
 - the Capacitor shells exist for both iPhone and Android
@@ -115,7 +115,7 @@ The smartest next move is simple:
 
 ## Short version
 
-Maison Mikell native is now **prepared for real-device testing**, especially on Android, but it is **not yet validated**.
+Maison native is now **prepared for real-device testing**, especially on Android, but it is **not yet validated**.
 
 The biggest unknown is still mobile Google auth inside the Capacitor shells.
 That first real device pass is the thing that decides whether Phase 3 stays green or turns into an auth-fix sprint.

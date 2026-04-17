@@ -1,4 +1,4 @@
-# Maison Mikell Onboarding Flow Spec
+# Maison Onboarding Flow Spec
 
 This is a product flow spec, not a reliability checklist.
 
@@ -6,12 +6,12 @@ Goal: make first-run household entry feel calm, premium, obvious, and low-fricti
 
 ## Product intent
 
-Maison Mikell should not feel like:
+Maison should not feel like:
 - a generic auth gate
 - a Firebase demo
 - an app that dumps users into a confusing invite-code screen
 
-Maison Mikell should feel like:
+Maison should feel like:
 - a calm home operating system
 - a shared household app for two people who live together
 - an app that understands whether you are starting a household or joining one
@@ -31,7 +31,7 @@ The app should explain which state the person is in before asking them to do wor
 
 ### Screen 1: Welcome screen
 Purpose:
-- introduce Maison Mikell simply
+- introduce Maison simply
 - frame the app as shared household coordination
 - give two clear next actions
 

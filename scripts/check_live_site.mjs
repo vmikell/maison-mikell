@@ -4,7 +4,7 @@ const html = await response.text()
 console.log(JSON.stringify({
   ok: response.ok,
   status: response.status,
-  hasMaisonMikell: html.includes('Maison Mikell'),
+  hasMaisonMikell: html.includes('Maison'),
   hasWelcomeHome: html.includes('Welcome home.'),
   hasJoinHousehold: html.includes('Join this household'),
   length: html.length,

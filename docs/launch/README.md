@@ -1,6 +1,6 @@
-# Maison Mikell Launch Plan
+# Maison Launch Plan
 
-This folder is the operating base for turning Maison Mikell from a working household MVP into a production app that can ship to the App Store and Google Play.
+This folder is the operating base for turning Maison from a working household MVP into a production app that can ship to the App Store and Google Play.
 
 ## Goals
 
@@ -35,7 +35,7 @@ This folder is the operating base for turning Maison Mikell from a working house
 
 ## Current product snapshot
 
-Maison Mikell already covers the core household loop:
+Maison already covers the core household loop:
 - recurring home maintenance tracking
 - household calendar workflows
 - shared shopping lists

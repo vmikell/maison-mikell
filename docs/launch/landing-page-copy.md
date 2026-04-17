@@ -1,8 +1,8 @@
-# Maison Mikell Landing Page Copy
+# Maison Landing Page Copy
 
 ## Goal
 
-Present Maison Mikell as a calm, premium household coordination app for couples, not a generic productivity tool.
+Present Maison as a calm, premium household coordination app for couples, not a generic productivity tool.
 
 ## Primary audience
 
@@ -27,7 +27,7 @@ Option C:
 **One calm app for the home you share**
 
 ### Subheadline, recommended
-Maison Mikell brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.
+Maison brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.
 
 ### Primary CTA
 **Join the founding launch**
@@ -48,7 +48,7 @@ Home life gets messy when everything lives in six different places.
 ### Body copy
 Most households are stitching things together across texts, notes apps, calendars, mental reminders, and half-finished shopping lists. Nothing feels fully shared, and the same tasks keep slipping through the cracks.
 
-Maison Mikell is designed to bring those moving parts together into one calm system you can actually live with.
+Maison is designed to bring those moving parts together into one calm system you can actually live with.
 
 ---
 
@@ -82,7 +82,7 @@ Built for a shared household, not just one person managing everything alone.
 Less coordination friction. More calm.
 
 ### Body copy
-Maison Mikell is not trying to turn your home into a startup. It is built to reduce the tiny coordination failures that make home life feel heavier than it should.
+Maison is not trying to turn your home into a startup. It is built to reduce the tiny coordination failures that make home life feel heavier than it should.
 
 The goal is simple: fewer dropped balls, fewer repeated conversations, and a smoother shared rhythm at home.
 
@@ -107,7 +107,7 @@ Built for couples and households who actually share responsibility.
 Founding launch pricing
 
 ### Body copy
-Maison Mikell is launching as a paid product from day one.
+Maison is launching as a paid product from day one.
 
 For the first 7 days, founding members can lock in:
 - **Lifetime access for $179**
@@ -124,7 +124,7 @@ The founding offer is for early households helping shape the product, not a disc
 ## Section 6, FAQ preview
 
 ### Question
-Is Maison Mikell for individuals or households?
+Is Maison for individuals or households?
 
 ### Answer
 It is built for shared household coordination, especially couples living together.
@@ -133,7 +133,7 @@ It is built for shared household coordination, especially couples living togethe
 Is there a free plan?
 
 ### Answer
-No. Maison Mikell is positioned as a paid household product from launch.
+No. Maison is positioned as a paid household product from launch.
 
 ### Question
 What does one subscription cover?
@@ -149,7 +149,7 @@ Recommended answer: one household. Final billing language should match the actua
 Bring your home into one calm system.
 
 ### Body copy
-Join the founding launch and be one of the first households to use Maison Mikell as your shared home operating system.
+Join the founding launch and be one of the first households to use Maison as your shared home operating system.
 
 ### CTA
 **Join the founding launch**

@@ -1,12 +1,12 @@
-# Maison Mikell Marketing Plan
+# Maison Marketing Plan
 
 ## Goal
 
-Launch Maison Mikell to a focused first audience and prove that households outside Victor and Riah's own home will pay for it.
+Launch Maison to a focused first audience and prove that households outside Victor and Riah's own home will pay for it.
 
 ## Positioning
 
-Do not market Maison Mikell as just another family organizer.
+Do not market Maison as just another family organizer.
 
 Lead with:
 - a home operating system for couples

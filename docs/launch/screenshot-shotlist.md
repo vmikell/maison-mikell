@@ -1,4 +1,4 @@
-# Maison Mikell Screenshot Shotlist
+# Maison Screenshot Shotlist
 
 ## Goal
 
@@ -25,7 +25,7 @@ The screenshots should not look like raw app captures with random data. They sho
 Best-looking dashboard or planner view
 
 ### Purpose
-Immediately explain what Maison Mikell is and who it is for.
+Immediately explain what Maison is and who it is for.
 
 ---
 
@@ -87,7 +87,7 @@ Planner/calendar/home overview screen
 **Built for a shared home**
 
 ### Supporting line
-Maison Mikell is designed for couples and households, not just solo checklists.
+Maison is designed for couples and households, not just solo checklists.
 
 ### Screen target
 Household/member/admin area or invite flow

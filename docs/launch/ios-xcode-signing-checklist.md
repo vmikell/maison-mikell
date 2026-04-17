@@ -1,10 +1,10 @@
 # iPhone Xcode Signing Checklist
 
-Use this when the Maison Mikell iOS shell is opened on a Mac and we are ready to get the first real iPhone install done without wandering around Xcode.
+Use this when the Maison iOS shell is opened on a Mac and we are ready to get the first real iPhone install done without wandering around Xcode.
 
 ## Goal
 
-Get a signed Maison Mikell build onto a real iPhone as fast as possible so the first native auth pass can happen.
+Get a signed Maison build onto a real iPhone as fast as possible so the first native auth pass can happen.
 
 ## Before opening Xcode
 

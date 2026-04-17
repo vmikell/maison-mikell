@@ -1,4 +1,4 @@
-# Maison Mikell Write Verification Checklist - 2026-04-11
+# Maison Write Verification Checklist - 2026-04-11
 
 Status values:
 - VERIFIED

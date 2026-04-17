@@ -1,8 +1,8 @@
-# Maison Mikell Production Readiness Checklist
+# Maison Production Readiness Checklist
 
 ## Objective
 
-Move Maison Mikell from "works for our household" to "safe to sell to other households."
+Move Maison from "works for our household" to "safe to sell to other households."
 
 ## 1. Product reliability
 
@@ -60,7 +60,7 @@ Move Maison Mikell from "works for our household" to "safe to sell to other hous
 
 ## 5. Launch gate
 
-Maison Mikell is launch-ready only when:
+Maison is launch-ready only when:
 - sign-in and join flows are stable on real devices
 - analytics and error logging are live
 - billing approach is decided

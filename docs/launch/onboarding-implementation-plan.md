@@ -1,4 +1,4 @@
-# Maison Mikell Onboarding Implementation Plan
+# Maison Onboarding Implementation Plan
 
 This plan turns `onboarding-flow-spec.md` into a build sequence.
 

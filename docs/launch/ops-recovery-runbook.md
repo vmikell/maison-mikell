@@ -1,4 +1,4 @@
-# Maison Mikell Ops Recovery Runbook
+# Maison Ops Recovery Runbook
 
 This is the practical recovery doc for production deploys, Firebase verification, and incident response.
 

@@ -16,7 +16,7 @@ await page.evaluate(() => {
     shell.innerHTML = `
       <section class="hero-card auth-landing-card onboarding-card">
         <div>
-          <p class="eyebrow">Maison Mikell</p>
+          <p class="eyebrow">Maison</p>
           <h1>Start your household</h1>
           <p class="hero-copy">Create the household first, then Maison walks you straight into setup and partner invite handoff.</p>
           <div class="onboarding-bullet-list"><span>Create the household in one step</span><span>Finish setup right after, without losing momentum</span><span>Invite your partner as soon as the home is ready</span></div>
@@ -39,7 +39,7 @@ await page.evaluate(() => {
     shell.innerHTML = `
       <section class="hero-card auth-landing-card onboarding-card">
         <div>
-          <p class="eyebrow">Maison Mikell</p>
+          <p class="eyebrow">Maison</p>
           <h1>Set up your home</h1>
           <p class="hero-copy">Shape Maison around the real home, so the planner starts feeling useful immediately.</p>
           <div class="onboarding-bullet-list"><span>Home profile first</span><span>Starter planner already waiting behind it</span><span>Invite your partner right after setup</span></div>
