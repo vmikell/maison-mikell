@@ -1,0 +1,433 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Wordmark Directions</title>
+  <style>
+    :root {
+      --ink: #2f241f;
+      --body: #5d4d43;
+      --muted: #857365;
+      --line: #e6d9cd;
+      --paper: #fbf7f1;
+      --card: rgba(255,255,255,0.78);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+    }
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto;
+      padding: 0.72in;
+      position: relative;
+      background: var(--paper);
+      overflow: hidden;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    .cover::before,
+    .cover::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+      opacity: 0.9;
+    }
+    .cover::before {
+      width: 260px;
+      height: 260px;
+      top: -80px;
+      right: -70px;
+      background: #f0ded0;
+    }
+    .cover::after {
+      width: 220px;
+      height: 220px;
+      bottom: -70px;
+      left: -60px;
+      background: #ead7c6;
+    }
+    .eyebrow {
+      position: relative;
+      z-index: 1;
+      margin-bottom: 14px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8a6a4a;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      position: relative;
+      z-index: 1;
+      max-width: 640px;
+      margin-bottom: 18px;
+      font-size: 41px;
+      line-height: 0.96;
+      letter-spacing: -0.045em;
+    }
+    .subhead {
+      position: relative;
+      z-index: 1;
+      max-width: 650px;
+      margin-bottom: 24px;
+      font-size: 18px;
+      line-height: 1.55;
+      color: var(--body);
+    }
+    .hero-quote {
+      position: relative;
+      z-index: 1;
+      margin: 24px 0 22px;
+      padding: 28px;
+      border: 1px solid var(--line);
+      border-radius: 28px;
+      background: rgba(255,255,255,0.72);
+      font-size: 28px;
+      line-height: 1.18;
+      font-weight: 700;
+    }
+    .hero-quote small {
+      display: block;
+      margin-top: 12px;
+      font-size: 14px;
+      line-height: 1.5;
+      color: var(--muted);
+      font-weight: 500;
+    }
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .card {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 18px;
+      background: var(--card);
+    }
+    .card h3 {
+      margin-bottom: 10px;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #8a6a4a;
+    }
+    .card p, .card li { color: var(--body); }
+    .section-tag {
+      margin-bottom: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8a6a4a;
+    }
+    .direction-name {
+      margin-bottom: 10px;
+      font-size: 34px;
+      line-height: 1.02;
+      letter-spacing: -0.04em;
+    }
+    .direction-copy {
+      max-width: 680px;
+      margin-bottom: 18px;
+      font-size: 16px;
+      line-height: 1.64;
+      color: var(--body);
+    }
+    .wordmark-stage {
+      margin: 16px 0 18px;
+      padding: 28px;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.68);
+    }
+    .stage-dark {
+      margin-top: 12px;
+      background: #3c3029;
+      color: #f9f2e8;
+      border-color: rgba(0,0,0,0.08);
+    }
+    .wordmark {
+      font-size: 78px;
+      line-height: 1;
+      white-space: nowrap;
+      margin-bottom: 12px;
+      text-rendering: geometricPrecision;
+    }
+    .wordmark-note {
+      font-size: 14px;
+      line-height: 1.55;
+      color: var(--muted);
+      max-width: 620px;
+    }
+    .stage-dark .wordmark-note { color: rgba(249,242,232,0.78); }
+
+    .wordmark--hearth {
+      font-family: "Iowan Old Style", "Palatino Linotype", "Book Antiqua", Palatino, Georgia, serif;
+      letter-spacing: -0.055em;
+      font-weight: 600;
+      color: #3b2c23;
+    }
+    .wordmark--hearth .m {
+      letter-spacing: -0.095em;
+      display: inline-block;
+      transform: translateY(1px) scaleX(1.04);
+      margin-right: -0.02em;
+    }
+    .wordmark--hearth .a {
+      display: inline-block;
+      transform: translateY(-1px);
+    }
+    .wordmark--hearth .s {
+      letter-spacing: -0.02em;
+    }
+    .wordmark--hearth-dark { color: #f6ede1; }
+
+    .wordmark--tailored {
+      font-family: "Optima", "Segoe UI", "Gill Sans", "Avenir Next", sans-serif;
+      font-size: 70px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-weight: 500;
+      color: #44362d;
+    }
+    .wordmark--tailored .m {
+      letter-spacing: 0.08em;
+      font-weight: 600;
+    }
+    .wordmark--tailored .o {
+      display: inline-block;
+      transform: scale(0.97, 1.04);
+    }
+    .wordmark--tailored-dark { color: #f5eee5; }
+
+    .wordmark--editorial {
+      font-family: "Baskerville", "Libre Baskerville", "Times New Roman", serif;
+      font-size: 82px;
+      letter-spacing: -0.05em;
+      font-weight: 600;
+      color: #3d2c25;
+    }
+    .wordmark--editorial .m {
+      display: inline-block;
+      margin-right: -0.04em;
+    }
+    .wordmark--editorial .i {
+      margin-left: -0.02em;
+      margin-right: -0.01em;
+    }
+    .wordmark--editorial .n {
+      display: inline-block;
+      transform: translateY(1px);
+    }
+    .wordmark--editorial-dark { color: #f7eee4; }
+
+    .label {
+      margin-bottom: 10px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8a6a4a;
+    }
+    .info-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .info-row {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 16px;
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.8);
+    }
+    .info-row .k {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8a6a4a;
+      padding-top: 2px;
+    }
+    .info-row .v {
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: var(--body);
+    }
+    ul { margin: 0; padding-left: 18px; }
+    li + li { margin-top: 6px; }
+    .footer-note {
+      position: absolute;
+      left: 0.72in;
+      right: 0.72in;
+      bottom: 0.48in;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+      font-size: 11px;
+      color: var(--muted);
+    }
+    .compare-box {
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      background: rgba(255,255,255,0.8);
+      padding: 18px;
+    }
+    .compare-box h3 {
+      margin-bottom: 8px;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #8a6a4a;
+    }
+    .compare-box p { color: var(--body); }
+    @media print {
+      body { background: var(--paper); }
+      .page { margin: 0; }
+    }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div class="eyebrow">Maison • Wordmark Directions</div>
+    <h1>Three type directions for a Maison brand that feels warm, editorial, and real</h1>
+    <p class="subhead">Prepared for Victor. These are not final fonts yet, they are directional wordmark explorations, meant to help define the emotional shape of Maison before we commit to a custom display alphabet or a full font build.</p>
+
+    <div class="hero-quote">
+      “If Maison is not going to use a logo, the type has to carry the identity.”
+      <small>The goal here is not trendy startup typography. It is a wordmark that feels calm, beautiful, domestic, and memorable.</small>
+    </div>
+
+    <div class="grid-2">
+      <div class="card">
+        <h3>What these directions are solving</h3>
+        <p>The current visual world needs a stronger center of gravity. A good Maison wordmark should make the product feel designed on purpose, not assembled from defaults.</p>
+      </div>
+      <div class="card">
+        <h3>What I am aiming for</h3>
+        <p>Warmth without rustic cliché, elegance without beauty-brand coldness, personality without sacrificing readability, and enough restraint that the product still feels modern.</p>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      <span>Prepared on April 17, 2026</span>
+      <span>Maison Wordmark Directions</span>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Direction 01</div>
+    <h2 class="direction-name">Hearth Serif</h2>
+    <p class="direction-copy">This is the warmest and strongest route. It feels like beautiful home goods packaging, linen labels, sculpted ceramic forms, and a house with taste but no performance. This is the closest to the emotional temperature of your first palette.</p>
+
+    <div class="wordmark-stage">
+      <div class="wordmark wordmark--hearth"><span class="m">M</span><span class="a">a</span>ison</div>
+      <div class="wordmark-note">Soft contrast, slightly sculpted curves, a fuller capital M, and tight enough spacing to feel intentional without going fashion-brand severe.</div>
+    </div>
+    <div class="wordmark-stage stage-dark">
+      <div class="wordmark wordmark--hearth wordmark--hearth-dark"><span class="m">M</span><span class="a">a</span>ison</div>
+      <div class="wordmark-note">It stays elegant on dark, earthy surfaces too, which matters if Maison leans into walnut, terracotta, or other richer brand moments.</div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-row"><div class="k">Feel</div><div class="v"><ul><li>Warm</li><li>Grounded</li><li>Expensive in a quiet way</li><li>Human, not corporate</li></ul></div></div>
+      <div class="info-row"><div class="k">Best with</div><div class="v">Sunwashed Market and Clay Hearth. This is the best match if Maison should feel like a premium home brand before it feels like a productivity app.</div></div>
+      <div class="info-row"><div class="k">Build next</div><div class="v">Custom capital M, softened serifs, subtle flare on terminals, and a more bespoke a and s. This is the one I would push first.</div></div>
+      <div class="info-row"><div class="k">Closest references</div><div class="v">Think somewhere in the emotional space between Canela, Requiem, and a warmer editorial serif, but less fashion and more home.</div></div>
+    </div>
+
+    <div class="footer-note"><span>Prepared for Victor</span><span>Hearth Serif</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Direction 02</div>
+    <h2 class="direction-name">Tailored House</h2>
+    <p class="direction-copy">This route is cleaner and more architectural. It gives Maison a refined backbone without making it feel cold. It says organized, thoughtful, put together. This is the safest route if you want the identity to remain modern while still moving away from generic startup typography.</p>
+
+    <div class="wordmark-stage">
+      <div class="wordmark wordmark--tailored"><span class="m">M</span> A I S <span class="o">O</span> N</div>
+      <div class="wordmark-note">Wide spacing, sharpened structure, and a calmer sans silhouette. Less romantic, more tailored. This can feel very strong if the rest of the brand world stays warm.</div>
+    </div>
+    <div class="wordmark-stage stage-dark">
+      <div class="wordmark wordmark--tailored wordmark--tailored-dark"><span class="m">M</span> A I S <span class="o">O</span> N</div>
+      <div class="wordmark-note">On dark backgrounds it becomes crisp and premium. It works best when surrounded by cream, linen, wood tones, and soft photography.</div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-row"><div class="k">Feel</div><div class="v"><ul><li>Structured</li><li>Calm</li><li>Premium</li><li>Modern but not techy</li></ul></div></div>
+      <div class="info-row"><div class="k">Best with</div><div class="v">Sage Linen. This is the strongest match if Maison should feel composed, legible, and quietly upscale.</div></div>
+      <div class="info-row"><div class="k">Build next</div><div class="v">Custom M proportions, tuned stroke endings, a softened O, and less sterile spacing than luxury-fashion caps. It needs warmth in the details.</div></div>
+      <div class="info-row"><div class="k">Closest references</div><div class="v">Emotionally closer to a softened Optima or a refined house display sans, but warmer and less corporate.</div></div>
+    </div>
+
+    <div class="footer-note"><span>Prepared for Victor</span><span>Tailored House</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Direction 03</div>
+    <h2 class="direction-name">Editorial Maison</h2>
+    <p class="direction-copy">This route leans most clearly into classic editorial beauty. It is elegant, airy, and a little more romantic. It can be gorgeous if Maison wants to feel polished and aesthetically led, but it needs discipline so it does not drift into beauty-brand territory.</p>
+
+    <div class="wordmark-stage">
+      <div class="wordmark wordmark--editorial"><span class="m">M</span>a<span class="i">i</span>so<span class="n">n</span></div>
+      <div class="wordmark-note">Higher contrast, finer rhythm, and a more delicate silhouette. This is the prettiest route, but also the easiest to over-style if we are not careful.</div>
+    </div>
+    <div class="wordmark-stage stage-dark">
+      <div class="wordmark wordmark--editorial wordmark--editorial-dark"><span class="m">M</span>a<span class="i">i</span>so<span class="n">n</span></div>
+      <div class="wordmark-note">This can look stunning in cream-on-walnut or terracotta-on-parchment settings, especially if paired with tactile imagery and restrained layouts.</div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-row"><div class="k">Feel</div><div class="v"><ul><li>Elegant</li><li>Refined</li><li>Editorial</li><li>Softly luxurious</li></ul></div></div>
+      <div class="info-row"><div class="k">Best with</div><div class="v">Sunwashed Market or a refined Clay Hearth. It wants a very controlled brand world around it.</div></div>
+      <div class="info-row"><div class="k">Build next</div><div class="v">Custom contrast tuning, a more sculpted M, and slightly sturdier joins so it stays warm and usable rather than fragile.</div></div>
+      <div class="info-row"><div class="k">Closest references</div><div class="v">Near the emotional space of an editorial serif like Baskerville or a softer luxury display face, but with more domestic warmth.</div></div>
+    </div>
+
+    <div class="footer-note"><span>Prepared for Victor</span><span>Editorial Maison</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Recommendation</div>
+    <h2 class="direction-name">What I would push next</h2>
+
+    <div class="compare-box" style="margin-bottom:14px;">
+      <h3>Strongest overall</h3>
+      <p><strong>Hearth Serif</strong> is the best next move. It feels the closest to the warm, beautiful-home energy you want, and it has enough personality to carry Maison without needing a separate logo mark.</p>
+    </div>
+
+    <div class="compare-box" style="margin-bottom:14px;">
+      <h3>Safest modern option</h3>
+      <p><strong>Tailored House</strong> is the safest if you want Maison to stay clean and premium while avoiding anything too decorative.</p>
+    </div>
+
+    <div class="compare-box" style="margin-bottom:14px;">
+      <h3>Most aesthetic</h3>
+      <p><strong>Editorial Maison</strong> is the prettiest, but it has the highest risk of drifting too far toward fashion or beauty if the rest of the brand is not handled carefully.</p>
+    </div>
+
+    <div class="compare-box">
+      <h3>Best next deliverable</h3>
+      <p>If you like this direction, I should next draw <strong>three tighter Maison wordmark comps</strong> based specifically on Hearth Serif, with more intentional M construction, spacing, stroke endings, and a real system for how the brand type pairs with the UI type.</p>
+    </div>
+
+    <div class="footer-note"><span>Maison Wordmark Directions</span><span>Recommendation: Hearth Serif</span></div>
+  </section>
+</body>
+</html>
