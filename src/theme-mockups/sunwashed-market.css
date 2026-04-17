@@ -1,0 +1,358 @@
+/* Maison theme mockup: Sunwashed Market
+   Palette: cream, butter, mustard, teal, walnut
+*/
+
+:root {
+  color-scheme: light;
+  color: #3f3328;
+  background:
+    radial-gradient(circle at top, rgba(210, 168, 74, 0.18), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(74, 132, 127, 0.16), transparent 34%),
+    linear-gradient(180deg, #f7f1e5 0%, #efe3cd 100%);
+}
+
+body {
+  color: #3f3328;
+  background:
+    radial-gradient(circle at top, rgba(210, 168, 74, 0.18), transparent 30%),
+    radial-gradient(circle at bottom right, rgba(74, 132, 127, 0.16), transparent 34%),
+    linear-gradient(180deg, #f7f1e5 0%, #efe3cd 100%);
+}
+
+.maison-landing-shell::before,
+.onboarding-card::after {
+  background: radial-gradient(circle, rgba(198, 151, 57, 0.18), transparent 70%);
+}
+
+.maison-hero {
+  border-color: rgba(92, 72, 48, 0.12);
+  background: linear-gradient(145deg, rgba(252, 248, 240, 0.98), rgba(241, 231, 214, 0.96));
+  box-shadow: 0 28px 80px rgba(105, 84, 51, 0.12);
+}
+
+.maison-hero-support,
+.hero-copy,
+.task-notes,
+.nice-list li,
+.shopping-item span,
+.timing-copy,
+.empty-copy,
+.spotlight-item span,
+.auth-help,
+.auth-inline-help,
+.house-loading-wrap,
+.shopping-progress-copy,
+.checked-group-copy,
+.native-diagnostics-event time,
+.native-diagnostics-event pre {
+  color: #69584a;
+}
+
+.maison-hero-frame {
+  border-color: rgba(92, 72, 48, 0.1);
+  background:
+    radial-gradient(circle at top, rgba(210, 168, 74, 0.16), transparent 34%),
+    radial-gradient(circle at bottom right, rgba(74, 132, 127, 0.16), transparent 38%),
+    linear-gradient(160deg, rgba(244, 234, 214, 0.98), rgba(230, 219, 198, 0.96));
+}
+
+.maison-hero-frame::after {
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.55), transparent 70%);
+}
+
+.maison-hero-image,
+.premium-house-loading {
+  filter: drop-shadow(0 22px 36px rgba(98, 77, 42, 0.18));
+}
+
+.maison-metric-card,
+.maison-feature-card,
+.maison-faq-card,
+.maison-audience-card,
+.maison-offer-card,
+.maison-section,
+.maison-auth-card,
+.hero-card,
+.panel,
+.stat-card,
+.task-card,
+.shopping-card,
+.task-modal,
+.maison-price-card,
+.maison-goodbye-card,
+.auth-landing-note,
+.goodbye-note,
+.onboarding-note-card,
+.onboarding-section-block,
+.compact-task-card,
+.spotlight-item,
+.calendar-task-item,
+.shopping-item,
+.reminder-item,
+.completion-item,
+.ops-stat,
+.offboarding-impact-card,
+.native-diagnostics-event {
+  border-color: rgba(92, 72, 48, 0.1);
+  background: rgba(255, 250, 243, 0.82);
+  box-shadow: 0 18px 60px rgba(105, 84, 51, 0.08);
+  backdrop-filter: blur(18px);
+}
+
+.maison-metric-card,
+.maison-feature-card,
+.maison-goodbye-card {
+  background: linear-gradient(180deg, rgba(255, 252, 247, 0.94), rgba(244, 234, 214, 0.92));
+}
+
+.maison-section,
+.auth-panel,
+.hero-card,
+.task-form-panel,
+.planner-overview-panel,
+.calendar-summary-panel,
+.calendar-day-card,
+.shopping-panel,
+.native-diagnostics-panel {
+  background: linear-gradient(180deg, rgba(254, 250, 243, 0.96), rgba(240, 230, 212, 0.94));
+}
+
+.maison-promise-band,
+.maison-final-cta,
+.maison-offboarding-shell,
+.maison-goodbye-panel,
+.goodbye-card,
+.reminder-panel,
+.completion-panel,
+.offboarding-panel,
+.remote-warning-panel,
+.maison-invite-note,
+.maison-waitlist-card,
+.overdue-panel,
+.due-soon-panel {
+  border-color: rgba(92, 72, 48, 0.1);
+  background: linear-gradient(145deg, rgba(239, 228, 203, 0.98), rgba(228, 214, 190, 0.96));
+}
+
+.maison-price-lockup {
+  background: linear-gradient(145deg, rgba(210, 168, 74, 0.94), rgba(176, 133, 46, 0.96));
+  border-color: rgba(127, 91, 29, 0.3);
+  color: #3b2d1f;
+}
+
+.maison-price-lockup span,
+.maison-price-lockup strong {
+  color: #3b2d1f;
+}
+
+.top-tab,
+.menu-button,
+.chip,
+.shopping-tab,
+.status-pill-bar,
+.secondary-button,
+.danger-button,
+.invite-code-input,
+.task-form-grid input,
+.task-form-grid textarea,
+.shopping-store-field input,
+.shopping-form input,
+.maison-select-input,
+.maison-textarea-input,
+.calendar-task-item,
+.spotlight-item,
+.compact-task-card,
+.invite-code-input {
+  border-color: rgba(92, 72, 48, 0.14);
+  background: rgba(255, 250, 243, 0.95);
+  color: #3f3328;
+}
+
+.maison-select-input option {
+  color: #3f3328;
+  background: #f8f1e5;
+}
+
+.top-tab.active,
+.chip.active,
+.primary-button,
+.shopping-tab.active {
+  background: linear-gradient(135deg, #d0a84a, #4d8c86);
+  color: #fffaf3;
+  border-color: transparent;
+  box-shadow: 0 10px 26px rgba(93, 117, 101, 0.2);
+}
+
+.secondary-button,
+.top-tab,
+.menu-button,
+.chip,
+.shopping-tab {
+  color: #4d4338;
+}
+
+.danger-button,
+.inline-action.danger,
+.auth-help.error,
+.status-banner.error {
+  color: #8c4f41;
+}
+
+.status-banner {
+  border-color: rgba(92, 72, 48, 0.1);
+}
+
+.status-banner.local {
+  background: rgba(210, 168, 74, 0.16);
+  color: #6d541c;
+}
+
+.status-banner.remote {
+  background: rgba(77, 140, 134, 0.16);
+  color: #2d6964;
+}
+
+.status-banner.error {
+  background: rgba(165, 97, 78, 0.14);
+}
+
+.status-pill.overdue {
+  background: rgba(165, 97, 78, 0.16);
+  color: #8c4f41;
+}
+
+.status-pill.remind {
+  background: rgba(210, 168, 74, 0.18);
+  color: #7d5d12;
+}
+
+.status-pill.upcoming,
+.major-flag {
+  background: rgba(77, 140, 134, 0.16);
+  color: #2d6964;
+}
+
+.count-pill {
+  background: rgba(92, 72, 48, 0.08);
+  color: #4d4338;
+}
+
+.eyebrow,
+.panel-label,
+.task-meta,
+.task-datum span,
+.stat-card p,
+.maison-metric-card span,
+.maison-price-card span,
+.auth-divider,
+.ops-stat span,
+.offboarding-impact-card span,
+.native-diagnostics-stat span,
+.hero-note span,
+.calendar-task-days {
+  color: #8a775f;
+}
+
+h1,
+h2,
+h3,
+.maison-metric-card strong,
+.maison-price-card strong,
+.stat-card strong,
+.task-datum strong,
+.shopping-item strong,
+.offboarding-impact-card strong,
+.reminder-item strong,
+.completion-item strong,
+.hero-note strong,
+.compact-task-title,
+.calendar-task-item strong,
+.spotlight-item strong,
+.auth-landing-note strong,
+.loading-word-cycle {
+  color: #3b2d1f;
+}
+
+.top-tab.active,
+.chip.active,
+.primary-button,
+.shopping-tab.active,
+.task-actions .primary-button,
+.maison-price-lockup,
+.stat-card.teal,
+.shopping-card.teal {
+  text-shadow: 0 1px 0 rgba(0, 0, 0, 0.08);
+}
+
+.stat-card.rose,
+.shopping-card.rose,
+.overdue-panel,
+.offboarding-panel {
+  background: linear-gradient(180deg, rgba(197, 128, 108, 0.92), rgba(143, 88, 73, 0.96));
+  color: #fff9f5;
+}
+
+.stat-card.gold,
+.shopping-card.gold,
+.due-soon-panel,
+.remote-warning-panel {
+  background: linear-gradient(180deg, rgba(216, 180, 93, 0.92), rgba(179, 139, 49, 0.96));
+  color: #fffaf3;
+}
+
+.stat-card.violet,
+.shopping-card.violet,
+.planner-overview-panel,
+.calendar-summary-panel {
+  background: linear-gradient(180deg, rgba(132, 142, 118, 0.92), rgba(102, 113, 88, 0.96));
+  color: #f8f5ef;
+}
+
+.stat-card.teal,
+.shopping-card.teal,
+.reminder-panel,
+.native-diagnostics-panel {
+  background: linear-gradient(180deg, rgba(93, 147, 141, 0.92), rgba(64, 110, 105, 0.96));
+  color: #f7f3ed;
+}
+
+.stat-card.rose p,
+.stat-card.gold p,
+.stat-card.violet p,
+.stat-card.teal p,
+.shopping-card.rose .shopping-item span,
+.shopping-card.gold .shopping-item span,
+.shopping-card.violet .shopping-item span,
+.shopping-card.teal .shopping-item span,
+.claim-copy {
+  color: rgba(255, 248, 240, 0.86);
+}
+
+.shopping-item input,
+input[type='checkbox'],
+input[type='radio'] {
+  accent-color: #4d8c86;
+}
+
+.puzzle-piece {
+  background: linear-gradient(135deg, rgba(210, 168, 74, 0.98), rgba(77, 140, 134, 0.98));
+  box-shadow: 0 8px 20px rgba(93, 117, 101, 0.16);
+}
+
+.house-outline,
+.house-outline::before,
+.house-outline::after,
+.piece-wall-left::before,
+.piece-wall-right::before,
+.piece-bottom-left::before,
+.piece-bottom-right::before {
+  background-color: rgba(255, 251, 244, 0.6);
+  border-color: rgba(255, 251, 244, 0.6);
+}
+
+.shopping-link,
+.inline-action,
+.editor-toggle span,
+.claim-copy {
+  color: #2d6964;
+}
