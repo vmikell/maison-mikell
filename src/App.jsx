@@ -253,8 +253,8 @@ function App() {
   ]
   const landingAudience = ['Couples living together', 'Busy homeowners', 'Households with recurring home-admin friction', 'People who want one shared source of truth']
   const landingFaqs = [
-    { question: 'Is Maison Mikell for individuals or households?', answer: 'It is built for shared household coordination, especially couples living together.' },
-    { question: 'Is there a free plan?', answer: 'No. Maison Mikell is positioned as a paid household product from launch.' },
+    { question: 'Is Maison for individuals or households?', answer: 'It is built for shared household coordination, especially couples living together.' },
+    { question: 'Is there a free plan?', answer: 'No. Maison is positioned as a paid household product from launch.' },
     { question: 'What does one subscription cover?', answer: 'One household. Final billing language should match the actual product setup.' },
   ]
 
@@ -487,7 +487,7 @@ function App() {
                       </>
                     ) : (
                       <>
-                        <p className="hero-copy">Maison Mikell brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.</p>
+                        <p className="hero-copy">Maison brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.</p>
                         <p className="hero-copy maison-hero-support">For couples who want their home life to feel calmer, cleaner, and less dependent on memory.</p>
                       </>
                     )}
@@ -522,7 +522,7 @@ function App() {
                       </div>
                       <div className="maison-problem-grid">
                         <p className="hero-copy">Most households are stitching things together across texts, notes apps, calendars, mental reminders, and half-finished shopping lists. Nothing feels fully shared, and the same tasks keep slipping through the cracks.</p>
-                        <p className="hero-copy">Maison Mikell is designed to bring those moving parts together into one calm system you can actually live with.</p>
+                        <p className="hero-copy">Maison is designed to bring those moving parts together into one calm system you can actually live with.</p>
                       </div>
                     </section>
 
@@ -546,7 +546,7 @@ function App() {
                         <p className="panel-label">Emotional promise</p>
                         <h2>Less coordination friction. More calm.</h2>
                       </div>
-                      <p className="hero-copy">Maison Mikell is not trying to turn your home into a startup. It is built to reduce the tiny coordination failures that make home life feel heavier than it should.</p>
+                      <p className="hero-copy">Maison is not trying to turn your home into a startup. It is built to reduce the tiny coordination failures that make home life feel heavier than it should.</p>
                       <p className="hero-copy">The goal is simple: fewer dropped balls, fewer repeated conversations, and a smoother shared rhythm at home.</p>
                     </section>
 
@@ -565,7 +565,7 @@ function App() {
                           <p className="panel-label">Founding launch pricing</p>
                           <h2>Paid from day one, with a short founding window.</h2>
                         </div>
-                        <p className="hero-copy">Maison Mikell is launching as a paid product from day one.</p>
+                        <p className="hero-copy">Maison is launching as a paid product from day one.</p>
                         <div className="maison-price-lockup">
                           <span>First 7 days</span>
                           <strong>Lifetime access for $179</strong>
@@ -603,7 +603,7 @@ function App() {
                       <div>
                         <p className="panel-label">Final CTA</p>
                         <h2>Bring your home into one calm system.</h2>
-                        <p className="hero-copy">Join the founding launch and be one of the first households to use Maison Mikell as your shared home operating system.</p>
+                        <p className="hero-copy">Join the founding launch and be one of the first households to use Maison as your shared home operating system.</p>
                       </div>
                       <div className="maison-hero-actions">
                         <a className="primary-button invite-link-button" href="#maison-waitlist">Join the founding launch</a>

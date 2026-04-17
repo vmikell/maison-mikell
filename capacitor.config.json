@@ -1,6 +1,6 @@
 {
   "appId": "com.maisonmikell.app",
-  "appName": "Maison Mikell",
+  "appName": "Maison",
   "webDir": "dist",
   "plugins": {
     "FirebaseAuthentication": {
