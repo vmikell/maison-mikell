@@ -22,20 +22,18 @@ function App() {
     if (typeof window === 'undefined') return
     const host = window.location.hostname || ''
     const path = `${window.location.pathname}${window.location.search}${window.location.hash}`
-    const ua = typeof navigator === 'undefined' ? '' : navigator.userAgent || ''
-    const isInAppBrowser = /Telegram|Instagram|FBAN|FBAV|FB_IAB|FB4A/i.test(ua)
 
     if (host.endsWith('--maison-mikell.netlify.app')) {
       window.location.replace(`https://maison-mikell.netlify.app${path}`)
       return
     }
 
-    if (host === 'maison-reset.web.app') {
+    if (host === 'maison-mikell.netlify.app') {
       window.location.replace(`https://maison-reset.firebaseapp.com${path}`)
       return
     }
 
-    if (isInAppBrowser && host === 'maison-mikell.netlify.app') {
+    if (host === 'maison-reset.web.app') {
       window.location.replace(`https://maison-reset.firebaseapp.com${path}`)
     }
   }, [])
