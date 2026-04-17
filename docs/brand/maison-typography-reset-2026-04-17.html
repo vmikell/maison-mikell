@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Typography Reset</title>
+  <style>
+    :root {
+      --ink: #2f241f;
+      --body: #5d4d43;
+      --muted: #857365;
+      --line: #e6d9cd;
+      --paper: #fbf7f1;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+    }
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto;
+      padding: 0.68in;
+      position: relative;
+      background: var(--paper);
+      overflow: hidden;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    .cover::before,
+    .cover::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+      opacity: 0.9;
+    }
+    .cover::before { width: 260px; height: 260px; top: -80px; right: -70px; background: #f0ded0; }
+    .cover::after { width: 220px; height: 220px; bottom: -70px; left: -60px; background: #ead7c6; }
+    .eyebrow { position: relative; z-index: 1; margin-bottom: 14px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #8a6a4a; }
+    h1,h2,h3,p { margin: 0; }
+    h1 { position: relative; z-index: 1; max-width: 650px; margin-bottom: 18px; font-size: 40px; line-height: 0.96; letter-spacing: -0.045em; }
+    .subhead { position: relative; z-index: 1; max-width: 660px; margin-bottom: 24px; font-size: 18px; line-height: 1.56; color: var(--body); }
+    .quote { position: relative; z-index: 1; margin: 24px 0 22px; padding: 28px; border: 1px solid var(--line); border-radius: 28px; background: rgba(255,255,255,0.72); font-size: 28px; line-height: 1.18; font-weight: 700; }
+    .quote small { display: block; margin-top: 12px; font-size: 14px; line-height: 1.5; color: var(--muted); font-weight: 500; }
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; position: relative; z-index: 1; }
+    .card, .note-card { border: 1px solid var(--line); border-radius: 24px; padding: 18px; background: rgba(255,255,255,0.78); }
+    .card h3, .note-card h3 { margin-bottom: 10px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em; color: #8a6a4a; }
+    .card p, .card li, .note-card p { color: var(--body); }
+    .section-tag { margin-bottom: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #8a6a4a; }
+    .direction-name { margin-bottom: 10px; font-size: 34px; line-height: 1.02; letter-spacing: -0.04em; }
+    .direction-copy { max-width: 690px; margin-bottom: 18px; font-size: 16px; line-height: 1.62; color: var(--body); }
+    .stage { margin: 16px 0 18px; padding: 28px; border-radius: 28px; border: 1px solid var(--line); background: rgba(255,255,255,0.7); }
+    .stage.dark { background: #3c3029; color: #f9f2e8; border-color: rgba(0,0,0,0.08); }
+    .stage-grid { display: grid; gap: 16px; }
+    .wordmark {
+      font-family: "Optima", "Segoe UI", "Gill Sans", "Avenir Next", sans-serif;
+      text-transform: uppercase;
+      white-space: nowrap;
+      text-rendering: geometricPrecision;
+      margin-bottom: 10px;
+      color: #43362d;
+    }
+    .dark .wordmark { color: #f5eee5; }
+    .wm-a { font-size: 72px; font-weight: 550; letter-spacing: 0.15em; }
+    .wm-a .m { letter-spacing: 0.02em; font-weight: 620; }
+    .wm-a .o { display:inline-block; transform: scale(0.97, 1.03); }
+    .wm-b { font-size: 70px; font-weight: 560; letter-spacing: 0.21em; }
+    .wm-b .m { letter-spacing: 0.06em; font-weight: 620; }
+    .wm-b .a { margin-right: 0.01em; }
+    .wm-b .o { display:inline-block; transform: scale(0.98, 1.04); }
+    .wm-c { font-size: 74px; font-weight: 530; letter-spacing: 0.11em; }
+    .wm-c .m { letter-spacing: -0.01em; font-weight: 610; }
+    .wm-c .s { margin-right: 0.01em; }
+    .wm-c .o { display:inline-block; transform: scale(0.98, 1.02); }
+    .measure {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding: 14px 0 0;
+      border-top: 1px solid rgba(0,0,0,0.08);
+      font-size: 13px;
+      color: var(--body);
+    }
+    .dark .measure { border-top-color: rgba(255,255,255,0.12); color: rgba(245,238,229,0.8); }
+    .sample-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; gap: 14px; }
+    .sample-card { border: 1px solid rgba(0,0,0,0.06); border-radius: 22px; padding: 16px; background: rgba(255,255,255,0.62); }
+    .sample-card h4 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; color: #8a6a4a; }
+    .lockup-row { display: grid; gap: 8px; }
+    .kicker { font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--muted); font-weight: 700; }
+    .headline { font-size: 32px; line-height: 0.98; letter-spacing: -0.05em; max-width: 320px; }
+    .body-copy { font-size: 14px; line-height: 1.58; max-width: 360px; color: var(--body); }
+    .button-row { display:flex; gap: 8px; flex-wrap: wrap; }
+    .button { border-radius: 999px; padding: 10px 14px; font-size: 12px; font-weight: 800; border: 1px solid rgba(0,0,0,0.08); background: #fff8f0; color: #43362d; }
+    .wordmark-note { font-size: 14px; line-height: 1.56; color: var(--muted); max-width: 620px; }
+    .info-grid { display: grid; gap: 12px; }
+    .info-row { display: grid; grid-template-columns: 116px 1fr; gap: 16px; padding: 14px 16px; border: 1px solid var(--line); border-radius: 20px; background: rgba(255,255,255,0.8); }
+    .info-row .k { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: #8a6a4a; padding-top: 2px; }
+    .info-row .v { font-size: 14.5px; line-height: 1.6; color: var(--body); }
+    .footer-note { position: absolute; left: 0.68in; right: 0.68in; bottom: 0.46in; display: flex; justify-content: space-between; align-items: center; padding-top: 10px; border-top: 1px solid var(--line); font-size: 11px; color: var(--muted); }
+    @media print { body { background: var(--paper); } .page { margin: 0; } }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div class="eyebrow">Maison • Typography Reset</div>
+    <h1>Resetting the wordmark direction around Tailored House, with spacing handled properly</h1>
+    <p class="subhead">You and Riah were right to push back. The earlier type round had the right general territory, but it was not tight enough. This pass treats Tailored House as the useful baseline and focuses on spacing, rhythm, and restraint instead of trying to force personality too early.</p>
+    <div class="quote">The closest useful signal was Tailored House.<small>So this deck stops trying to win with flourish. It tries to win with proportion, breath, and confidence.</small></div>
+    <div class="grid-2">
+      <div class="card"><h3>What changed</h3><p>Less decorative styling, less forced personality, more attention to spacing, stroke rhythm, and how the wordmark actually sits on a page.</p></div>
+      <div class="card"><h3>What I’m judging now</h3><p>Which version feels like Maison could live with it for years, not which one gets the fastest reaction in a vacuum.</p></div>
+    </div>
+    <div class="footer-note"><span>Prepared on April 17, 2026</span><span>Maison typography reset</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Direction 01</div>
+    <h2 class="direction-name">Tailored House, close-set</h2>
+    <p class="direction-copy">This is the most grounded version. It keeps the calm architectural feel of Tailored House, but the spacing is pulled in enough that it stops feeling generic or over-aired.</p>
+    <div class="stage">
+      <div class="wordmark wm-a"><span class="m">M</span>AIS<span class="o">O</span>N</div>
+      <div class="wordmark-note">This is the strongest baseline. It feels composed and mature, and the spacing is controlled enough to feel designed instead of merely set in caps.</div>
+      <div class="measure"><div>Reading: structured, premium, not cold</div><div>Tracking: medium-tight</div></div>
+    </div>
+    <div class="stage dark">
+      <div class="wordmark wm-a"><span class="m">M</span>AIS<span class="o">O</span>N</div>
+      <div class="measure"><div>On dark backgrounds, this stays expensive without turning fashion-brand severe.</div><div>Dark test: passes</div></div>
+    </div>
+    <div class="sample-grid">
+      <div class="sample-card">
+        <h4>Brand lockup</h4>
+        <div class="lockup-row"><div class="kicker">Founding launch</div><div class="wordmark wm-a" style="font-size:52px;margin-bottom:0;"><span class="m">M</span>AIS<span class="o">O</span>N</div><div class="body-copy">A calm home, held together more beautifully.</div></div>
+      </div>
+      <div class="sample-card">
+        <h4>Product context</h4>
+        <div class="lockup-row"><div class="headline">A steadier way to run a home.</div><div class="body-copy">This pairing feels confident without overpowering the UI.</div><div class="button-row"><span class="button">Join Maison</span><span class="button">See the flow</span></div></div>
+      </div>
+    </div>
+    <div class="info-grid" style="margin-top:16px;">
+      <div class="info-row"><div class="k">Strength</div><div class="v">Best balance of structure, warmth, and longevity.</div></div>
+      <div class="info-row"><div class="k">Risk</div><div class="v">If it gets any more open, it starts feeling too default. If it gets much tighter, it starts feeling stiff.</div></div>
+      <div class="info-row"><div class="k">Next build</div><div class="v">Custom M proportions, more intentional A and O construction, and a touch more warmth in the terminals, not in the tracking.</div></div>
+    </div>
+    <div class="footer-note"><span>Maison typography reset</span><span>Tailored House, close-set</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Direction 02</div>
+    <h2 class="direction-name">Tailored House, open air</h2>
+    <p class="direction-copy">This version keeps more breathing room. It feels elegant and premium, but it also gets closer to the danger zone where the wordmark starts feeling too generic or too luxury-brand distant.</p>
+    <div class="stage">
+      <div class="wordmark wm-b"><span class="m">M</span><span class="a">A</span>IS<span class="o">O</span>N</div>
+      <div class="wordmark-note">Cleaner, airier, more elevated, but also less emotionally rooted. This is probably the most visually polished on first glance and not the one I’d choose long-term.</div>
+      <div class="measure"><div>Reading: airy, premium, restrained</div><div>Tracking: open</div></div>
+    </div>
+    <div class="stage dark">
+      <div class="wordmark wm-b"><span class="m">M</span><span class="a">A</span>IS<span class="o">O</span>N</div>
+      <div class="measure"><div>Beautiful on a dark field, but also the version most likely to feel detached from the warmth of the brand colors.</div><div>Dark test: pretty, slightly cool</div></div>
+    </div>
+    <div class="sample-grid">
+      <div class="sample-card">
+        <h4>Brand lockup</h4>
+        <div class="lockup-row"><div class="kicker">Founding launch</div><div class="wordmark wm-b" style="font-size:50px;margin-bottom:0;"><span class="m">M</span><span class="a">A</span>IS<span class="o">O</span>N</div><div class="body-copy">A quieter, more editorial brand expression.</div></div>
+      </div>
+      <div class="sample-card">
+        <h4>Product context</h4>
+        <div class="lockup-row"><div class="headline">Care for the home, without the mental noise.</div><div class="body-copy">Feels polished, but maybe a little too distant from the domestic warmth you actually want.</div><div class="button-row"><span class="button">Join Maison</span><span class="button">How it works</span></div></div>
+      </div>
+    </div>
+    <div class="info-grid" style="margin-top:16px;">
+      <div class="info-row"><div class="k">Strength</div><div class="v">Most elegant at a glance.</div></div>
+      <div class="info-row"><div class="k">Risk</div><div class="v">Starts drifting toward a more generic premium lifestyle wordmark rather than something distinctly Maison.</div></div>
+      <div class="info-row"><div class="k">Next build</div><div class="v">Only worth pursuing if the color system stays very warm and tactile around it.</div></div>
+    </div>
+    <div class="footer-note"><span>Maison typography reset</span><span>Tailored House, open air</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Direction 03</div>
+    <h2 class="direction-name">Tailored House, warmer joints</h2>
+    <p class="direction-copy">This version nudges the wordmark softer without turning decorative. The spacing is still controlled, but the rhythm is a touch more domestic and less architectural.</p>
+    <div class="stage">
+      <div class="wordmark wm-c"><span class="m">M</span>AI<span class="s">S</span><span class="o">O</span>N</div>
+      <div class="wordmark-note">This is the version with the most warmth, but it depends on spacing discipline. If the letters drift too far apart, it falls apart quickly.</div>
+      <div class="measure"><div>Reading: warm, composed, a little softer</div><div>Tracking: medium</div></div>
+    </div>
+    <div class="stage dark">
+      <div class="wordmark wm-c"><span class="m">M</span>AI<span class="s">S</span><span class="o">O</span>N</div>
+      <div class="measure"><div>Feels calmer and a bit more human on dark backgrounds, which may pair nicely with Richer Walnut.</div><div>Dark test: strong</div></div>
+    </div>
+    <div class="sample-grid">
+      <div class="sample-card">
+        <h4>Brand lockup</h4>
+        <div class="lockup-row"><div class="kicker">Founding launch</div><div class="wordmark wm-c" style="font-size:52px;margin-bottom:0;"><span class="m">M</span>AI<span class="s">S</span><span class="o">O</span>N</div><div class="body-copy">A warmer expression without going ornamental.</div></div>
+      </div>
+      <div class="sample-card">
+        <h4>Product context</h4>
+        <div class="lockup-row"><div class="headline">The home app that feels like it belongs there.</div><div class="body-copy">This version may be the nicest bridge if the palette leans richer and the product gets more depth.</div><div class="button-row"><span class="button">Join Maison</span><span class="button">See the dashboard</span></div></div>
+      </div>
+    </div>
+    <div class="info-grid" style="margin-top:16px;">
+      <div class="info-row"><div class="k">Strength</div><div class="v">Most human and most compatible with the warmer palette directions.</div></div>
+      <div class="info-row"><div class="k">Risk</div><div class="v">Easier to get wrong than the close-set version. It wins only if the spacing stays disciplined.</div></div>
+      <div class="info-row"><div class="k">Next build</div><div class="v">Custom joints, slightly more intentional O shape, and a purpose-built M that feels less default-Optima.</div></div>
+    </div>
+    <div class="footer-note"><span>Maison typography reset</span><span>Tailored House, warmer joints</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Recommendation</div>
+    <h2 class="direction-name">What I would push next</h2>
+    <div class="note-card" style="margin-bottom:14px;"><h3>Best overall</h3><p><strong>Tailored House, close-set</strong> is the strongest next move. It feels the most intentional without getting precious or generic.</p></div>
+    <div class="note-card" style="margin-bottom:14px;"><h3>Best if the palette gets richer</h3><p><strong>Tailored House, warmer joints</strong> becomes more interesting if you lean toward Richer Walnut or a deeper final brand system.</p></div>
+    <div class="note-card" style="margin-bottom:14px;"><h3>What I learned</h3><p>The problem was not just style, it was spacing. The earlier round tried to express too much through shape without locking the rhythm first.</p></div>
+    <div class="note-card"><h3>Recommendation</h3><p>I would build the next typography pass from <strong>Tailored House, close-set</strong>, then warm it very carefully rather than starting from the more expressive side.</p></div>
+    <div class="footer-note"><span>Maison typography reset</span><span>Recommendation: Tailored House, close-set</span></div>
+  </section>
+</body>
+</html>
