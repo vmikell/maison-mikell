@@ -1,0 +1,352 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Color Stories</title>
+  <style>
+    :root {
+      --ink: #2f241f;
+      --body: #5b4d44;
+      --muted: #806f63;
+      --line: #e6d8cb;
+      --paper: #fbf7f1;
+      --paper-2: #fffaf4;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background: var(--paper);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+    }
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto;
+      padding: 0.72in;
+      background: var(--paper);
+      position: relative;
+      page-break-after: always;
+      overflow: hidden;
+    }
+    .page:last-child { page-break-after: auto; }
+    .cover::before,
+    .cover::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+    .cover::before {
+      width: 260px; height: 260px; right: -70px; top: -70px; background: #f0ded0;
+    }
+    .cover::after {
+      width: 210px; height: 210px; left: -65px; bottom: -55px; background: #e7d4c3;
+    }
+    .eyebrow {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #8a6a4a;
+      margin-bottom: 14px;
+      font-weight: 700;
+      position: relative;
+      z-index: 1;
+    }
+    h1, h2, h3, p { margin: 0; }
+    h1 {
+      font-size: 40px;
+      line-height: 0.96;
+      max-width: 620px;
+      letter-spacing: -0.04em;
+      margin-bottom: 18px;
+      position: relative;
+      z-index: 1;
+    }
+    .subhead {
+      max-width: 620px;
+      color: var(--body);
+      font-size: 18px;
+      line-height: 1.55;
+      margin-bottom: 22px;
+      position: relative;
+      z-index: 1;
+    }
+    .quote {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.7);
+      border-radius: 28px;
+      padding: 28px;
+      font-size: 28px;
+      line-height: 1.2;
+      font-weight: 700;
+      margin: 28px 0 22px;
+      position: relative;
+      z-index: 1;
+    }
+    .quote-note {
+      font-size: 14px;
+      color: var(--muted);
+      margin-top: 12px;
+      font-weight: 500;
+    }
+    .two-up {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      position: relative;
+      z-index: 1;
+    }
+    .card {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.76);
+      border-radius: 24px;
+      padding: 18px;
+    }
+    .card h3 {
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8a6a4a;
+      margin-bottom: 10px;
+    }
+    .card p, .card li, .story-copy, .footer-note { color: var(--body); }
+    .story-name {
+      font-size: 34px;
+      line-height: 1.02;
+      margin-bottom: 10px;
+      letter-spacing: -0.04em;
+    }
+    .story-tagline {
+      font-size: 20px;
+      line-height: 1.3;
+      margin-bottom: 14px;
+      font-weight: 700;
+      color: #3f3028;
+    }
+    .story-copy {
+      font-size: 16px;
+      line-height: 1.65;
+      margin-bottom: 18px;
+      max-width: 670px;
+    }
+    .label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #8a6a4a;
+      font-weight: 700;
+      margin-bottom: 10px;
+    }
+    .swatches {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 0;
+      border-radius: 22px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+    .swatch {
+      min-height: 126px;
+      padding: 14px;
+      display: flex;
+      align-items: end;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+    }
+    .swatch span {
+      display: block;
+      font-size: 11px;
+      margin-top: 4px;
+      opacity: 0.9;
+    }
+    .info-grid {
+      display: grid;
+      gap: 12px;
+    }
+    .info-row {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 16px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.8);
+      border-radius: 20px;
+      padding: 14px 16px;
+    }
+    .info-row .k {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: #8a6a4a;
+      font-weight: 700;
+      padding-top: 2px;
+    }
+    .info-row .v {
+      font-size: 14.5px;
+      line-height: 1.6;
+      color: var(--body);
+    }
+    ul { margin: 0; padding-left: 18px; }
+    li + li { margin-top: 6px; }
+    .recommendation {
+      display: grid;
+      gap: 16px;
+    }
+    .footer-note {
+      position: absolute;
+      left: 0.72in;
+      right: 0.72in;
+      bottom: 0.48in;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11px;
+      color: var(--muted);
+      border-top: 1px solid var(--line);
+      padding-top: 10px;
+    }
+    .small {
+      font-size: 14px;
+      color: var(--muted);
+    }
+    @media print {
+      body { background: var(--paper); }
+      .page { margin: 0; box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div class="eyebrow">Maison • Branding + UI Color Stories</div>
+    <h1>Three separate warm-home directions for Maison</h1>
+    <p class="subhead">Prepared for Victor and Riah. These directions are meant to replace the current glossy, synthetic palette with something that feels warmer, cleaner, more lived-in, and more intentional.</p>
+
+    <div class="quote">
+      “Maison should feel like a beautiful, cared-for home, not a generic software dashboard.”
+      <div class="quote-note">This document turns that instinct into three distinct visual routes.</div>
+    </div>
+
+    <div class="two-up">
+      <div class="card">
+        <h3>What changed</h3>
+        <p>The current palette reads cool, glossy, and a little default-AI. These new routes are built around warmth, restraint, domestic texture, and emotional clarity.</p>
+      </div>
+      <div class="card">
+        <h3>What stays true</h3>
+        <p>Maison still needs clear interaction states, strong contrast, and enough freshness to feel current. Warm should never mean muddy or sleepy.</p>
+      </div>
+    </div>
+
+    <div class="footer-note">
+      <span>Prepared on April 17, 2026</span>
+      <span>Maison Color Stories</span>
+    </div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Color Story 01</div>
+    <h2 class="story-name">Sunwashed Market</h2>
+    <p class="story-tagline">Cream, mustard, teal, and walnut. Bright, tasteful, alive, and unmistakably human.</p>
+    <p class="story-copy">This direction feels like morning light in a warm kitchen, handmade ceramics on open shelves, and a home that is cared for without looking precious. It keeps Maison friendly and optimistic, but pulls it far away from glossy purple SaaS.</p>
+
+    <div class="label">Palette</div>
+    <div class="swatches">
+      <div class="swatch" style="background:#F7F1E5;color:#3F3328;">Antique Cream<span>#F7F1E5</span></div>
+      <div class="swatch" style="background:#EFE3CD;color:#3F3328;">Butter Linen<span>#EFE3CD</span></div>
+      <div class="swatch" style="background:#D0A84A;color:#FFF9EF;">Harvest Mustard<span>#D0A84A</span></div>
+      <div class="swatch" style="background:#4D8C86;color:#F7F3ED;">Kitchen Teal<span>#4D8C86</span></div>
+      <div class="swatch" style="background:#4B392D;color:#FFF9F3;">Walnut<span>#4B392D</span></div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-row"><div class="k">Branding</div><div class="v"><ul><li>Best for a Maison that feels clean, capable, warm, and a little editorial.</li><li>The mustard gives it memorability. The teal keeps it calm and believable.</li><li>This is the strongest fit if the brand should feel modern, lived-in, and a little premium without turning stiff.</li></ul></div></div>
+      <div class="info-row"><div class="k">UI</div><div class="v"><ul><li>Use cream and butter as the main canvas so the app breathes.</li><li>Reserve mustard for primary actions, highlighted numbers, and confident moments.</li><li>Use teal for progress, checks, navigation focus, and functional accents.</li><li>Keep walnut for headings, anchors, and contrast zones instead of black.</li></ul></div></div>
+      <div class="info-row"><div class="k">Type</div><div class="v">Typography should feel tailored, not futuristic. I would pair a warm, strong wordmark with a clean humanist sans in the UI. For a custom Maison wordmark, I would explore soft flared terminals, slightly high contrast, generous spacing, and elegant capitals that still feel domestic rather than cold-luxury.</div></div>
+      <div class="info-row"><div class="k">Avoid</div><div class="v">Avoid neon teal, sharp lemon yellow, cold gray backgrounds, or overusing the mustard. The charm is in restraint.</div></div>
+    </div>
+
+    <div class="footer-note"><span>Prepared for Victor + Riah</span><span>Sunwashed Market</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Color Story 02</div>
+    <h2 class="story-name">Sage Linen</h2>
+    <p class="story-tagline">Linen, oat, sage, olive, and muted gold. Quiet confidence, calm order, and soft daylight.</p>
+    <p class="story-copy">This direction is the most understated. It feels like expensive soap packaging, warm stone countertops, natural fiber curtains, and a house that is calm because someone actually thought about it. It is less playful than Sunwashed Market, but very believable.</p>
+
+    <div class="label">Palette</div>
+    <div class="swatches">
+      <div class="swatch" style="background:#F6F1E8;color:#40382F;">Linen<span>#F6F1E8</span></div>
+      <div class="swatch" style="background:#ECE3D5;color:#40382F;">Oat<span>#ECE3D5</span></div>
+      <div class="swatch" style="background:#8F9A77;color:#FAF8F3;">Soft Sage<span>#8F9A77</span></div>
+      <div class="swatch" style="background:#6B7656;color:#FAF8F3;">Olive Shade<span>#6B7656</span></div>
+      <div class="swatch" style="background:#C2A46A;color:#FFF9F2;">Muted Gold<span>#C2A46A</span></div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-row"><div class="k">Branding</div><div class="v"><ul><li>Best for a Maison that wants to feel mature, composed, and trustworthy.</li><li>This one says thoughtful home care rather than energetic startup.</li><li>It is the safest premium direction if you want warm neutrality to lead the brand.</li></ul></div></div>
+      <div class="info-row"><div class="k">UI</div><div class="v"><ul><li>Use linen and oat for nearly all app backgrounds.</li><li>Let sage carry buttons, selected states, and positive system moments.</li><li>Bring muted gold in carefully for premium callouts, pricing, and highlights.</li><li>Use olive for utility depth and secondary emphasis.</li></ul></div></div>
+      <div class="info-row"><div class="k">Type</div><div class="v">This story wants typography that feels composed and grounded. The custom Maison wordmark here should be more restrained, with subtle contrast, open counters, and a classic silhouette that can age well. Think modern heritage rather than trendy DTC.</div></div>
+      <div class="info-row"><div class="k">Avoid</div><div class="v">Do not let this become muddy. Too much olive or too little contrast will make it feel sleepy instead of calm.</div></div>
+    </div>
+
+    <div class="footer-note"><span>Prepared for Victor + Riah</span><span>Sage Linen</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Color Story 03</div>
+    <h2 class="story-name">Clay Hearth</h2>
+    <p class="story-tagline">Oat, parchment, terracotta, cedar, and espresso. Warmth, depth, texture, and strong domestic character.</p>
+    <p class="story-copy">This direction has the most personality. It feels like fired clay, wood, books, old house character, and a little ritual. If Maison should feel soulful and memorable, this is the boldest route without becoming noisy.</p>
+
+    <div class="label">Palette</div>
+    <div class="swatches">
+      <div class="swatch" style="background:#F8F1E8;color:#3F3028;">Parchment<span>#F8F1E8</span></div>
+      <div class="swatch" style="background:#EEE0D1;color:#3F3028;">Warm Oat<span>#EEE0D1</span></div>
+      <div class="swatch" style="background:#B46F54;color:#FFF9F4;">Terracotta<span>#B46F54</span></div>
+      <div class="swatch" style="background:#7D523C;color:#FFF9F4;">Cedar<span>#7D523C</span></div>
+      <div class="swatch" style="background:#34241D;color:#F9F4EE;">Espresso<span>#34241D</span></div>
+    </div>
+
+    <div class="info-grid">
+      <div class="info-row"><div class="k">Branding</div><div class="v"><ul><li>Best for a Maison that should feel distinctive, emotional, and rich.</li><li>This one creates the clearest personality and the strongest visual memory.</li><li>It is warmer and more intimate, which could be powerful if the product story leans toward belonging and care.</li></ul></div></div>
+      <div class="info-row"><div class="k">UI</div><div class="v"><ul><li>Use parchment and oat as the quiet foundation.</li><li>Use terracotta for hero actions, primary calls to action, and emphasis moments.</li><li>Use cedar for tabs, filter states, and structured navigation depth.</li><li>Use espresso for text, framing, and dark panels instead of default charcoal.</li></ul></div></div>
+      <div class="info-row"><div class="k">Type</div><div class="v">This story wants the strongest display typography. The custom Maison wordmark could push furthest here, with elegant tension between softness and structure. I would explore slightly sculpted serifs, gentle flare shapes, and a bespoke capital M that feels architectural but warm.</div></div>
+      <div class="info-row"><div class="k">Avoid</div><div class="v">Do not combine this with generic app-store blue or shiny gradients. It needs matte, tactile handling.</div></div>
+    </div>
+
+    <div class="footer-note"><span>Prepared for Victor + Riah</span><span>Clay Hearth</span></div>
+  </section>
+
+  <section class="page">
+    <div class="eyebrow">Recommendation</div>
+    <h2 class="story-name">What I would test first</h2>
+    <div class="recommendation">
+      <div class="card">
+        <h3>Best first test</h3>
+        <p><strong>Sunwashed Market</strong> is the best first move. It is the clearest break from the current AI-looking palette, but it still feels fresh, useful, and warm instead of heavy.</p>
+      </div>
+      <div class="card">
+        <h3>Safest premium route</h3>
+        <p><strong>Sage Linen</strong> is the calmest and most composed. If you want Maison to feel quiet, mature, and trustworthy first, this is the safest premium direction.</p>
+      </div>
+      <div class="card">
+        <h3>Strongest personality route</h3>
+        <p><strong>Clay Hearth</strong> has the most soul. If Maison should feel emotionally distinctive and memorable, this is the boldest route.</p>
+      </div>
+      <div class="card">
+        <h3>Font next</h3>
+        <p>Yes, I can absolutely design the custom Maison font direction. My recommendation is to start with a <strong>custom Maison wordmark and display alphabet</strong> first, then decide whether it should expand into a full font family. That gets us the emotional signature fast without taking on the full production burden too early.</p>
+      </div>
+    </div>
+
+    <div class="footer-note"><span>Maison Color Stories</span><span>Next step: choose one route to refine</span></div>
+  </section>
+</body>
+</html>
