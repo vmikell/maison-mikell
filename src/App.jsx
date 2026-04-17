@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from 'react'
+import { addDoc, collection } from 'firebase/firestore'
 import './App.css'
 import { formatDate, addDays } from './lib/model'
 import { starterHouseProfile } from './lib/data'
 import { usePlannerState } from './hooks/usePlannerState'
 import { createEmailPasswordAccount, deleteSignedInAuthUser, ensureRecentLogin, sendPasswordReset, signInWithEmailPassword, signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
 import { useNativeDiagnostics } from './lib/nativeDiagnostics'
+import { firestore } from './lib/firebase'
 import heroImage from './assets/hero.png'
 
 const emptyTaskForm = {
@@ -78,6 +80,10 @@ function App() {
   const [emailAuthMode, setEmailAuthMode] = useState('signin')
   const [isEmailAuthLoading, setIsEmailAuthLoading] = useState(false)
   const [emailAuthForm, setEmailAuthForm] = useState({ name: '', email: '', password: '' })
+  const [launchInterestForm, setLaunchInterestForm] = useState({ name: '', email: '', householdType: 'Couple', friction: '' })
+  const [isLaunchInterestLoading, setIsLaunchInterestLoading] = useState(false)
+  const [launchInterestMessage, setLaunchInterestMessage] = useState('')
+  const [launchInterestTone, setLaunchInterestTone] = useState('success')
   const [deleteAccountPassword, setDeleteAccountPassword] = useState('')
 
   async function submitEmailAuth(event) {
@@ -116,6 +122,38 @@ function App() {
       return
     }
     setAuthMessage('Password reset email sent. Check your inbox and spam folder.')
+  }
+
+  async function submitLaunchInterest(event) {
+    event.preventDefault()
+    if (!firestore || !hasFirebaseConfig) {
+      setLaunchInterestTone('error')
+      setLaunchInterestMessage('Founding-launch capture is not configured yet in this build.')
+      return
+    }
+
+    setIsLaunchInterestLoading(true)
+    setLaunchInterestTone('success')
+    setLaunchInterestMessage('')
+
+    try {
+      await addDoc(collection(firestore, 'launchInterest'), {
+        name: launchInterestForm.name.trim(),
+        email: launchInterestForm.email.trim().toLowerCase(),
+        householdType: launchInterestForm.householdType.trim(),
+        friction: launchInterestForm.friction.trim(),
+        source: 'landing-page',
+        createdAt: new Date().toISOString(),
+      })
+
+      setLaunchInterestMessage('You’re on the founding-launch list. We’ll reach out when the next access wave opens.')
+      setLaunchInterestForm({ name: '', email: '', householdType: 'Couple', friction: '' })
+    } catch {
+      setLaunchInterestTone('error')
+      setLaunchInterestMessage('Could not save your founding-launch request right now. Please try again in a minute.')
+    } finally {
+      setIsLaunchInterestLoading(false)
+    }
   }
 
   function buildSetupPreview(form = setupForm) {
@@ -206,13 +244,13 @@ function App() {
   const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join our Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\n${inviteInstructions}`)}`
   const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
   const landingFeatures = [
-    { title: 'Shared shopping', body: 'Keep one live household shopping list that everyone can update.' },
-    { title: 'Home maintenance', body: 'Track recurring tasks and the upkeep that keeps a home running.' },
-    { title: 'Reminders that matter', body: 'Send household reminders without relying on memory or nagging.' },
-    { title: 'Household planning', body: 'See the important shared home tasks and dates in one place.' },
-    { title: 'Multi-member access', body: 'Built for a shared household, not just one person managing everything alone.' },
+    { title: 'Shared shopping', body: 'Keep one live household shopping list that both people can update, without the usual text-thread drift.' },
+    { title: 'Home maintenance', body: 'Track recurring upkeep and the invisible work that keeps a home running well over time.' },
+    { title: 'Reminders that matter', body: 'Handle household reminders without relying on memory, repeated conversations, or nagging.' },
+    { title: 'Household planning', body: 'See the important shared tasks and dates in one calm place instead of six disconnected ones.' },
+    { title: 'Multi-member access', body: 'Built for a shared home from the start, not one person carrying the whole operational load alone.' },
   ]
-  const landingAudience = ['Couples living together', 'Busy homeowners', 'Households managing recurring home responsibilities', 'People who want one shared source of truth']
+  const landingAudience = ['Couples living together', 'Busy homeowners', 'Households with recurring home-admin friction', 'People who want one shared source of truth']
   const landingFaqs = [
     { question: 'Is Maison Mikell for individuals or households?', answer: 'It is built for shared household coordination, especially couples living together.' },
     { question: 'Is there a free plan?', answer: 'No. Maison Mikell is positioned as a paid household product from launch.' },
@@ -389,11 +427,11 @@ function App() {
                 ) : (
                   <>
                     <p className="hero-copy">Maison Mikell brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.</p>
-                    <p className="hero-copy maison-hero-support">Built for real shared homes, not generic productivity hacks.</p>
+                    <p className="hero-copy maison-hero-support">For couples who want their home life to feel calmer, cleaner, and less dependent on memory.</p>
                   </>
                 )}
                 {!showDeletedAccountView ? <div className="maison-hero-actions">
-                  <a className="primary-button invite-link-button" href="#maison-auth">Join the founding launch</a>
+                  <a className="primary-button invite-link-button" href="#maison-waitlist">Join the founding launch</a>
                   <a className="secondary-button invite-link-button" href="#how-maison-works">See how it works</a>
                 </div> : null}
               </div>
@@ -404,11 +442,11 @@ function App() {
                 <div className="maison-hero-statline">
                   <div className="maison-metric-card">
                     <span>Shared home flow</span>
-                    <strong>Shopping, upkeep, reminders</strong>
+                    <strong>Shopping, upkeep, reminders, planning</strong>
                   </div>
                   <div className="maison-metric-card">
-                    <span>Designed for</span>
-                    <strong>Couples sharing one home</strong>
+                    <span>Positioning</span>
+                    <strong>The home operating system for couples</strong>
                   </div>
                 </div>
               </div>
@@ -464,7 +502,7 @@ function App() {
                   <article className="maison-offer-card">
                     <div className="section-head">
                       <p className="panel-label">Founding launch pricing</p>
-                      <h2>Founding launch pricing</h2>
+                      <h2>Paid from day one, with a short founding window.</h2>
                     </div>
                     <p className="hero-copy">Maison Mikell is launching as a paid product from day one.</p>
                     <div className="maison-price-lockup">
@@ -506,13 +544,38 @@ function App() {
                     <h2>Bring your home into one calm system.</h2>
                     <p className="hero-copy">Join the founding launch and be one of the first households to use Maison Mikell as your shared home operating system.</p>
                   </div>
-                  <a className="primary-button invite-link-button" href="#maison-auth">Join the founding launch</a>
+                  <div className="maison-hero-actions">
+                    <a className="primary-button invite-link-button" href="#maison-waitlist">Join the founding launch</a>
+                    <a className="secondary-button invite-link-button" href="#maison-auth">Sign in now</a>
+                  </div>
                 </section>
               </>
             ) : null}
           </div>
 
           <aside className="auth-landing-actions onboarding-actions maison-auth-rail" id="maison-auth">
+            {!showDeletedAccountView ? <div className="maison-auth-card onboarding-section-block maison-waitlist-card" id="maison-waitlist">
+              <div>
+                <p className="panel-label">Founding launch</p>
+                <h3>Request early access</h3>
+                <p className="hero-copy">If you want in before the broader launch, drop your info here and tell us what home-admin friction you want Maison to make lighter.</p>
+              </div>
+              <form className="maison-waitlist-form" onSubmit={submitLaunchInterest}>
+                <input className="invite-code-input no-caps-input" type="text" placeholder="Your name" value={launchInterestForm.name} onChange={(event) => setLaunchInterestForm((current) => ({ ...current, name: event.target.value }))} autoComplete="name" required />
+                <input className="invite-code-input no-caps-input" type="email" placeholder="Email address" value={launchInterestForm.email} onChange={(event) => setLaunchInterestForm((current) => ({ ...current, email: event.target.value }))} autoComplete="email" required />
+                <select className="invite-code-input no-caps-input maison-select-input" value={launchInterestForm.householdType} onChange={(event) => setLaunchInterestForm((current) => ({ ...current, householdType: event.target.value }))}>
+                  <option value="Couple">Couple</option>
+                  <option value="Household with kids">Household with kids</option>
+                  <option value="Roommates">Roommates</option>
+                  <option value="Solo homeowner">Solo homeowner</option>
+                  <option value="Other">Other</option>
+                </select>
+                <textarea className="invite-code-input no-caps-input maison-textarea-input" rows="4" placeholder="What’s the biggest coordination or home-admin friction in your house right now?" value={launchInterestForm.friction} onChange={(event) => setLaunchInterestForm((current) => ({ ...current, friction: event.target.value }))} required />
+                <button className="primary-button" type="submit" disabled={isLaunchInterestLoading}>{isLaunchInterestLoading ? 'Saving your request…' : 'Request founding access'}</button>
+              </form>
+              {launchInterestMessage ? <p className={`auth-help ${launchInterestTone}`}>{launchInterestMessage}</p> : null}
+            </div> : null}
+
             <div className="maison-auth-card onboarding-section-block">
               <div>
                 <p className="panel-label">Access Maison</p>
