@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Tight Tailored + Sans Round</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Instrument+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+    :root {
+      --ink: #35261d;
+      --body: #59473d;
+      --muted: #887567;
+      --line: #e5d9cd;
+      --paper: #faf5ed;
+      --gold: #917043;
+      --terracotta: #89523d;
+      --walnut: #4b392d;
+      --cotton: #eadbc5;
+      --antique: #faf3e0;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+    }
+    .page {
+      width: 8.5in;
+      min-height: 11in;
+      margin: 0 auto;
+      padding: 0.64in;
+      position: relative;
+      overflow: hidden;
+      background: #fbf6ee;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    .cover::before,
+    .cover::after {
+      content: "";
+      position: absolute;
+      border-radius: 999px;
+      pointer-events: none;
+    }
+    .cover::before { width: 280px; height: 280px; right: -92px; top: -92px; background: rgba(145,112,67,0.12); }
+    .cover::after { width: 230px; height: 230px; left: -70px; bottom: -72px; background: rgba(137,82,61,0.11); }
+    h1,h2,h3,h4,p { margin: 0; }
+    .eyebrow { position: relative; z-index: 1; margin-bottom: 12px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gold); }
+    h1 { position: relative; z-index: 1; max-width: 670px; margin-bottom: 16px; font-size: 42px; line-height: 0.96; letter-spacing: -0.045em; }
+    .subhead { position: relative; z-index: 1; max-width: 670px; margin-bottom: 22px; font-size: 18px; line-height: 1.56; color: var(--body); }
+    .quote { position: relative; z-index: 1; border: 1px solid var(--line); border-radius: 28px; padding: 26px; background: rgba(255,255,255,0.76); font-size: 27px; line-height: 1.18; font-weight: 700; margin-bottom: 18px; }
+    .quote small { display:block; margin-top:10px; color: var(--muted); font-size:14px; line-height:1.54; font-weight:500; }
+    .grid-2 { display:grid; grid-template-columns: 1fr 1fr; gap:16px; position: relative; z-index: 1; }
+    .card, .note-card, .info-row { border: 1px solid var(--line); border-radius: 24px; padding: 18px; background: rgba(255,255,255,0.8); }
+    .card h3, .note-card h3, .info-row .k { margin-bottom: 8px; font-size: 13px; text-transform: uppercase; letter-spacing: 0.12em; color: var(--gold); }
+    .card p, .note-card p, .info-row .v { color: var(--body); }
+    .section-tag { margin-bottom: 10px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.18em; color: var(--gold); }
+    .direction-name { margin-bottom: 8px; font-size: 34px; line-height: 1.02; letter-spacing: -0.04em; }
+    .direction-copy { max-width: 700px; margin-bottom: 18px; font-size: 16px; line-height: 1.62; color: var(--body); }
+    .stage { margin: 16px 0 18px; padding: 28px; border-radius: 28px; border: 1px solid var(--line); background: rgba(255,255,255,0.72); }
+    .stage.dark { background: linear-gradient(180deg, #4b392d, #35261d); color: #f8efe5; border-color: rgba(0,0,0,0.06); }
+    .wordmark { margin-bottom: 10px; white-space: nowrap; text-rendering: geometricPrecision; color: #43342b; }
+    .stage.dark .wordmark { color: #f7efe6; }
+    .mark-tailored { font-family: "Optima", "Segoe UI", "Gill Sans", "Avenir Next", sans-serif; font-size: 76px; font-weight: 560; letter-spacing: 0.09em; text-transform: uppercase; }
+    .mark-tailored .m { letter-spacing: -0.03em; font-weight: 640; }
+    .mark-tailored .a { margin-left: -0.01em; }
+    .mark-tailored .o { display:inline-block; transform: scale(0.97, 1.03); }
+
+    .mark-instrument { font-family: "Instrument Sans", "Helvetica Neue", Arial, sans-serif; font-size: 74px; font-weight: 700; letter-spacing: -0.045em; }
+    .mark-instrument .m { letter-spacing: -0.07em; }
+    .mark-instrument .s { margin-left: -0.01em; }
+
+    .mark-manrope { font-family: "Manrope", "Avenir Next", "Segoe UI", sans-serif; font-size: 74px; font-weight: 800; letter-spacing: -0.06em; }
+    .mark-manrope .m { letter-spacing: -0.085em; }
+    .mark-manrope .a { margin-left: -0.02em; }
+
+    .mark-jakarta { font-family: "Plus Jakarta Sans", "Helvetica Neue", Arial, sans-serif; font-size: 74px; font-weight: 700; letter-spacing: -0.055em; }
+    .mark-jakarta .m { letter-spacing: -0.08em; }
+    .mark-jakarta .i { margin-left: -0.01em; }
+
+    .wordmark-note { font-size: 14px; line-height: 1.56; color: var(--muted); max-width: 630px; }
+    .measure { display:grid; grid-template-columns: 1fr auto; gap: 14px; align-items:center; padding-top: 14px; margin-top: 14px; border-top: 1px solid rgba(0,0,0,0.08); font-size: 13px; color: var(--body); }
+    .stage.dark .measure { border-top-color: rgba(255,255,255,0.12); color: rgba(247,239,230,0.84); }
+    .sample-grid { display:grid; grid-template-columns: 1.05fr 0.95fr; gap: 14px; }
+    .sample-card { border: 1px solid rgba(0,0,0,0.06); border-radius: 22px; padding: 16px; background: rgba(255,255,255,0.68); }
+    .sample-card h4 { margin: 0 0 8px; font-size: 12px; text-transform: uppercase; letter-spacing: 0.14em; color: var(--gold); }
+    .lockup-row { display:grid; gap:8px; }
+    .kicker { font-size: 11px; text-transform: uppercase; letter-spacing: 0.18em; color: var(--muted); font-weight: 700; }
+    .headline { font-size: 31px; line-height: 0.98; letter-spacing: -0.05em; max-width: 320px; }
+    .body-copy { font-size: 14px; line-height: 1.58; max-width: 360px; color: var(--body); }
+    .button-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .button { border-radius: 999px; padding: 10px 14px; font-size: 12px; font-weight: 800; border: 1px solid rgba(0,0,0,0.08); background: #fff8f0; color: #43362d; }
+    .info-grid { display:grid; gap:12px; margin-top:16px; }
+    .info-row { display:grid; grid-template-columns: 116px 1fr; gap:16px; }
+    .info-row .k { padding-top: 2px; }
+    .footer-note { position:absolute; left:0.64in; right:0.64in; bottom:0.42in; display:flex; justify-content:space-between; align-items:center; padding-top:10px; border-top:1px solid var(--line); font-size:11px; color: var(--muted); }
+    .rank { display:inline-block; margin-left: 8px; padding: 4px 8px; border-radius: 999px; background: rgba(145,112,67,0.11); color: #6b5131; font-size: 11px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; vertical-align: middle; }
+    @media print { body { background: var(--paper); } .page { margin: 0; } }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div class="eyebrow">Maison • Typography Round</div>
+    <h1>Tighten Tailored House, then test three cleaner sans-serif routes beside it</h1>
+    <p class="subhead">This pass does exactly what you asked: one tighter Tailored House baseline, plus three other sans-serif directions built seriously instead of thrown in as filler. The point is not novelty, it is to see what actually holds Maison together best.</p>
+    <div class="quote">The question is no longer whether Tailored House was the strongest signal. It was.<small>Now the useful test is whether a tighter Tailored House still wins once it is put beside three modern sans-serif options with equally controlled spacing.</small></div>
+    <div class="grid-2">
+      <div class="card"><h3>What I’m testing</h3><p>Warmth, control, and whether the wordmark feels like a home brand instead of a generic app or fashion label.</p></div>
+      <div class="card"><h3>What I tightened</h3><p>Tracking, internal rhythm, and how the mark sits in real landing and product copy, not just on a blank stage.</p></div>
+    </div>
+    <div class="footer-note"><span>Prepared on April 17, 2026</span><span>Maison tight tailored + sans round</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Direction 01</div>
+    <h2 class="direction-name">Tailored House, tighter <span class="rank">Leader</span></h2>
+    <p class="direction-copy">This is the stronger version of the one you already liked. It is more compact, more deliberate, and less airy. It feels more like a real decision now.</p>
+    <div class="stage">
+      <div class="wordmark mark-tailored"><span class="m">M</span><span class="a">A</span>IS<span class="o">O</span>N</div>
+      <div class="wordmark-note">Still the nicest emotional fit. The tightened spacing gives it more confidence without losing the warmth that made Tailored House the best of the earlier round.</div>
+      <div class="measure"><div>Reading: warm, tailored, expensive without showing off</div><div>Tracking: tight</div></div>
+    </div>
+    <div class="stage dark">
+      <div class="wordmark mark-tailored"><span class="m">M</span><span class="a">A</span>IS<span class="o">O</span>N</div>
+      <div class="measure"><div>This is still the one that feels most naturally at home with Antique Walnut.</div><div>Dark test: strong</div></div>
+    </div>
+    <div class="sample-grid">
+      <div class="sample-card">
+        <h4>Brand lockup</h4>
+        <div class="lockup-row"><div class="kicker">Founding launch</div><div class="wordmark mark-tailored" style="font-size:54px;margin-bottom:0;"><span class="m">M</span><span class="a">A</span>IS<span class="o">O</span>N</div><div class="body-copy">A home feels better when it is held together beautifully.</div></div>
+      </div>
+      <div class="sample-card">
+        <h4>Product context</h4>
+        <div class="lockup-row"><div class="headline">A calmer way to run a home.</div><div class="body-copy">The wordmark carries warmth without turning soft or lifestyle-generic.</div><div class="button-row"><span class="button">Join Maison</span><span class="button">See the flow</span></div></div>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-row"><div class="k">Strength</div><div class="v">Best balance of domestic warmth, structure, and long-term identity.</div></div>
+      <div class="info-row"><div class="k">Risk</div><div class="v">If pushed much tighter it could stiffen. The warmth is in the proportions, not in extra styling tricks.</div></div>
+      <div class="info-row"><div class="k">Read</div><div class="v">Still my favorite, and better now than the first Tailored House pass.</div></div>
+    </div>
+    <div class="footer-note"><span>Maison typography round</span><span>Tailored House, tighter</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Direction 02</div>
+    <h2 class="direction-name">Instrument Sans, close control</h2>
+    <p class="direction-copy">This is the cleanest modern sans-serif option in the group. It feels sharp, composed, and current, but less domestic than Tailored House.</p>
+    <div class="stage">
+      <div class="wordmark mark-instrument"><span class="m">M</span>AI<span class="s">S</span>ON</div>
+      <div class="wordmark-note">Very clean. It reads like a serious product brand immediately. The tradeoff is that it loses some of the house warmth unless the color and photography do a lot of work.</div>
+      <div class="measure"><div>Reading: controlled, modern, product-forward</div><div>Tracking: tight-minus</div></div>
+    </div>
+    <div class="stage dark">
+      <div class="wordmark mark-instrument"><span class="m">M</span>AI<span class="s">S</span>ON</div>
+      <div class="measure"><div>Looks expensive and clean on dark, but a touch more app-brand than home-brand.</div><div>Dark test: very good</div></div>
+    </div>
+    <div class="sample-grid">
+      <div class="sample-card">
+        <h4>Brand lockup</h4>
+        <div class="lockup-row"><div class="kicker">Founding launch</div><div class="wordmark mark-instrument" style="font-size:52px;margin-bottom:0;"><span class="m">M</span>AI<span class="s">S</span>ON</div><div class="body-copy">A sharper, more product-native expression of Maison.</div></div>
+      </div>
+      <div class="sample-card">
+        <h4>Product context</h4>
+        <div class="lockup-row"><div class="headline">A steadier household, minus the friction.</div><div class="body-copy">Good if you want Maison to feel cleaner and more contemporary.</div><div class="button-row"><span class="button">Join Maison</span><span class="button">How it works</span></div></div>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-row"><div class="k">Strength</div><div class="v">Most precise and product-ready of the sans-serif options.</div></div>
+      <div class="info-row"><div class="k">Risk</div><div class="v">Easier to drift into generic startup polish if the rest of the brand system gets too clean.</div></div>
+      <div class="info-row"><div class="k">Read</div><div class="v">Strong contender if you decide warmth should come more from color than from type.</div></div>
+    </div>
+    <div class="footer-note"><span>Maison typography round</span><span>Instrument Sans</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Direction 03</div>
+    <h2 class="direction-name">Manrope, heavy and quiet</h2>
+    <p class="direction-copy">This one is softer and heavier at the same time. It has some presence, but it reads more digital than editorial.</p>
+    <div class="stage">
+      <div class="wordmark mark-manrope"><span class="m">M</span><span class="a">A</span>ISON</div>
+      <div class="wordmark-note">There is something good in the weight here. It feels dependable. But it leans more software-brand than maison-brand unless handled very carefully.</div>
+      <div class="measure"><div>Reading: sturdy, quiet, digital</div><div>Tracking: tight</div></div>
+    </div>
+    <div class="stage dark">
+      <div class="wordmark mark-manrope"><span class="m">M</span><span class="a">A</span>ISON</div>
+      <div class="measure"><div>The dark read is nice, but this still feels more platform than home object.</div><div>Dark test: solid</div></div>
+    </div>
+    <div class="sample-grid">
+      <div class="sample-card">
+        <h4>Brand lockup</h4>
+        <div class="lockup-row"><div class="kicker">Founding launch</div><div class="wordmark mark-manrope" style="font-size:52px;margin-bottom:0;"><span class="m">M</span><span class="a">A</span>ISON</div><div class="body-copy">Useful if Maison wants more sturdiness than softness.</div></div>
+      </div>
+      <div class="sample-card">
+        <h4>Product context</h4>
+        <div class="lockup-row"><div class="headline">Home upkeep, held together clearly.</div><div class="body-copy">Credible and clean, but not the most distinctive or emotional.</div><div class="button-row"><span class="button">Join Maison</span><span class="button">See the dashboard</span></div></div>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-row"><div class="k">Strength</div><div class="v">Feels dependable and easy to use in product surfaces.</div></div>
+      <div class="info-row"><div class="k">Risk</div><div class="v">May be too digital and too generic once it leaves the mockup deck and becomes a real brand mark.</div></div>
+      <div class="info-row"><div class="k">Read</div><div class="v">Not bad, but not beating Tailored House for Maison specifically.</div></div>
+    </div>
+    <div class="footer-note"><span>Maison typography round</span><span>Manrope</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Direction 04</div>
+    <h2 class="direction-name">Plus Jakarta Sans, warmer modern</h2>
+    <p class="direction-copy">This is the warmest of the three sans-serif directions. It keeps a contemporary feel, but the curves make it friendlier and a little more domestic.</p>
+    <div class="stage">
+      <div class="wordmark mark-jakarta"><span class="m">M</span>A<span class="i">I</span>SON</div>
+      <div class="wordmark-note">The best sans-serif challenger in this set. It feels less cold than Instrument Sans and less digital-heavy than Manrope.</div>
+      <div class="measure"><div>Reading: modern, approachable, warmer than the others</div><div>Tracking: tight</div></div>
+    </div>
+    <div class="stage dark">
+      <div class="wordmark mark-jakarta"><span class="m">M</span>A<span class="i">I</span>SON</div>
+      <div class="measure"><div>This one keeps enough softness to survive the darker Antique Walnut mood.</div><div>Dark test: strong</div></div>
+    </div>
+    <div class="sample-grid">
+      <div class="sample-card">
+        <h4>Brand lockup</h4>
+        <div class="lockup-row"><div class="kicker">Founding launch</div><div class="wordmark mark-jakarta" style="font-size:52px;margin-bottom:0;"><span class="m">M</span>A<span class="i">I</span>SON</div><div class="body-copy">A cleaner route that still has a little human warmth.</div></div>
+      </div>
+      <div class="sample-card">
+        <h4>Product context</h4>
+        <div class="lockup-row"><div class="headline">A better rhythm for everything your home needs.</div><div class="body-copy">If you want a sans route, this is the one that gets closest.</div><div class="button-row"><span class="button">Join Maison</span><span class="button">View the flow</span></div></div>
+      </div>
+    </div>
+    <div class="info-grid">
+      <div class="info-row"><div class="k">Strength</div><div class="v">Best blend of modern clarity and approachable warmth among the sans-serif options.</div></div>
+      <div class="info-row"><div class="k">Risk</div><div class="v">Still less ownable and less atmospheric than the tightened Tailored House route.</div></div>
+      <div class="info-row"><div class="k">Read</div><div class="v">The only sans-serif alternative here that feels like a real threat to Tailored House.</div></div>
+    </div>
+    <div class="footer-note"><span>Maison typography round</span><span>Plus Jakarta Sans</span></div>
+  </section>
+
+  <section class="page">
+    <div class="section-tag">Recommendation</div>
+    <h2 class="direction-name">What I would carry forward</h2>
+    <div class="note-card" style="margin-bottom:14px;"><h3>Best overall</h3><p><strong>Tailored House, tighter</strong> still wins. It has the most Maison character and now the spacing is finally doing it justice.</p></div>
+    <div class="note-card" style="margin-bottom:14px;"><h3>Best sans-serif challenger</h3><p><strong>Plus Jakarta Sans</strong> is the strongest modern alternative if you want to test a cleaner route without going cold.</p></div>
+    <div class="note-card" style="margin-bottom:14px;"><h3>What this clarified</h3><p>Maison can wear a sans-serif, but the more purely modern the type gets, the more the brand starts losing its home-specific emotional read.</p></div>
+    <div class="note-card"><h3>Recommendation</h3><p>I would keep pushing <strong>Tailored House, tighter</strong> as the lead, with <strong>Plus Jakarta Sans</strong> as the only sans-serif direction worth carrying into another serious pass.</p></div>
+    <div class="footer-note"><span>Maison typography round</span><span>Recommendation: Tailored House, tighter</span></div>
+  </section>
+</body>
+</html>
