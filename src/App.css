@@ -184,6 +184,7 @@ h3 { font-size: 1.05rem; color: #fff8f2; }
 .spotlight-item { text-align: left; border: 1px solid rgba(234,219,197,0.12); background: rgba(250,243,224,0.07); border-radius: 18px; padding: 14px; color: #fff8f2; }
 .spotlight-item strong { display: block; margin-bottom: 4px; }
 .planner-overview-panel { background: linear-gradient(180deg, rgba(98,64,50,0.96), rgba(47,29,21,0.92)); }
+.planner-reminder-panel { background: linear-gradient(180deg, rgba(117,84,49,0.96), rgba(62,35,24,0.92)); display: grid; gap: 8px; }
 .planner-overview-head,.shopping-section-head,.calendar-summary-head { display: flex; justify-content: space-between; gap: 16px; align-items: start; }
 .planner-actions,.shopping-summary,.calendar-summary-stats { display: flex; gap: 10px; flex-wrap: wrap; }
 .active-filter-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 14px; }
@@ -337,6 +338,7 @@ h3 { font-size: 1.05rem; color: #fff8f2; }
   .top-tabs-right { margin-left: auto; justify-content: flex-end; flex: 0 0 auto; }
   .shell { max-width: 1080px; margin: 0 auto; padding: 28px 20px 56px; }
   .hero-card { grid-template-columns: 1.7fr 1fr; align-items: end; }
+  .planner-hero-card { grid-template-columns: 1fr; }
   .maison-landing-shell { grid-template-columns: minmax(0, 1.52fr) minmax(340px, 0.78fr); }
   .maison-hero { grid-template-columns: minmax(0, 1.2fr) minmax(260px, 0.8fr); align-items: center; }
   .maison-hero-frame { min-height: 100%; }
