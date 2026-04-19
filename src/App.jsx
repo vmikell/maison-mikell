@@ -1118,19 +1118,17 @@ function App() {
             isOpen={plannerPanelsOpen.overview}
             onToggle={() => togglePlannerPanel('overview')}
             header={
-              <>
-                <div>
-                  <p className="panel-label">Planner overview</p>
-                  <h2>{plannerHeadline}</h2>
-                  <p className="hero-copy">{plannerSubcopy}</p>
-                </div>
-                <div className="planner-actions">
-                  {statusCardFilterActive ? <button className="secondary-button" onClick={() => { setSelectedCategory('All'); setSelectedStatus('All') }}>Clear filters</button> : null}
-                  <button className="secondary-button" onClick={() => setTaskEditorOpen((open) => !open)}>{taskEditorOpen ? 'Hide task editor' : 'Add or edit tasks'}</button>
-                </div>
-              </>
+              <div>
+                <p className="panel-label">Planner overview</p>
+                <h2>{plannerHeadline}</h2>
+                <p className="hero-copy">{plannerSubcopy}</p>
+              </div>
             }
           >
+            <div className="planner-actions">
+              {statusCardFilterActive ? <button className="secondary-button" type="button" onClick={() => { setSelectedCategory('All'); setSelectedStatus('All') }}>Clear filters</button> : null}
+              <button className="secondary-button" type="button" onClick={() => setTaskEditorOpen((open) => !open)}>{taskEditorOpen ? 'Hide task editor' : 'Add or edit tasks'}</button>
+            </div>
             {plannerMessage ? <p className={`auth-help ${plannerMessageClass}`}>{plannerMessage}</p> : null}
             {statusCardFilterActive ? <div className="active-filter-row"><span className="count-pill">Category: {selectedCategory}</span><span className="count-pill">Status: {selectedStatus}</span></div> : null}
             {statusCardFilterActive ? (filteredTasks.length ? <div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div> : <p className="empty-copy">Nothing matches those filters right now. Clear them to get the full maintenance plan back.</p>) : null}
@@ -1404,13 +1402,10 @@ function NativeDiagnosticsPanel({ diagnostics }) {
 function CollapsiblePanel({ className = '', headClassName = '', header, isOpen, onToggle, children }) {
   return (
     <section className={`panel collapsible-panel ${isOpen ? 'open' : 'closed'} ${className}`.trim()}>
-      <div className="section-head collapsible-head">
-        <div className={`collapsible-head-main ${headClassName}`.trim()}>{header}</div>
-        <button className="panel-collapse-button" type="button" onClick={onToggle} aria-expanded={isOpen}>
-          <span>{isOpen ? 'Collapse' : 'Expand'}</span>
-          <span className={`panel-collapse-chevron ${isOpen ? 'open' : ''}`} aria-hidden="true">⌄</span>
-        </button>
-      </div>
+      <button className={`section-head editor-toggle collapsible-toggle ${headClassName}`.trim()} type="button" onClick={onToggle} aria-expanded={isOpen}>
+        <div className="collapsible-head-main">{header}</div>
+        <span className="collapsible-toggle-meta"><span>{isOpen ? 'Hide' : 'Open'}</span><span className={`panel-collapse-chevron ${isOpen ? 'open' : ''}`} aria-hidden="true">⌄</span></span>
+      </button>
       {isOpen ? <div className="collapsible-body">{children}</div> : null}
     </section>
   )
