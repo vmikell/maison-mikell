@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { addDoc, collection } from 'firebase/firestore'
 import './App.css'
 import { formatDate, addDays } from './lib/model'
@@ -93,6 +93,9 @@ function App() {
   const [launchInterestTone, setLaunchInterestTone] = useState('success')
   const [deleteAccountPassword, setDeleteAccountPassword] = useState('')
   const [deleteAccountConfirmText, setDeleteAccountConfirmText] = useState('')
+  const filterCloseButtonRef = useRef(null)
+  const modalCloseButtonRef = useRef(null)
+  const lastOverlayTriggerRef = useRef(null)
 
   async function submitEmailAuth(event) {
     event.preventDefault()
@@ -439,6 +442,27 @@ function App() {
     return () => window.removeEventListener('keydown', handleGlobalEscape)
   }, [filtersOpen, selectedTask])
 
+  useEffect(() => {
+    if (typeof document === 'undefined') return
+
+    if (selectedTask) {
+      lastOverlayTriggerRef.current = document.activeElement
+      modalCloseButtonRef.current?.focus()
+      return
+    }
+
+    if (filtersOpen) {
+      lastOverlayTriggerRef.current = document.activeElement
+      filterCloseButtonRef.current?.focus()
+      return
+    }
+
+    if (lastOverlayTriggerRef.current && typeof lastOverlayTriggerRef.current.focus === 'function') {
+      lastOverlayTriggerRef.current.focus()
+      lastOverlayTriggerRef.current = null
+    }
+  }, [filtersOpen, selectedTask])
+
   function startEditTask(task) {
     setEditingTaskId(task.id)
     setTaskForm({ id: task.id, title: task.title, area: task.area, category: task.category, room: task.room || '', system: task.system || '', assetName: task.assetName || '', vendor: task.vendor || '', supplyNote: task.supplyNote || '', frequency: task.frequency, cadenceDays: task.cadenceDays, reminderLeadDays: task.reminderLeadDays, effort: task.effort, season: task.season, priority: task.priority, notes: task.notes, lastDone: task.lastDone, major: task.major })
@@ -720,8 +744,8 @@ function App() {
                 <p className="hero-copy">If you want in before the broader launch, drop your info here and tell us what home-admin friction you want Maison to make lighter.</p>
               </div>
               <form className="maison-waitlist-form" onSubmit={submitLaunchInterest}>
-                <input className="invite-code-input no-caps-input" type="text" placeholder="Your name" value={launchInterestForm.name} onChange={(event) => setLaunchInterestForm((current) => ({ ...current, name: event.target.value }))} autoComplete="name" required />
-                <input className="invite-code-input no-caps-input" type="email" placeholder="Email address" value={launchInterestForm.email} onChange={(event) => setLaunchInterestForm((current) => ({ ...current, email: event.target.value }))} autoComplete="email" required />
+                <input className="invite-code-input no-caps-input" type="text" aria-label="Your name" placeholder="Your name" value={launchInterestForm.name} onChange={(event) => setLaunchInterestForm((current) => ({ ...current, name: event.target.value }))} autoComplete="name" required />
+                <input className="invite-code-input no-caps-input" type="email" aria-label="Email address" placeholder="Email address" value={launchInterestForm.email} onChange={(event) => setLaunchInterestForm((current) => ({ ...current, email: event.target.value }))} autoComplete="email" required />
                 <select className="invite-code-input no-caps-input maison-select-input" value={launchInterestForm.householdType} onChange={(event) => setLaunchInterestForm((current) => ({ ...current, householdType: event.target.value }))}>
                   <option value="Couple">Couple</option>
                   <option value="Household with kids">Household with kids</option>
@@ -729,7 +753,7 @@ function App() {
                   <option value="Solo homeowner">Solo homeowner</option>
                   <option value="Other">Other</option>
                 </select>
-                <textarea className="invite-code-input no-caps-input maison-textarea-input" rows="4" placeholder="What’s the biggest coordination or home-admin friction in your house right now?" value={launchInterestForm.friction} onChange={(event) => setLaunchInterestForm((current) => ({ ...current, friction: event.target.value }))} required />
+                <textarea className="invite-code-input no-caps-input maison-textarea-input" rows="4" aria-label="Biggest coordination or home-admin friction" placeholder="What’s the biggest coordination or home-admin friction in your house right now?" value={launchInterestForm.friction} onChange={(event) => setLaunchInterestForm((current) => ({ ...current, friction: event.target.value }))} required />
                 <button className="primary-button" type="submit" disabled={isLaunchInterestLoading}>{isLaunchInterestLoading ? 'Saving your request…' : 'Request founding access'}</button>
               </form>
               {launchInterestMessage ? <p className={`auth-help ${launchInterestTone}`}>{launchInterestMessage}</p> : null}
@@ -745,7 +769,7 @@ function App() {
               {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
               {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
               {showDeletedAccountNotice ? <div className="auth-landing-note onboarding-note-card goodbye-note"><strong>Signed out cleanly</strong><span>{deletedAccountSummary.email || 'This account'} has been removed, and Maison is now back at a safe resting state.</span></div> : null}
-              <button className="primary-button" onClick={async () => {
+              <button className="primary-button" type="button" onClick={async () => {
                 setInviteChoice(false)
                 setAuthMessage('Redirecting you to Google sign-in…')
                 setAuthError('')
@@ -757,7 +781,7 @@ function App() {
                   setAuthErrorCode(result.rawCode || '')
                 }
               }}>{showDeletedAccountNotice ? 'Sign in again with Google' : 'Continue with Google'}</button>
-              <button className="secondary-button" onClick={() => setInviteChoice(true)}>{showDeletedAccountNotice ? 'Join with an invite code later' : 'I already have an invite code'}</button>
+              <button className="secondary-button" type="button" onClick={() => setInviteChoice(true)}>{showDeletedAccountNotice ? 'Join with an invite code later' : 'I already have an invite code'}</button>
               {!showDeletedAccountNotice ? <div className="auth-landing-note onboarding-note-card maison-invite-note">
                 <strong>Invite code flow</strong>
                 <span>Select the invite option before you sign in, and Maison will take you directly to household join after authentication.</span>
@@ -769,9 +793,9 @@ function App() {
                   <h3>{emailAuthMode === 'signup' ? 'Create your Maison account' : 'Sign in with email'}</h3>
                   <p className="hero-copy">{emailAuthMode === 'signup' ? 'Use email if you want a direct Maison login alongside Google.' : 'Use the email and password already tied to your Maison account.'}</p>
                 </div>
-                {emailAuthMode === 'signup' ? <input className="invite-code-input no-caps-input" type="text" placeholder="Your name" value={emailAuthForm.name} onChange={(event) => setEmailAuthForm((current) => ({ ...current, name: event.target.value }))} autoComplete="name" required /> : null}
-                <input className="invite-code-input no-caps-input" type="email" placeholder="Email address" value={emailAuthForm.email} onChange={(event) => setEmailAuthForm((current) => ({ ...current, email: event.target.value }))} autoComplete="email" required />
-                <input className="invite-code-input no-caps-input" type="password" placeholder="Password" value={emailAuthForm.password} onChange={(event) => setEmailAuthForm((current) => ({ ...current, password: event.target.value }))} autoComplete={emailAuthMode === 'signup' ? 'new-password' : 'current-password'} minLength={6} required />
+                {emailAuthMode === 'signup' ? <input className="invite-code-input no-caps-input" type="text" aria-label="Your name" placeholder="Your name" value={emailAuthForm.name} onChange={(event) => setEmailAuthForm((current) => ({ ...current, name: event.target.value }))} autoComplete="name" required /> : null}
+                <input className="invite-code-input no-caps-input" type="email" aria-label="Email address" placeholder="Email address" value={emailAuthForm.email} onChange={(event) => setEmailAuthForm((current) => ({ ...current, email: event.target.value }))} autoComplete="email" required />
+                <input className="invite-code-input no-caps-input" type="password" aria-label="Password" placeholder="Password" value={emailAuthForm.password} onChange={(event) => setEmailAuthForm((current) => ({ ...current, password: event.target.value }))} autoComplete={emailAuthMode === 'signup' ? 'new-password' : 'current-password'} minLength={6} required />
                 {emailAuthMode === 'signin' ? <p className="auth-help auth-inline-help">Forgot your password? Enter your email first, then tap the reset button.</p> : null}
                 <div className="form-actions">
                   <button className="primary-button" type="submit" disabled={isEmailAuthLoading}>{isEmailAuthLoading ? (emailAuthMode === 'signup' ? 'Creating…' : 'Signing in…') : (emailAuthMode === 'signup' ? 'Create email account' : 'Sign in with email')}</button>
@@ -853,6 +877,7 @@ function App() {
           }}>
             <input
               className="invite-code-input no-caps-input"
+              aria-label="Household name optional"
               placeholder="Household name (optional)"
               value={householdNameInput}
               onChange={(event) => setHouseholdNameInput(event.target.value)}
@@ -922,11 +947,11 @@ function App() {
                 <h3>Home basics</h3>
                 <p className="hero-copy">Give Maison the shape of the home so the planner feels like yours from day one.</p>
               </div>
-              <input className="invite-code-input no-caps-input" placeholder="Home name" value={setupForm.name} onChange={(event) => setSetupForm((current) => ({ ...current, name: event.target.value }))} />
-              <input className="invite-code-input no-caps-input" placeholder="Home type (apartment, condo, house)" value={setupForm.homeType} onChange={(event) => setSetupForm((current) => ({ ...current, homeType: event.target.value }))} />
-              <input className="invite-code-input no-caps-input" inputMode="numeric" placeholder="Square feet" value={setupForm.sizeSqFt} onChange={(event) => setSetupForm((current) => ({ ...current, sizeSqFt: event.target.value.replace(/[^0-9]/g, '') }))} />
-              <div className="setup-form-split"><input className="invite-code-input no-caps-input" inputMode="numeric" placeholder="Levels" value={setupForm.levels} onChange={(event) => setSetupForm((current) => ({ ...current, levels: event.target.value.replace(/[^0-9]/g, '') }))} /><input className="invite-code-input no-caps-input" inputMode="numeric" placeholder="Bedrooms" value={setupForm.bedrooms} onChange={(event) => setSetupForm((current) => ({ ...current, bedrooms: event.target.value.replace(/[^0-9]/g, '') }))} /></div>
-              <input className="invite-code-input no-caps-input" inputMode="decimal" placeholder="Bathrooms" value={setupForm.bathrooms} onChange={(event) => setSetupForm((current) => ({ ...current, bathrooms: event.target.value.replace(/[^0-9.]/g, '') }))} />
+              <input className="invite-code-input no-caps-input" aria-label="Home name" placeholder="Home name" value={setupForm.name} onChange={(event) => setSetupForm((current) => ({ ...current, name: event.target.value }))} />
+              <input className="invite-code-input no-caps-input" aria-label="Home type" placeholder="Home type (apartment, condo, house)" value={setupForm.homeType} onChange={(event) => setSetupForm((current) => ({ ...current, homeType: event.target.value }))} />
+              <input className="invite-code-input no-caps-input" inputMode="numeric" aria-label="Square feet" placeholder="Square feet" value={setupForm.sizeSqFt} onChange={(event) => setSetupForm((current) => ({ ...current, sizeSqFt: event.target.value.replace(/[^0-9]/g, '') }))} />
+              <div className="setup-form-split"><input className="invite-code-input no-caps-input" inputMode="numeric" aria-label="Levels" placeholder="Levels" value={setupForm.levels} onChange={(event) => setSetupForm((current) => ({ ...current, levels: event.target.value.replace(/[^0-9]/g, '') }))} /><input className="invite-code-input no-caps-input" inputMode="numeric" aria-label="Bedrooms" placeholder="Bedrooms" value={setupForm.bedrooms} onChange={(event) => setSetupForm((current) => ({ ...current, bedrooms: event.target.value.replace(/[^0-9]/g, '') }))} /></div>
+              <input className="invite-code-input no-caps-input" inputMode="decimal" aria-label="Bathrooms" placeholder="Bathrooms" value={setupForm.bathrooms} onChange={(event) => setSetupForm((current) => ({ ...current, bathrooms: event.target.value.replace(/[^0-9.]/g, '') }))} />
             </div>
             <div className="onboarding-section-block">
               <div>
@@ -934,8 +959,8 @@ function App() {
                 <h3>Systems and routine fit</h3>
                 <p className="hero-copy">Optional, but worth it. This helps Maison fit the planner to the systems you actually live with.</p>
               </div>
-              <input className="invite-code-input no-caps-input" placeholder="HVAC system" value={setupForm.hvacSystem} onChange={(event) => setSetupForm((current) => ({ ...current, hvacSystem: event.target.value }))} />
-              <input className="invite-code-input no-caps-input" inputMode="numeric" placeholder="HVAC heads / zones (optional)" value={setupForm.hvacHeads} onChange={(event) => setSetupForm((current) => ({ ...current, hvacHeads: event.target.value.replace(/[^0-9]/g, '') }))} />
+              <input className="invite-code-input no-caps-input" aria-label="HVAC system" placeholder="HVAC system" value={setupForm.hvacSystem} onChange={(event) => setSetupForm((current) => ({ ...current, hvacSystem: event.target.value }))} />
+              <input className="invite-code-input no-caps-input" inputMode="numeric" aria-label="HVAC heads or zones optional" placeholder="HVAC heads / zones (optional)" value={setupForm.hvacHeads} onChange={(event) => setSetupForm((current) => ({ ...current, hvacHeads: event.target.value.replace(/[^0-9]/g, '') }))} />
             </div>
             <div className="auth-landing-note onboarding-note-card onboarding-preview-card">
               <strong>{setupForm.name?.trim() || householdNameInput.trim() || 'Your home'}</strong>
@@ -975,6 +1000,7 @@ function App() {
           }}>
             <input
               className="invite-code-input"
+              aria-label="Enter invite code"
               placeholder="Enter invite code"
               value={inviteCodeInput}
               onChange={(event) => setInviteCodeInput(event.target.value.toUpperCase())}
@@ -1024,7 +1050,7 @@ function App() {
                 <p className="panel-label">Planner filters</p>
                 <h2 id="planner-filter-title">Refine the view</h2>
               </div>
-              <button className="secondary-button" type="button" onClick={() => setFiltersOpen(false)}>Close</button>
+              <button ref={filterCloseButtonRef} className="secondary-button" type="button" onClick={() => setFiltersOpen(false)}>Close</button>
             </div>
             <div className="drawer-section">
               <p className="panel-label">Filter by category</p>
@@ -1055,7 +1081,7 @@ function App() {
               <h2 id="task-modal-title">{selectedTask.title}</h2>
               <p className="timing-copy">{selectedTask.status === 'overdue' ? `Overdue by ${Math.abs(selectedTask.daysUntilDue)} day${Math.abs(selectedTask.daysUntilDue) === 1 ? '' : 's'}` : selectedTask.daysUntilDue === 0 ? 'Due today' : `Due in ${selectedTask.daysUntilDue} day${selectedTask.daysUntilDue === 1 ? '' : 's'}`}</p>
             </div>
-            <button className="secondary-button" type="button" onClick={closeTaskModal}>Close</button>
+            <button ref={modalCloseButtonRef} className="secondary-button" type="button" onClick={closeTaskModal}>Close</button>
           </div>
           {taskEditorOpen && editingTaskId === selectedTask.id ? (
             <form className="task-form-grid modal-task-form" onSubmit={submitTaskForm}>
@@ -1098,12 +1124,12 @@ function App() {
               <p className="task-notes">{selectedTask.notes}</p>
               {selectedTask.supplyNote ? <p className="task-notes"><strong>Supplies:</strong> {selectedTask.supplyNote}</p> : null}
               <div className="task-actions">
-                {resolvedActorName ? <button className="primary-button" onClick={() => claimFromModal(selectedTask.id, resolvedActorName)}>Claim as me</button> : null}
-                {visibleClaimMembers.map((member) => <button key={member.id} className="secondary-button" onClick={() => claimFromModal(selectedTask.id, member.name)}>Claim for {member.name}</button>)}
-                <button className="secondary-button" onClick={() => claimFromModal(selectedTask.id, null)}>Clear claim</button>
-                <button className="primary-button" onClick={() => completeFromModal(selectedTask.id, selectedTask.claimedBy || resolvedActorName || 'Household member')}>Mark done today</button>
-                <button className="secondary-button" onClick={() => startEditTask(selectedTask)}>Edit</button>
-                <button className="danger-button" onClick={() => deleteFromModal(selectedTask.id)}>Delete</button>
+                {resolvedActorName ? <button className="primary-button" type="button" onClick={() => claimFromModal(selectedTask.id, resolvedActorName)}>Claim as me</button> : null}
+                {visibleClaimMembers.map((member) => <button key={member.id} className="secondary-button" type="button" onClick={() => claimFromModal(selectedTask.id, member.name)}>Claim for {member.name}</button>)}
+                <button className="secondary-button" type="button" onClick={() => claimFromModal(selectedTask.id, null)}>Clear claim</button>
+                <button className="primary-button" type="button" onClick={() => completeFromModal(selectedTask.id, selectedTask.claimedBy || resolvedActorName || 'Household member')}>Mark done today</button>
+                <button className="secondary-button" type="button" onClick={() => startEditTask(selectedTask)}>Edit</button>
+                <button className="danger-button" type="button" onClick={() => deleteFromModal(selectedTask.id)}>Delete</button>
                 {selectedTask.major ? <span className="major-flag">Large maintenance</span> : null}
               </div>
             </>
@@ -1111,8 +1137,8 @@ function App() {
         </section>
       ) : null}
 
-      {showInvitePanel && freshInviteCode && membership?.role === 'owner' ? <section className="panel remote-warning-panel"><div className="section-head"><div><p className="panel-label">Invite your partner</p><h2>Your household is ready</h2><p className="hero-copy">Share this invite code with your partner so they can join the household, then continue into the planner once you’re ready.</p></div><div className="planner-actions"><button className="secondary-button" onClick={() => navigator?.clipboard?.writeText(freshInviteCode)}>Copy code</button><a className="secondary-button invite-link-button" href={emailInviteHref}>Email invite</a><a className="secondary-button invite-link-button" href={textInviteHref}>Text invite</a><button className="secondary-button" onClick={() => setShowInvitePanel(false)}>Continue to app</button></div></div><div className="invite-code-panel"><p className="hero-copy"><strong>{freshInviteCode}</strong></p><div className="onboarding-bullet-list compact"><span>Partner signs in or creates an account</span><span>They tap “I already have an invite code”</span><span>They enter this code and land in your shared home</span></div></div></section> : null}
-      {shouldShowJoinSuccessPanel ? <section className="panel remote-warning-panel"><div className="section-head"><div><p className="panel-label">You’re in</p><h2>Joined successfully</h2><p className="hero-copy">Maison connected you to the household and dropped you into the shared planner. You can start using the home right away.</p></div><div className="planner-actions"><button className="secondary-button" onClick={() => setActiveTab('planner')}>Open planner</button><button className="secondary-button" onClick={() => setActiveTab('shopping')}>Open shopping</button></div></div><div className="onboarding-bullet-list compact"><span>You’re inside the shared home now</span><span>Planner, shopping, and calendar are already connected</span><span>If something looks off, refresh once and it should settle</span></div></section> : null}
+      {showInvitePanel && freshInviteCode && membership?.role === 'owner' ? <section className="panel remote-warning-panel"><div className="section-head"><div><p className="panel-label">Invite your partner</p><h2>Your household is ready</h2><p className="hero-copy">Share this invite code with your partner so they can join the household, then continue into the planner once you’re ready.</p></div><div className="planner-actions"><button className="secondary-button" type="button" onClick={() => navigator?.clipboard?.writeText(freshInviteCode)}>Copy code</button><a className="secondary-button invite-link-button" href={emailInviteHref}>Email invite</a><a className="secondary-button invite-link-button" href={textInviteHref}>Text invite</a><button className="secondary-button" type="button" onClick={() => setShowInvitePanel(false)}>Continue to app</button></div></div><div className="invite-code-panel"><p className="hero-copy"><strong>{freshInviteCode}</strong></p><div className="onboarding-bullet-list compact"><span>Partner signs in or creates an account</span><span>They tap “I already have an invite code”</span><span>They enter this code and land in your shared home</span></div></div></section> : null}
+      {shouldShowJoinSuccessPanel ? <section className="panel remote-warning-panel"><div className="section-head"><div><p className="panel-label">You’re in</p><h2>Joined successfully</h2><p className="hero-copy">Maison connected you to the household and dropped you into the shared planner. You can start using the home right away.</p></div><div className="planner-actions"><button className="secondary-button" type="button" onClick={() => setActiveTab('planner')}>Open planner</button><button className="secondary-button" type="button" onClick={() => setActiveTab('shopping')}>Open shopping</button></div></div><div className="onboarding-bullet-list compact"><span>You’re inside the shared home now</span><span>Planner, shopping, and calendar are already connected</span><span>If something looks off, refresh once and it should settle</span></div></section> : null}
       <header className={`hero-card ${activeTab === 'planner' ? 'planner-hero-card' : ''}`}>
         <div><p className="eyebrow">{maisonLabel}</p><h1>{activeTab === 'shopping' ? `${maisonLabel} Restock` : activeTab === 'calendar' ? `${maisonLabel} Calendar` : `${maisonLabel} Reset`}</h1><p className="hero-copy">Mobile-first maintenance and shopping planning for a stylish household routine, tuned to your home profile and systems.</p></div>
         {activeTab !== 'planner' ? <div className="hero-note"><strong>{activeTab === 'shopping' ? `${openShoppingItems.length} open item${openShoppingItems.length === 1 ? '' : 's'} across ${lists.length} list${lists.length === 1 ? '' : 's'}` : `${calendarSections.length} day${calendarSections.length === 1 ? '' : 's'} with scheduled care in the next month`}</strong><span>{activeTab === 'shopping' ? `${checkedShoppingItems.length} checked off · ${shoppingCompletion}% complete on this list` : houseProfile.lastReminderRunAt ? `Last reminder run: ${new Date(houseProfile.lastReminderRunAt).toLocaleString()}${houseProfile.lastReminderChannel ? ` via ${houseProfile.lastReminderChannel}` : ''}` : 'Last reminder run: not recorded yet'}</span></div> : null}
@@ -1132,6 +1158,7 @@ function App() {
           <CollapsiblePanel
             className="planner-overview-panel"
             headClassName="planner-overview-head"
+            panelId="planner-overview-panel"
             isOpen={plannerPanelsOpen.overview}
             onToggle={() => togglePlannerPanel('overview')}
             header={
@@ -1148,30 +1175,33 @@ function App() {
             </div>
             {plannerMessage ? <p className={`auth-help ${plannerMessageClass}`}>{plannerMessage}</p> : null}
             {statusCardFilterActive ? <div className="active-filter-row"><span className="count-pill">Category: {selectedCategory}</span><span className="count-pill">Status: {selectedStatus}</span></div> : null}
-            {statusCardFilterActive ? (filteredTasks.length ? <div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div> : <p className="empty-copy">Nothing matches those filters right now. Clear them to get the full maintenance plan back.</p>) : null}
+            {statusCardFilterActive ? (filteredTasks.length ? <div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" type="button" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div> : <p className="empty-copy">Nothing matches those filters right now. Clear them to get the full maintenance plan back.</p>) : null}
           </CollapsiblePanel>
 
           <section className="spotlight-grid">
             <CollapsiblePanel
               className="spotlight-panel overdue-panel"
+              panelId="planner-overdue-panel"
               isOpen={plannerPanelsOpen.overdue}
               onToggle={() => togglePlannerPanel('overdue')}
               header={<div><p className="panel-label">Needs attention first</p><h2>{overdueTasks.length ? 'Overdue tasks' : 'Nothing overdue right now'}</h2></div>}
             >
-              <div className="spotlight-list">{overdueTasks.length ? overdueTasks.map((task) => (<button key={task.id} className="spotlight-item" onClick={() => openTaskModal(task)}><strong>{task.title}</strong><span>{task.area} · overdue by {Math.abs(task.daysUntilDue)} day{Math.abs(task.daysUntilDue) === 1 ? '' : 's'}</span></button>)) : <p className="empty-copy">The house is in decent shape here, nothing has slipped past due.</p>}</div>
+              <div className="spotlight-list">{overdueTasks.length ? overdueTasks.map((task) => (<button key={task.id} className="spotlight-item" type="button" onClick={() => openTaskModal(task)}><strong>{task.title}</strong><span>{task.area} · overdue by {Math.abs(task.daysUntilDue)} day{Math.abs(task.daysUntilDue) === 1 ? '' : 's'}</span></button>)) : <p className="empty-copy">The house is in decent shape here, nothing has slipped past due.</p>}</div>
             </CollapsiblePanel>
             <CollapsiblePanel
               className="spotlight-panel due-soon-panel"
+              panelId="planner-due-soon-panel"
               isOpen={plannerPanelsOpen.dueSoon}
               onToggle={() => togglePlannerPanel('dueSoon')}
               header={<div><p className="panel-label">Coming up next</p><h2>Due within 2 weeks</h2></div>}
             >
-              <div className="spotlight-list">{dueSoonTasks.length ? dueSoonTasks.map((task) => (<button key={task.id} className="spotlight-item" onClick={() => openTaskModal(task)}><strong>{task.title}</strong><span>{task.daysUntilDue === 0 ? 'Due today' : `Due in ${task.daysUntilDue} days`} · {task.area}</span></button>)) : <p className="empty-copy">No near-term crunch right now. The next two weeks are relatively light.</p>}</div>
+              <div className="spotlight-list">{dueSoonTasks.length ? dueSoonTasks.map((task) => (<button key={task.id} className="spotlight-item" type="button" onClick={() => openTaskModal(task)}><strong>{task.title}</strong><span>{task.daysUntilDue === 0 ? 'Due today' : `Due in ${task.daysUntilDue} days`} · {task.area}</span></button>)) : <p className="empty-copy">No near-term crunch right now. The next two weeks are relatively light.</p>}</div>
             </CollapsiblePanel>
           </section>
 
           <CollapsiblePanel
             className="completion-panel"
+            panelId="planner-completion-panel"
             isOpen={plannerPanelsOpen.completed}
             onToggle={() => togglePlannerPanel('completed')}
             header={<div><p className="panel-label">Completed bucket</p><h2>Recently completed tasks</h2></div>}
@@ -1195,6 +1225,7 @@ function App() {
 
           <CollapsiblePanel
             className="task-form-panel"
+            panelId="planner-editor-panel"
             isOpen={plannerPanelsOpen.editor}
             onToggle={() => togglePlannerPanel('editor')}
             header={<div><p className="panel-label">Maintenance task editor</p><h2>{editingTaskId ? 'Edit task' : 'Add new maintenance task'}</h2></div>}
@@ -1203,7 +1234,7 @@ function App() {
             {taskEditorOpen ? <form className="task-form-grid" onSubmit={submitTaskForm}><label><span>Title</span><input value={taskForm.title} onChange={(e) => setTaskForm((current) => ({ ...current, title: e.target.value }))} required /></label><label><span>Area</span><input value={taskForm.area} onChange={(e) => setTaskForm((current) => ({ ...current, area: e.target.value }))} required /></label><label><span>Category</span><input value={taskForm.category} onChange={(e) => setTaskForm((current) => ({ ...current, category: e.target.value }))} required /></label><label><span>Frequency</span><input value={taskForm.frequency} onChange={(e) => setTaskForm((current) => ({ ...current, frequency: e.target.value }))} required /></label><label><span>Cadence days</span><input type="number" min="1" value={taskForm.cadenceDays} onChange={(e) => setTaskForm((current) => ({ ...current, cadenceDays: Number(e.target.value) }))} required /></label><label><span>Reminder lead days</span><input type="number" min="1" value={taskForm.reminderLeadDays} onChange={(e) => setTaskForm((current) => ({ ...current, reminderLeadDays: Number(e.target.value), major: Number(e.target.value) >= 30 || current.major }))} required /></label><label><span>Effort</span><input value={taskForm.effort} onChange={(e) => setTaskForm((current) => ({ ...current, effort: e.target.value }))} /></label><label><span>Season</span><input value={taskForm.season} onChange={(e) => setTaskForm((current) => ({ ...current, season: e.target.value }))} /></label><label><span>Priority</span><input value={taskForm.priority} onChange={(e) => setTaskForm((current) => ({ ...current, priority: e.target.value }))} /></label><label><span>Last done</span><input type="date" value={taskForm.lastDone} onChange={(e) => setTaskForm((current) => ({ ...current, lastDone: e.target.value }))} required /></label><label className="checkbox-field"><input type="checkbox" checked={taskForm.major} onChange={(e) => setTaskForm((current) => ({ ...current, major: e.target.checked }))} /><span>Large maintenance item</span></label><label className="full-span"><span>Notes</span><textarea rows="3" value={taskForm.notes} onChange={(e) => setTaskForm((current) => ({ ...current, notes: e.target.value }))} /></label><div className="form-actions full-span"><button className="primary-button" type="submit">{editingTaskId ? 'Save changes' : 'Add task'}</button><button className="secondary-button" type="button" onClick={resetTaskForm}>{editingTaskId ? 'Cancel edit' : 'Close'}</button></div></form> : <p className="empty-copy">Open the task form whenever you want to add a new maintenance item or update an existing one.</p>}
           </CollapsiblePanel>
 
-          {!statusCardFilterActive ? <CollapsiblePanel className="planner-schedule-panel" isOpen={plannerPanelsOpen.schedule} onToggle={() => togglePlannerPanel('schedule')} header={<div><p className="panel-label">Maintenance schedule</p><h2>{filteredTasks.length} tasks in view</h2></div>}><div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div></CollapsiblePanel> : null}
+          {!statusCardFilterActive ? <CollapsiblePanel className="planner-schedule-panel" panelId="planner-schedule-panel" isOpen={plannerPanelsOpen.schedule} onToggle={() => togglePlannerPanel('schedule')} header={<div><p className="panel-label">Maintenance schedule</p><h2>{filteredTasks.length} tasks in view</h2></div>}><div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" type="button" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div></CollapsiblePanel> : null}
         </>
       ) : activeTab === 'calendar' ? (
         <>
@@ -1235,7 +1266,7 @@ function App() {
                 </div>
                 <div className="calendar-task-list">
                   {section.tasks.map((task) => (
-                    <button key={task.id} className="calendar-task-item" onClick={() => openTaskModal(task)}>
+                    <button key={task.id} className="calendar-task-item" type="button" onClick={() => openTaskModal(task)}>
                       <div>
                         <strong>{task.title}</strong>
                         <span>{task.area} · {task.category}</span>
@@ -1265,14 +1296,14 @@ function App() {
               <p className="hero-copy">Signed in as: {user?.email || 'unknown'} {membership?.role ? `· role: ${membership.role}` : ''}</p>
             </div>
             <div className="auth-actions">
-              {membership?.role === 'owner' && currentInviteCode && isInviteCodeVisible ? <button className="secondary-button" onClick={() => navigator?.clipboard?.writeText(currentInviteCode)}>Copy invite code</button> : null}
-              {membership?.role === 'owner' && currentInviteCode ? <button className="secondary-button" onClick={() => setIsInviteCodeVisible((current) => !current)}>{isInviteCodeVisible ? 'Hide invite code' : 'Show invite code'}</button> : null}
-              {membership?.role === 'owner' ? <button className="secondary-button" onClick={() => refreshInviteCode()}>Refresh invite code</button> : null}
-              <button className="secondary-button" onClick={() => signOutUser()}>Sign out</button>
+              {membership?.role === 'owner' && currentInviteCode && isInviteCodeVisible ? <button className="secondary-button" type="button" onClick={() => navigator?.clipboard?.writeText(currentInviteCode)}>Copy invite code</button> : null}
+              {membership?.role === 'owner' && currentInviteCode ? <button className="secondary-button" type="button" aria-pressed={isInviteCodeVisible} onClick={() => setIsInviteCodeVisible((current) => !current)}>{isInviteCodeVisible ? 'Hide invite code' : 'Show invite code'}</button> : null}
+              {membership?.role === 'owner' ? <button className="secondary-button" type="button" onClick={() => refreshInviteCode()}>Refresh invite code</button> : null}
+              <button className="secondary-button" type="button" onClick={() => signOutUser()}>Sign out</button>
             </div>
           </section>
 
-          {membership?.role === 'owner' ? <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2>{settingsMessage ? <p className={`auth-help ${settingsMessageClass}`}>{settingsMessage}</p> : null}</div></div><div className="completion-list">{householdMembers.length ? householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>) : <p className="empty-copy">No household members are listed yet.</p>}</div></section> : <section className="panel"><p className="empty-copy">Only owners can manage household roles and invite codes.</p></section>}
+          {membership?.role === 'owner' ? <section className="panel"><div className="section-head"><div><p className="panel-label">Owner controls</p><h2>Household admin</h2>{settingsMessage ? <p className={`auth-help ${settingsMessageClass}`}>{settingsMessage}</p> : null}</div></div><div className="completion-list">{householdMembers.length ? householdMembers.map((member) => <article key={member.id} className="completion-item"><strong>{member.name}</strong><span>{member.email || 'No email on file'} · {member.role}</span>{member.role !== 'owner' ? <div className="form-actions"><button className="secondary-button" type="button" onClick={() => handlePromoteMember(member.id)}>Promote to owner</button></div> : null}</article>) : <p className="empty-copy">No household members are listed yet.</p>}</div></section> : <section className="panel"><p className="empty-copy">Only owners can manage household roles and invite codes.</p></section>}
 
           <section className="panel offboarding-panel">
             <div className="section-head">
@@ -1304,10 +1335,10 @@ function App() {
               <span>Type DELETE below to confirm you want Maison to complete this offboarding step.</span>
             </div>
             <div className="offboarding-confirmation-stack">
-              {deleteAccountNeedsPassword ? <input className="invite-code-input no-caps-input" type="password" placeholder="Current password to confirm deletion" value={deleteAccountPassword} onChange={(event) => setDeleteAccountPassword(event.target.value)} autoComplete="current-password" /> : null}
-              <input className="invite-code-input no-caps-input" type="text" placeholder="Type DELETE to confirm" value={deleteAccountConfirmText} onChange={(event) => setDeleteAccountConfirmText(event.target.value)} autoComplete="off" />
+              {deleteAccountNeedsPassword ? <input className="invite-code-input no-caps-input" type="password" aria-label="Current password to confirm deletion" placeholder="Current password to confirm deletion" value={deleteAccountPassword} onChange={(event) => setDeleteAccountPassword(event.target.value)} autoComplete="current-password" /> : null}
+              <input className="invite-code-input no-caps-input" type="text" aria-label="Type DELETE to confirm" placeholder="Type DELETE to confirm" value={deleteAccountConfirmText} onChange={(event) => setDeleteAccountConfirmText(event.target.value)} autoComplete="off" />
               <div className="form-actions">
-                <button className="danger-button" onClick={runDeleteAccountFlow} disabled={isDeletingAccount}>{isDeletingAccount ? 'Deleting account…' : deleteAccountActionLabel}</button>
+                <button className="danger-button" type="button" onClick={runDeleteAccountFlow} disabled={isDeletingAccount}>{isDeletingAccount ? 'Deleting account…' : deleteAccountActionLabel}</button>
               </div>
             </div>
           </section>
@@ -1322,7 +1353,7 @@ function App() {
             <div className="ops-columns">
               <div>
                 <p className="panel-label">Pending reminders</p>
-                <div className="reminder-list">{pendingReminderQueue.length ? pendingReminderQueue.slice(0, 8).map((item) => (<article key={item.id} className={`reminder-item ${item.sent ? 'sent' : ''}`}><strong>{item.title}</strong><span>Remind: {item.remindAt} · Due: {item.dueAt}</span><span>{item.channelTargets.join(' + ')} · {item.status}</span><div className="form-actions"><button className="secondary-button" onClick={() => handleMarkReminderSent(item.id)}>Mark delivered</button></div></article>)) : <p className="empty-copy">No pending reminders right now.</p>}</div>
+                <div className="reminder-list">{pendingReminderQueue.length ? pendingReminderQueue.slice(0, 8).map((item) => (<article key={item.id} className={`reminder-item ${item.sent ? 'sent' : ''}`}><strong>{item.title}</strong><span>Remind: {item.remindAt} · Due: {item.dueAt}</span><span>{item.channelTargets.join(' + ')} · {item.status}</span><div className="form-actions"><button className="secondary-button" type="button" onClick={() => handleMarkReminderSent(item.id)}>Mark delivered</button></div></article>)) : <p className="empty-copy">No pending reminders right now.</p>}</div>
               </div>
               <div>
                 <p className="panel-label">Recent delivery history</p>
@@ -1333,7 +1364,7 @@ function App() {
         </>
       ) : (
         <section className="panel shopping-panel">
-          <div className="section-head shopping-section-head"><div><p className="panel-label">Shopping lists</p><h2>Household errands by store</h2><p className="hero-copy">Keep the open items easy to scan, and let checked items fall to a separate bucket instead of cluttering the main list.</p>{shoppingMessage ? <p className={`auth-help ${shoppingMessageClass}`}>{shoppingMessage}</p> : null}</div><div className="shopping-summary"><div className="ops-stat"><span>Open items</span><strong>{openShoppingItems.length}</strong></div><div className="ops-stat"><span>Checked</span><strong>{checkedShoppingItems.length}</strong></div><div className="ops-stat"><span>Progress</span><strong>{shoppingCompletion}%</strong></div></div></div>{lists.length ? <div className="shopping-tabs">{lists.map((list) => (<button key={list.id} className={`shopping-tab ${activeShoppingList?.id === list.id ? 'active' : ''}`} onClick={() => setActiveShoppingListId(list.id)}>{list.title}</button>))}</div> : <p className="empty-copy">No shopping lists are available yet.</p>}{activeShoppingList ? <article className={`shopping-card ${activeShoppingList.tone}`}><div className="shopping-top"><div><p className="task-meta">Store list</p><h3>{activeShoppingList.id === 'other' ? (activeShoppingList.storeName || 'Other') : activeShoppingList.title}</h3><p className="shopping-progress-copy">{activeShoppingItems.length ? `${openShoppingItems.length} to grab, ${checkedShoppingItems.length} already handled.` : 'Start the list by adding your first item.'}</p></div><span className="count-pill">{openShoppingItems.length} open</span></div>{activeShoppingList.id === 'other' ? <label className="shopping-store-field"><span>Store name</span><input placeholder="Store name" value={activeShoppingList.storeName || ''} onChange={(e) => handleSaveShoppingListMeta(activeShoppingList.id, { storeName: e.target.value })} /></label> : null}<form className="shopping-form" onSubmit={(event) => submitShoppingForm(event, activeShoppingList.id)}><input placeholder="Item name" value={getShoppingForm(activeShoppingList.id).name} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), name: e.target.value })} required /><input placeholder="Qty" value={getShoppingForm(activeShoppingList.id).qty} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), qty: e.target.value })} /><input placeholder="Aisle / note" value={getShoppingForm(activeShoppingList.id).aisleHint} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), aisleHint: e.target.value })} /><input placeholder="Product URL" value={getShoppingForm(activeShoppingList.id).url || ''} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), url: e.target.value })} /><div className="form-actions"><button className="primary-button" type="submit">{editingShopping[activeShoppingList.id] ? 'Save item' : 'Add item'}</button>{editingShopping[activeShoppingList.id] ? <button className="secondary-button" type="button" onClick={() => resetShoppingForm(activeShoppingList.id)}>Cancel</button> : null}</div></form><div className="shopping-group"><div className="shopping-group-head"><p className="panel-label">To grab now</p><span className="count-pill">{openShoppingItems.length}</span></div><div className="shopping-items">{openShoppingItems.length ? openShoppingItems.map((item) => (<div key={item.id} className="shopping-item"><input type="checkbox" checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span>{item.url ? <a className="shopping-link" href={item.url} target="_blank" rel="noreferrer">Open link</a> : null}</div><div className="shopping-item-actions"><button className="inline-action" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>)) : <p className="empty-copy">Nothing open on this list right now.</p>}</div></div>{checkedShoppingItems.length ? <div className="shopping-group checked-group"><div className="shopping-group-head"><div><p className="panel-label">Already grabbed</p><span className="checked-group-copy">Checked off items can be cleared once you’re done with the run.</span></div><div className="checked-group-actions"><span className="count-pill">{checkedShoppingItems.length}</span><button className="inline-action danger" type="button" onClick={() => handleDeleteCheckedShoppingItems(activeShoppingList.id)}>Clear checked</button></div></div><div className="shopping-items">{checkedShoppingItems.map((item) => (<div key={item.id} className="shopping-item checked"><input type="checkbox" checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span>{item.url ? <a className="shopping-link" href={item.url} target="_blank" rel="noreferrer">Open link</a> : null}</div><div className="shopping-item-actions"><button className="inline-action" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>))}</div></div> : null}</article> : <p className="empty-copy">Pick up household shopping by creating or restoring a list first.</p>}</section>
+          <div className="section-head shopping-section-head"><div><p className="panel-label">Shopping lists</p><h2>Household errands by store</h2><p className="hero-copy">Keep the open items easy to scan, and let checked items fall to a separate bucket instead of cluttering the main list.</p>{shoppingMessage ? <p className={`auth-help ${shoppingMessageClass}`}>{shoppingMessage}</p> : null}</div><div className="shopping-summary"><div className="ops-stat"><span>Open items</span><strong>{openShoppingItems.length}</strong></div><div className="ops-stat"><span>Checked</span><strong>{checkedShoppingItems.length}</strong></div><div className="ops-stat"><span>Progress</span><strong>{shoppingCompletion}%</strong></div></div></div>{lists.length ? <div className="shopping-tabs">{lists.map((list) => (<button key={list.id} className={`shopping-tab ${activeShoppingList?.id === list.id ? 'active' : ''}`} type="button" aria-pressed={activeShoppingList?.id === list.id} onClick={() => setActiveShoppingListId(list.id)}>{list.title}</button>))}</div> : <p className="empty-copy">No shopping lists are available yet.</p>}{activeShoppingList ? <article className={`shopping-card ${activeShoppingList.tone}`}><div className="shopping-top"><div><p className="task-meta">Store list</p><h3>{activeShoppingList.id === 'other' ? (activeShoppingList.storeName || 'Other') : activeShoppingList.title}</h3><p className="shopping-progress-copy">{activeShoppingItems.length ? `${openShoppingItems.length} to grab, ${checkedShoppingItems.length} already handled.` : 'Start the list by adding your first item.'}</p></div><span className="count-pill">{openShoppingItems.length} open</span></div>{activeShoppingList.id === 'other' ? <label className="shopping-store-field"><span>Store name</span><input aria-label="Store name" placeholder="Store name" value={activeShoppingList.storeName || ''} onChange={(e) => handleSaveShoppingListMeta(activeShoppingList.id, { storeName: e.target.value })} /></label> : null}<form className="shopping-form" onSubmit={(event) => submitShoppingForm(event, activeShoppingList.id)}><input aria-label="Item name" placeholder="Item name" value={getShoppingForm(activeShoppingList.id).name} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), name: e.target.value })} required /><input aria-label="Quantity" placeholder="Qty" value={getShoppingForm(activeShoppingList.id).qty} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), qty: e.target.value })} /><input aria-label="Aisle or note" placeholder="Aisle / note" value={getShoppingForm(activeShoppingList.id).aisleHint} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), aisleHint: e.target.value })} /><input aria-label="Product URL" placeholder="Product URL" value={getShoppingForm(activeShoppingList.id).url || ''} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), url: e.target.value })} /><div className="form-actions"><button className="primary-button" type="submit">{editingShopping[activeShoppingList.id] ? 'Save item' : 'Add item'}</button>{editingShopping[activeShoppingList.id] ? <button className="secondary-button" type="button" onClick={() => resetShoppingForm(activeShoppingList.id)}>Cancel</button> : null}</div></form><div className="shopping-group"><div className="shopping-group-head"><p className="panel-label">To grab now</p><span className="count-pill">{openShoppingItems.length}</span></div><div className="shopping-items">{openShoppingItems.length ? openShoppingItems.map((item) => (<div key={item.id} className="shopping-item"><input type="checkbox" aria-label={`${item.checked ? 'Uncheck' : 'Check'} ${item.name}`} checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span>{item.url ? <a className="shopping-link" href={item.url} target="_blank" rel="noreferrer">Open link</a> : null}</div><div className="shopping-item-actions"><button className="inline-action" type="button" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" type="button" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>)) : <p className="empty-copy">Nothing open on this list right now.</p>}</div></div>{checkedShoppingItems.length ? <div className="shopping-group checked-group"><div className="shopping-group-head"><div><p className="panel-label">Already grabbed</p><span className="checked-group-copy">Checked off items can be cleared once you’re done with the run.</span></div><div className="checked-group-actions"><span className="count-pill">{checkedShoppingItems.length}</span><button className="inline-action danger" type="button" onClick={() => handleDeleteCheckedShoppingItems(activeShoppingList.id)}>Clear checked</button></div></div><div className="shopping-items">{checkedShoppingItems.map((item) => (<div key={item.id} className="shopping-item checked"><input type="checkbox" aria-label={`${item.checked ? 'Uncheck' : 'Check'} ${item.name}`} checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span>{item.url ? <a className="shopping-link" href={item.url} target="_blank" rel="noreferrer">Open link</a> : null}</div><div className="shopping-item-actions"><button className="inline-action" type="button" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" type="button" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>))}</div></div> : null}</article> : <p className="empty-copy">Pick up household shopping by creating or restoring a list first.</p>}</section>
       )}
 
     </div>
@@ -1341,8 +1372,8 @@ function App() {
 }
 
 function StatusBanner({ hasFirebaseConfig, remoteError, maisonLabel = 'Maison' }) {
-  if (!hasFirebaseConfig) return <div className="status-banner local">{maisonLabel} cannot reach Firebase right now, so it is using fallback local data.</div>
-  if (remoteError) return <div className="status-banner error">{maisonLabel} had trouble reaching the live household data, so some information may be outdated right now.</div>
+  if (!hasFirebaseConfig) return <div className="status-banner local" role="status" aria-live="polite">{maisonLabel} cannot reach Firebase right now, so it is using fallback local data.</div>
+  if (remoteError) return <div className="status-banner error" role="alert">{maisonLabel} had trouble reaching the live household data, so some information may be outdated right now.</div>
   return null
 }
 function SignedInPill({ user, membership }) {
@@ -1422,14 +1453,14 @@ function NativeDiagnosticsPanel({ diagnostics }) {
     </details>
   )
 }
-function CollapsiblePanel({ className = '', headClassName = '', header, isOpen, onToggle, children }) {
+function CollapsiblePanel({ className = '', headClassName = '', panelId, header, isOpen, onToggle, children }) {
   return (
     <section className={`panel collapsible-panel ${isOpen ? 'open' : 'closed'} ${className}`.trim()}>
-      <button className={`section-head editor-toggle collapsible-toggle ${headClassName}`.trim()} type="button" onClick={onToggle} aria-expanded={isOpen}>
+      <button className={`section-head editor-toggle collapsible-toggle ${headClassName}`.trim()} type="button" onClick={onToggle} aria-expanded={isOpen} aria-controls={panelId ? `${panelId}-body` : undefined} id={panelId ? `${panelId}-toggle` : undefined}>
         <div className="collapsible-head-main">{header}</div>
         <span className="collapsible-toggle-meta"><span>{isOpen ? 'Hide' : 'Open'}</span><span className={`panel-collapse-chevron ${isOpen ? 'open' : ''}`} aria-hidden="true">⌄</span></span>
       </button>
-      {isOpen ? <div className="collapsible-body">{children}</div> : null}
+      {isOpen ? <div className="collapsible-body" id={panelId ? `${panelId}-body` : undefined} role={panelId ? 'region' : undefined} aria-labelledby={panelId ? `${panelId}-toggle` : undefined}>{children}</div> : null}
     </section>
   )
 }
