@@ -64,6 +64,14 @@ function App() {
   }
 
   const [filtersOpen, setFiltersOpen] = useState(false)
+  const [plannerPanelsOpen, setPlannerPanelsOpen] = useState(() => ({
+    overview: true,
+    overdue: true,
+    dueSoon: true,
+    completed: true,
+    editor: true,
+    schedule: true,
+  }))
   const [taskForm, setTaskForm] = useState(emptyTaskForm)
   const [taskEditorOpen, setTaskEditorOpen] = useState(false)
   const [editingTaskId, setEditingTaskId] = useState(null)
@@ -407,6 +415,10 @@ function App() {
   const deleteAccountActionLabel = membership?.role === 'owner' && deletingLastMember
     ? 'Delete household and account'
     : 'Delete my account'
+
+  function togglePlannerPanel(panelKey) {
+    setPlannerPanelsOpen((current) => ({ ...current, [panelKey]: !current[panelKey] }))
+  }
 
   function openTaskModal(task) { setSelectedTask(task) }
   function closeTaskModal() { setSelectedTask(null) }
@@ -1100,30 +1112,55 @@ function App() {
 
       {activeTab === 'planner' ? (
         <>
-          <section className="panel planner-overview-panel">
-            <div className="section-head planner-overview-head">
-              <div>
-                <p className="panel-label">Planner overview</p>
-                <h2>{plannerHeadline}</h2>
-                <p className="hero-copy">{plannerSubcopy}</p>
-              </div>
-              <div className="planner-actions">
-                {statusCardFilterActive ? <button className="secondary-button" onClick={() => { setSelectedCategory('All'); setSelectedStatus('All') }}>Clear filters</button> : null}
-                <button className="secondary-button" onClick={() => setTaskEditorOpen((open) => !open)}>{taskEditorOpen ? 'Hide task editor' : 'Add or edit tasks'}</button>
-              </div>
-            </div>
+          <CollapsiblePanel
+            className="planner-overview-panel"
+            headClassName="planner-overview-head"
+            isOpen={plannerPanelsOpen.overview}
+            onToggle={() => togglePlannerPanel('overview')}
+            header={
+              <>
+                <div>
+                  <p className="panel-label">Planner overview</p>
+                  <h2>{plannerHeadline}</h2>
+                  <p className="hero-copy">{plannerSubcopy}</p>
+                </div>
+                <div className="planner-actions">
+                  {statusCardFilterActive ? <button className="secondary-button" onClick={() => { setSelectedCategory('All'); setSelectedStatus('All') }}>Clear filters</button> : null}
+                  <button className="secondary-button" onClick={() => setTaskEditorOpen((open) => !open)}>{taskEditorOpen ? 'Hide task editor' : 'Add or edit tasks'}</button>
+                </div>
+              </>
+            }
+          >
             {plannerMessage ? <p className={`auth-help ${plannerMessageClass}`}>{plannerMessage}</p> : null}
             {statusCardFilterActive ? <div className="active-filter-row"><span className="count-pill">Category: {selectedCategory}</span><span className="count-pill">Status: {selectedStatus}</span></div> : null}
             {statusCardFilterActive ? (filteredTasks.length ? <div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div> : <p className="empty-copy">Nothing matches those filters right now. Clear them to get the full maintenance plan back.</p>) : null}
-          </section>
+          </CollapsiblePanel>
 
           <section className="spotlight-grid">
-            <section className="panel spotlight-panel overdue-panel"><p className="panel-label">Needs attention first</p><h2>{overdueTasks.length ? 'Overdue tasks' : 'Nothing overdue right now'}</h2><div className="spotlight-list">{overdueTasks.length ? overdueTasks.map((task) => (<button key={task.id} className="spotlight-item" onClick={() => openTaskModal(task)}><strong>{task.title}</strong><span>{task.area} · overdue by {Math.abs(task.daysUntilDue)} day{Math.abs(task.daysUntilDue) === 1 ? '' : 's'}</span></button>)) : <p className="empty-copy">The house is in decent shape here — nothing has slipped past due.</p>}</div></section>
-            <section className="panel spotlight-panel due-soon-panel"><p className="panel-label">Coming up next</p><h2>Due within 2 weeks</h2><div className="spotlight-list">{dueSoonTasks.length ? dueSoonTasks.map((task) => (<button key={task.id} className="spotlight-item" onClick={() => openTaskModal(task)}><strong>{task.title}</strong><span>{task.daysUntilDue === 0 ? 'Due today' : `Due in ${task.daysUntilDue} days`} · {task.area}</span></button>)) : <p className="empty-copy">No near-term crunch right now. The next two weeks are relatively light.</p>}</div></section>
+            <CollapsiblePanel
+              className="spotlight-panel overdue-panel"
+              isOpen={plannerPanelsOpen.overdue}
+              onToggle={() => togglePlannerPanel('overdue')}
+              header={<div><p className="panel-label">Needs attention first</p><h2>{overdueTasks.length ? 'Overdue tasks' : 'Nothing overdue right now'}</h2></div>}
+            >
+              <div className="spotlight-list">{overdueTasks.length ? overdueTasks.map((task) => (<button key={task.id} className="spotlight-item" onClick={() => openTaskModal(task)}><strong>{task.title}</strong><span>{task.area} · overdue by {Math.abs(task.daysUntilDue)} day{Math.abs(task.daysUntilDue) === 1 ? '' : 's'}</span></button>)) : <p className="empty-copy">The house is in decent shape here, nothing has slipped past due.</p>}</div>
+            </CollapsiblePanel>
+            <CollapsiblePanel
+              className="spotlight-panel due-soon-panel"
+              isOpen={plannerPanelsOpen.dueSoon}
+              onToggle={() => togglePlannerPanel('dueSoon')}
+              header={<div><p className="panel-label">Coming up next</p><h2>Due within 2 weeks</h2></div>}
+            >
+              <div className="spotlight-list">{dueSoonTasks.length ? dueSoonTasks.map((task) => (<button key={task.id} className="spotlight-item" onClick={() => openTaskModal(task)}><strong>{task.title}</strong><span>{task.daysUntilDue === 0 ? 'Due today' : `Due in ${task.daysUntilDue} days`} · {task.area}</span></button>)) : <p className="empty-copy">No near-term crunch right now. The next two weeks are relatively light.</p>}</div>
+            </CollapsiblePanel>
           </section>
 
-          <section className="panel completion-panel">
-            <div className="section-head"><div><p className="panel-label">Completed bucket</p><h2>Recently completed tasks</h2></div></div>
+          <CollapsiblePanel
+            className="completion-panel"
+            isOpen={plannerPanelsOpen.completed}
+            onToggle={() => togglePlannerPanel('completed')}
+            header={<div><p className="panel-label">Completed bucket</p><h2>Recently completed tasks</h2></div>}
+          >
             <div className="completion-list">
               {recentCompletions.length ? recentCompletions.map((item) => (
                 <article key={item.id} className="completion-item">
@@ -1133,11 +1170,19 @@ function App() {
                 </article>
               )) : <p className="empty-copy">Nothing has been completed yet. Once tasks are marked done, they’ll stay visible here with who completed them.</p>}
             </div>
-          </section>
+          </CollapsiblePanel>
 
-          <section className="panel task-form-panel"><button className="editor-toggle" onClick={() => setTaskEditorOpen((open) => !open)}><div><p className="panel-label">Maintenance task editor</p><h2>{editingTaskId ? 'Edit task' : 'Add new maintenance task'}</h2></div><span>{taskEditorOpen ? 'Hide' : 'Open'}</span></button>{taskEditorOpen ? <form className="task-form-grid" onSubmit={submitTaskForm}><label><span>Title</span><input value={taskForm.title} onChange={(e) => setTaskForm((current) => ({ ...current, title: e.target.value }))} required /></label><label><span>Area</span><input value={taskForm.area} onChange={(e) => setTaskForm((current) => ({ ...current, area: e.target.value }))} required /></label><label><span>Category</span><input value={taskForm.category} onChange={(e) => setTaskForm((current) => ({ ...current, category: e.target.value }))} required /></label><label><span>Frequency</span><input value={taskForm.frequency} onChange={(e) => setTaskForm((current) => ({ ...current, frequency: e.target.value }))} required /></label><label><span>Cadence days</span><input type="number" min="1" value={taskForm.cadenceDays} onChange={(e) => setTaskForm((current) => ({ ...current, cadenceDays: Number(e.target.value) }))} required /></label><label><span>Reminder lead days</span><input type="number" min="1" value={taskForm.reminderLeadDays} onChange={(e) => setTaskForm((current) => ({ ...current, reminderLeadDays: Number(e.target.value), major: Number(e.target.value) >= 30 || current.major }))} required /></label><label><span>Effort</span><input value={taskForm.effort} onChange={(e) => setTaskForm((current) => ({ ...current, effort: e.target.value }))} /></label><label><span>Season</span><input value={taskForm.season} onChange={(e) => setTaskForm((current) => ({ ...current, season: e.target.value }))} /></label><label><span>Priority</span><input value={taskForm.priority} onChange={(e) => setTaskForm((current) => ({ ...current, priority: e.target.value }))} /></label><label><span>Last done</span><input type="date" value={taskForm.lastDone} onChange={(e) => setTaskForm((current) => ({ ...current, lastDone: e.target.value }))} required /></label><label className="checkbox-field"><input type="checkbox" checked={taskForm.major} onChange={(e) => setTaskForm((current) => ({ ...current, major: e.target.checked }))} /><span>Large maintenance item</span></label><label className="full-span"><span>Notes</span><textarea rows="3" value={taskForm.notes} onChange={(e) => setTaskForm((current) => ({ ...current, notes: e.target.value }))} /></label><div className="form-actions full-span"><button className="primary-button" type="submit">{editingTaskId ? 'Save changes' : 'Add task'}</button><button className="secondary-button" type="button" onClick={resetTaskForm}>{editingTaskId ? 'Cancel edit' : 'Close'}</button></div></form> : null}</section>
+          <CollapsiblePanel
+            className="task-form-panel"
+            isOpen={plannerPanelsOpen.editor}
+            onToggle={() => togglePlannerPanel('editor')}
+            header={<div><p className="panel-label">Maintenance task editor</p><h2>{editingTaskId ? 'Edit task' : 'Add new maintenance task'}</h2></div>}
+          >
+            <button className="editor-toggle" type="button" onClick={() => setTaskEditorOpen((open) => !open)}><span>{taskEditorOpen ? 'Hide task form' : 'Open task form'}</span><span>{taskEditorOpen ? 'Hide' : 'Open'}</span></button>
+            {taskEditorOpen ? <form className="task-form-grid" onSubmit={submitTaskForm}><label><span>Title</span><input value={taskForm.title} onChange={(e) => setTaskForm((current) => ({ ...current, title: e.target.value }))} required /></label><label><span>Area</span><input value={taskForm.area} onChange={(e) => setTaskForm((current) => ({ ...current, area: e.target.value }))} required /></label><label><span>Category</span><input value={taskForm.category} onChange={(e) => setTaskForm((current) => ({ ...current, category: e.target.value }))} required /></label><label><span>Frequency</span><input value={taskForm.frequency} onChange={(e) => setTaskForm((current) => ({ ...current, frequency: e.target.value }))} required /></label><label><span>Cadence days</span><input type="number" min="1" value={taskForm.cadenceDays} onChange={(e) => setTaskForm((current) => ({ ...current, cadenceDays: Number(e.target.value) }))} required /></label><label><span>Reminder lead days</span><input type="number" min="1" value={taskForm.reminderLeadDays} onChange={(e) => setTaskForm((current) => ({ ...current, reminderLeadDays: Number(e.target.value), major: Number(e.target.value) >= 30 || current.major }))} required /></label><label><span>Effort</span><input value={taskForm.effort} onChange={(e) => setTaskForm((current) => ({ ...current, effort: e.target.value }))} /></label><label><span>Season</span><input value={taskForm.season} onChange={(e) => setTaskForm((current) => ({ ...current, season: e.target.value }))} /></label><label><span>Priority</span><input value={taskForm.priority} onChange={(e) => setTaskForm((current) => ({ ...current, priority: e.target.value }))} /></label><label><span>Last done</span><input type="date" value={taskForm.lastDone} onChange={(e) => setTaskForm((current) => ({ ...current, lastDone: e.target.value }))} required /></label><label className="checkbox-field"><input type="checkbox" checked={taskForm.major} onChange={(e) => setTaskForm((current) => ({ ...current, major: e.target.checked }))} /><span>Large maintenance item</span></label><label className="full-span"><span>Notes</span><textarea rows="3" value={taskForm.notes} onChange={(e) => setTaskForm((current) => ({ ...current, notes: e.target.value }))} /></label><div className="form-actions full-span"><button className="primary-button" type="submit">{editingTaskId ? 'Save changes' : 'Add task'}</button><button className="secondary-button" type="button" onClick={resetTaskForm}>{editingTaskId ? 'Cancel edit' : 'Close'}</button></div></form> : <p className="empty-copy">Open the task form whenever you want to add a new maintenance item or update an existing one.</p>}
+          </CollapsiblePanel>
 
-          {!statusCardFilterActive ? <section className="panel"><div className="section-head"><div><p className="panel-label">Maintenance schedule</p><h2>{filteredTasks.length} tasks in view</h2></div></div><div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div></section> : null}
+          {!statusCardFilterActive ? <CollapsiblePanel className="planner-schedule-panel" isOpen={plannerPanelsOpen.schedule} onToggle={() => togglePlannerPanel('schedule')} header={<div><p className="panel-label">Maintenance schedule</p><h2>{filteredTasks.length} tasks in view</h2></div>}><div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div></CollapsiblePanel> : null}
         </>
       ) : activeTab === 'calendar' ? (
         <>
@@ -1354,6 +1399,20 @@ function NativeDiagnosticsPanel({ diagnostics }) {
         )) : <p className="empty-copy">No lifecycle or callback events captured yet.</p>}
       </div>
     </details>
+  )
+}
+function CollapsiblePanel({ className = '', headClassName = '', header, isOpen, onToggle, children }) {
+  return (
+    <section className={`panel collapsible-panel ${isOpen ? 'open' : 'closed'} ${className}`.trim()}>
+      <div className="section-head collapsible-head">
+        <div className={`collapsible-head-main ${headClassName}`.trim()}>{header}</div>
+        <button className="panel-collapse-button" type="button" onClick={onToggle} aria-expanded={isOpen}>
+          <span>{isOpen ? 'Collapse' : 'Expand'}</span>
+          <span className={`panel-collapse-chevron ${isOpen ? 'open' : ''}`} aria-hidden="true">⌄</span>
+        </button>
+      </div>
+      {isOpen ? <div className="collapsible-body">{children}</div> : null}
+    </section>
   )
 }
 function StatCard({ label, value, tone, active = false, onClick }) { return <button className={`stat-card ${tone} ${active ? 'active' : ''}`} onClick={onClick}><p>{label}</p><strong>{value}</strong></button> }

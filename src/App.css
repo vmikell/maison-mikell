@@ -170,6 +170,13 @@ h3 { font-size: 1.05rem; color: #fff8f2; }
 .stat-card.violet { background: linear-gradient(180deg, rgba(98,64,50,0.95), rgba(47,29,21,0.95)); }
 .stat-card.teal { background: linear-gradient(180deg, rgba(120,96,60,0.95), rgba(52,40,25,0.95)); }
 .panel { border-radius: 28px; padding: 18px; }
+.collapsible-panel.closed .section-head { margin-bottom: 0; }
+.collapsible-head { display: flex; align-items: start; justify-content: space-between; gap: 12px; }
+.collapsible-head-main { flex: 1 1 auto; min-width: 0; display: grid; gap: 12px; }
+.collapsible-body { display: grid; gap: 12px; }
+.panel-collapse-button { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(234,219,197,0.14); border-radius: 999px; padding: 10px 14px; font-weight: 700; background: rgba(250,243,224,0.08); color: #f8efe6; white-space: nowrap; }
+.panel-collapse-chevron { display: inline-block; transition: transform 180ms ease; }
+.panel-collapse-chevron.open { transform: rotate(180deg); }
 .spotlight-panel { overflow: hidden; }
 .overdue-panel { background: linear-gradient(180deg, rgba(73, 23, 39, 0.96), rgba(31, 16, 24, 0.92)); }
 .due-soon-panel { background: linear-gradient(180deg, rgba(62, 40, 18, 0.96), rgba(30, 20, 14, 0.92)); }
@@ -299,6 +306,8 @@ h3 { font-size: 1.05rem; color: #fff8f2; }
 .native-diagnostics-event time { color: #d7cbb5; font-size: 0.82rem; }
 .native-diagnostics-event pre { margin: 0; white-space: pre-wrap; word-break: break-word; color: #f8efe6; font-size: 0.82rem; font-family: ui-monospace, SFMono-Regular, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace; }
 @media (max-width: 819px) {
+  .collapsible-head { flex-direction: column; }
+  .panel-collapse-button { width: 100%; justify-content: center; }
   .planner-overview-head,.shopping-section-head,.calendar-summary-head { flex-direction: column; }
   .shell { padding: 16px 14px 40px; gap: 14px; }
   .auth-shell { align-items: stretch; }
