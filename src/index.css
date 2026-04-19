@@ -2,11 +2,20 @@
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #f7f0ff;
+  color: #f8efe6;
+  --maison-paper: #faf3e0;
+  --maison-cotton: #eadbc5;
+  --maison-terracotta: #89523d;
+  --maison-gold: #917043;
+  --maison-walnut: #4b392d;
+  --maison-leather: #3e2318;
+  --maison-ink: #2f1d15;
+  --maison-muted: #cdb9a1;
+  --maison-line: rgba(75, 57, 45, 0.18);
   background:
-    radial-gradient(circle at top, rgba(255, 132, 199, 0.16), transparent 28%),
-    radial-gradient(circle at bottom right, rgba(129, 93, 255, 0.18), transparent 30%),
-    linear-gradient(180deg, #151021 0%, #0b0c16 100%);
+    radial-gradient(circle at top, rgba(145, 112, 67, 0.18), transparent 28%),
+    radial-gradient(circle at bottom right, rgba(137, 82, 61, 0.18), transparent 30%),
+    linear-gradient(180deg, #4b392d 0%, #2f1d15 52%, #1e130e 100%);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
