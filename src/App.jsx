@@ -422,6 +422,23 @@ function App() {
 
   function openTaskModal(task) { setSelectedTask(task) }
   function closeTaskModal() { setSelectedTask(null) }
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+    if (!filtersOpen && !selectedTask) return
+
+    function handleGlobalEscape(event) {
+      if (event.key !== 'Escape') return
+      if (selectedTask) {
+        setSelectedTask(null)
+        return
+      }
+      if (filtersOpen) setFiltersOpen(false)
+    }
+
+    window.addEventListener('keydown', handleGlobalEscape)
+    return () => window.removeEventListener('keydown', handleGlobalEscape)
+  }, [filtersOpen, selectedTask])
+
   function startEditTask(task) {
     setEditingTaskId(task.id)
     setTaskForm({ id: task.id, title: task.title, area: task.area, category: task.category, room: task.room || '', system: task.system || '', assetName: task.assetName || '', vendor: task.vendor || '', supplyNote: task.supplyNote || '', frequency: task.frequency, cadenceDays: task.cadenceDays, reminderLeadDays: task.reminderLeadDays, effort: task.effort, season: task.season, priority: task.priority, notes: task.notes, lastDone: task.lastDone, major: task.major })
@@ -978,42 +995,42 @@ function App() {
     <div className="shell">
       <div className="top-bar-row">
         <SignedInPill user={user} membership={membership} />
-        {activeTab === 'planner' ? <button className="menu-button" onClick={() => setFiltersOpen((open) => !open)} aria-label="Open filters">☰</button> : null}
+        {activeTab === 'planner' ? <button className="menu-button" type="button" onClick={() => setFiltersOpen((open) => !open)} aria-label={filtersOpen ? 'Close filters' : 'Open filters'} aria-expanded={filtersOpen} aria-controls="planner-filter-drawer">☰</button> : null}
       </div>
       <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} maisonLabel={maisonLabel} />
       <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
       {showRemoteWarning ? <section className="panel remote-warning-panel"><p className="panel-label">Live sync issue</p><h2>Some household data may be stale</h2><p className="hero-copy">{maisonLabel} had trouble reaching the live household data just now. You can keep browsing, but if something looks off, refresh or sign out and back in before making decisions.</p></section> : null}
       {deleteAccountError ? <section className="panel remote-warning-panel"><p className="panel-label">Account deletion</p><h2>Could not delete account</h2><p className="hero-copy">{deleteAccountError}</p></section> : null}
       {deleteAccountSuccess ? <section className="panel remote-warning-panel"><p className="panel-label">Account deletion</p><h2>Account removed</h2><p className="hero-copy">{deleteAccountSuccess}</p></section> : null}
-      <nav className="top-tabs">
+      <nav className="top-tabs" aria-label="Primary sections">
         <div className="top-tabs-left">
-          <button className={`top-tab ${activeTab === 'planner' ? 'active' : ''}`} onClick={() => { setActiveTab('planner'); setFiltersOpen(false) }}>Planner</button>
-          <button className={`top-tab ${activeTab === 'calendar' ? 'active' : ''}`} onClick={() => { setActiveTab('calendar'); setFiltersOpen(false); setSelectedTask(null) }}>Calendar</button>
-          <button className={`top-tab ${activeTab === 'shopping' ? 'active' : ''}`} onClick={() => { setActiveTab('shopping'); setFiltersOpen(false); setSelectedTask(null) }}>Shopping</button>
+          <button className={`top-tab ${activeTab === 'planner' ? 'active' : ''}`} type="button" aria-pressed={activeTab === 'planner'} onClick={() => { setActiveTab('planner'); setFiltersOpen(false) }}>Planner</button>
+          <button className={`top-tab ${activeTab === 'calendar' ? 'active' : ''}`} type="button" aria-pressed={activeTab === 'calendar'} onClick={() => { setActiveTab('calendar'); setFiltersOpen(false); setSelectedTask(null) }}>Calendar</button>
+          <button className={`top-tab ${activeTab === 'shopping' ? 'active' : ''}`} type="button" aria-pressed={activeTab === 'shopping'} onClick={() => { setActiveTab('shopping'); setFiltersOpen(false); setSelectedTask(null) }}>Shopping</button>
         </div>
         <div className="top-tabs-right">
           {membership?.role === 'owner'
-            ? <button className={`top-tab ${activeTab === 'admin' ? 'active' : ''}`} onClick={() => { setActiveTab('admin'); setFiltersOpen(false); setSelectedTask(null) }}>Admin</button>
-            : <button className="top-tab" onClick={() => signOutUser()}>Sign out</button>}
+            ? <button className={`top-tab ${activeTab === 'admin' ? 'active' : ''}`} type="button" aria-pressed={activeTab === 'admin'} onClick={() => { setActiveTab('admin'); setFiltersOpen(false); setSelectedTask(null) }}>Admin</button>
+            : <button className="top-tab" type="button" onClick={() => signOutUser()}>Sign out</button>}
         </div>
       </nav>
 
       {activeTab === 'planner' ? (
         <>
-          {filtersOpen ? <button className="drawer-backdrop" onClick={() => setFiltersOpen(false)} aria-label="Close filters" /> : null}
-          <aside className={`filter-drawer ${filtersOpen ? 'open' : ''}`}>
+          {filtersOpen ? <button className="drawer-backdrop" type="button" onClick={() => setFiltersOpen(false)} aria-label="Close filters" /> : null}
+          <aside id="planner-filter-drawer" className={`filter-drawer ${filtersOpen ? 'open' : ''}`} role="dialog" aria-modal="true" aria-labelledby="planner-filter-title" aria-hidden={!filtersOpen}>
             <div className="drawer-head">
               <div>
                 <p className="panel-label">Planner filters</p>
-                <h2>Refine the view</h2>
+                <h2 id="planner-filter-title">Refine the view</h2>
               </div>
-              <button className="secondary-button" onClick={() => setFiltersOpen(false)}>Close</button>
+              <button className="secondary-button" type="button" onClick={() => setFiltersOpen(false)}>Close</button>
             </div>
             <div className="drawer-section">
               <p className="panel-label">Filter by category</p>
               <div className="chip-row">
                 {categories.map((category) => (
-                  <button key={category} className={`chip ${selectedCategory === category ? 'active' : ''}`} onClick={() => setSelectedCategory(category)}>{category}</button>
+                  <button key={category} className={`chip ${selectedCategory === category ? 'active' : ''}`} type="button" aria-pressed={selectedCategory === category} onClick={() => setSelectedCategory(category)}>{category}</button>
                 ))}
               </div>
             </div>
@@ -1021,7 +1038,7 @@ function App() {
               <p className="panel-label">Filter by status</p>
               <div className="chip-row">
                 {['All', 'overdue', 'remind', 'upcoming'].map((status) => (
-                  <button key={status} className={`chip ${selectedStatus === status ? 'active' : ''}`} onClick={() => setSelectedStatus(status)}>{status}</button>
+                  <button key={status} className={`chip ${selectedStatus === status ? 'active' : ''}`} type="button" aria-pressed={selectedStatus === status} onClick={() => setSelectedStatus(status)}>{status}</button>
                 ))}
               </div>
             </div>
@@ -1029,16 +1046,16 @@ function App() {
         </>
       ) : null}
 
-      {selectedTask ? <button className="modal-backdrop" onClick={closeTaskModal} aria-label="Close task details" /> : null}
+      {selectedTask ? <button className="modal-backdrop" type="button" onClick={closeTaskModal} aria-label="Close task details" /> : null}
       {selectedTask ? (
-        <section className="task-modal" role="dialog" aria-modal="true" aria-label="Task details">
+        <section className="task-modal" role="dialog" aria-modal="true" aria-labelledby="task-modal-title">
           <div className="task-modal-head">
             <div>
               <p className="task-meta">{selectedTask.area} · {selectedTask.category}</p>
-              <h2>{selectedTask.title}</h2>
+              <h2 id="task-modal-title">{selectedTask.title}</h2>
               <p className="timing-copy">{selectedTask.status === 'overdue' ? `Overdue by ${Math.abs(selectedTask.daysUntilDue)} day${Math.abs(selectedTask.daysUntilDue) === 1 ? '' : 's'}` : selectedTask.daysUntilDue === 0 ? 'Due today' : `Due in ${selectedTask.daysUntilDue} day${selectedTask.daysUntilDue === 1 ? '' : 's'}`}</p>
             </div>
-            <button className="secondary-button" onClick={closeTaskModal}>Close</button>
+            <button className="secondary-button" type="button" onClick={closeTaskModal}>Close</button>
           </div>
           {taskEditorOpen && editingTaskId === selectedTask.id ? (
             <form className="task-form-grid modal-task-form" onSubmit={submitTaskForm}>
@@ -1416,6 +1433,6 @@ function CollapsiblePanel({ className = '', headClassName = '', header, isOpen, 
     </section>
   )
 }
-function StatCard({ label, value, tone, active = false, onClick }) { return <button className={`stat-card ${tone} ${active ? 'active' : ''}`} onClick={onClick}><p>{label}</p><strong>{value}</strong></button> }
+function StatCard({ label, value, tone, active = false, onClick }) { return <button className={`stat-card ${tone} ${active ? 'active' : ''}`} type="button" aria-pressed={active} onClick={onClick}><p>{label}</p><strong>{value}</strong></button> }
 function TaskDatum({ label, value }) { return <div className="task-datum"><span>{label}</span><strong>{value}</strong></div> }
 export default App

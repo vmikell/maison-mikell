@@ -156,6 +156,24 @@ h1,h2,h3,p { margin: 0; }
 h1 { font-size: clamp(2.4rem, 7vw, 4.5rem); line-height: 0.95; letter-spacing: -0.05em; }
 h2 { font-size: 1.35rem; }
 h3 { font-size: 1.05rem; color: #fff8f2; }
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 3px solid #fff8f2;
+  outline-offset: 3px;
+  box-shadow: 0 0 0 6px rgba(145,112,67,0.32);
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  transition: box-shadow 160ms ease, outline-color 160ms ease, border-color 160ms ease, background-color 160ms ease, transform 160ms ease;
+}
+
 .hero-copy,.task-notes,.nice-list li,.shopping-item span,.timing-copy,.empty-copy,.spotlight-item span { color: #f8efe6; line-height: 1.6; }
 .hero-note { display: grid; gap: 8px; padding: 16px; border-radius: 22px; background: rgba(250,243,224,0.08); }
 .hero-note span { color: #f3eadb; font-size: 0.86rem; }
@@ -281,12 +299,12 @@ h3 { font-size: 1.05rem; color: #fff8f2; }
 .shopping-form input { width: 100%; border-radius: 16px; border: 1px solid rgba(234,219,197,0.12); background: rgba(250,243,224,0.08); color: #fff8f2; padding: 12px 14px; font: inherit; }
 .shopping-items { display: grid; gap: 10px; margin-top: 14px; }
 .shopping-item { display: grid; grid-template-columns: auto 1fr auto; gap: 12px; align-items: start; padding: 12px; border-radius: 18px; background: rgba(250,243,224,0.07); }
-.shopping-item.checked { opacity: 0.6; }
+.shopping-item.checked { opacity: 0.78; }
 .shopping-item input { margin-top: 4px; accent-color: #89523d; }
 .shopping-item div { display: grid; gap: 2px; }
 .shopping-item-actions { display: flex; gap: 8px; flex-wrap: wrap; }
-.shopping-link { color: #f2e4c6; font-size: 0.82rem; text-decoration: underline; text-underline-offset: 2px; word-break: break-all; }
-.inline-action { border: 0; background: transparent; color: #f2e4c6; font-size: 0.82rem; padding: 0; }
+.shopping-link { color: #fff8f2; font-size: 0.88rem; font-weight: 700; text-decoration: underline; text-underline-offset: 2px; word-break: break-all; }
+.inline-action { border: 0; background: transparent; color: #fff8f2; font-size: 0.88rem; font-weight: 700; padding: 0; }
 .inline-action.danger { color: #ffb7ca; }
 .nice-list { margin: 12px 0 0; padding-left: 18px; display: grid; gap: 10px; }
 .native-diagnostics-panel { display: grid; gap: 14px; background: linear-gradient(180deg, rgba(98,64,50,0.96), rgba(47,29,21,0.92)); }
