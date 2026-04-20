@@ -290,7 +290,7 @@ select {
 .checked-group-copy { display: block; margin-top: 4px; color: #f3eadb; font-size: 0.88rem; }
 .checked-group-actions { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .shopping-card.rose { background: linear-gradient(180deg, rgba(137,82,61,0.92), rgba(62,35,24,0.9)); }
-.shopping-card.gold { background: linear-gradient(180deg, rgba(145,112,67,0.92), rgba(78,56,31,0.9)); }
+.shopping-card.gold { background: linear-gradient(180deg, rgba(117,84,49,0.94), rgba(62,35,24,0.9)); }
 .shopping-card.violet { background: linear-gradient(180deg, rgba(98,64,50,0.92), rgba(47,29,21,0.9)); }
 .shopping-card.teal { background: linear-gradient(180deg, rgba(120,96,60,0.92), rgba(52,40,25,0.9)); }
 .shopping-store-field { display: grid; gap: 6px; margin-top: 14px; color: #f8efe6; font-size: 0.96rem; }
