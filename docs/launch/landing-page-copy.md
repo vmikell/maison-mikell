@@ -1,171 +1,232 @@
 # Maison Landing Page Copy
 
+Updated: 2026-04-24
+
 ## Goal
 
-Present Maison as a calm, premium household coordination app for couples, not a generic productivity tool.
+Make Maison feel like a real premium home brand for shared households.
 
-## Primary audience
+The page should feel:
+- calm
+- intimate
+- warm
+- specific
+- believable
 
-- couples sharing a home
-- busy households with recurring home admin friction
-- people who want one calm place for maintenance, shopping, reminders, and planning
+Not like:
+- a startup landing page
+- a productivity app pitch
+- a feature parade
+- a generic "life admin" tool
+
+## Core positioning
+
+Maison is the calm way to run a shared home.
+
+It brings the small moving parts of home life into one shared place:
+- shopping
+- upkeep
+- reminders
+- household follow-through
+
+The emotional promise is not productivity.
+The emotional promise is **less household drag**.
+
+---
 
 ## Hero section
 
-### Eyebrow
-A calmer way to run your home
+### Wordmark
+Maison
 
-### Headline options
+### Headline
+**The calm way to run a shared home.**
 
-Option A, recommended:
-**The home operating system for couples**
+### Subheadline
+Shopping, upkeep, reminders, and the small household loose ends — held in one place, so home feels lighter to carry together.
 
-Option B:
-**Run your home without the mental clutter**
+### Primary CTA options
+Recommended:
+- **Bring your home into Maison**
 
-Option C:
-**One calm app for the home you share**
-
-### Subheadline, recommended
-Maison brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.
-
-### Primary CTA
-**Join the founding launch**
+Alternates:
+- **Join the founding launch**
+- **See your home in Maison**
 
 ### Secondary CTA
 **See how it works**
 
-### Trust/support line
-Built for real shared homes, not generic productivity hacks.
+### Support line
+For couples and households who want one shared source of truth without turning home into a project-management system.
 
 ---
 
-## Section 1, the problem
+## Section 1: The problem
 
 ### Headline
-Home life gets messy when everything lives in six different places.
+**Most home stress is small, repeated, and easy to miss.**
 
 ### Body copy
-Most households are stitching things together across texts, notes apps, calendars, mental reminders, and half-finished shopping lists. Nothing feels fully shared, and the same tasks keep slipping through the cracks.
+It usually does not look dramatic.
 
-Maison is designed to bring those moving parts together into one calm system you can actually live with.
+It looks like the grocery thing.
+The reminder thing.
+The maintenance thing.
+The "I thought you had it" thing.
+
+A lot of shared-home friction comes from the same problem: the information that keeps a home running lives in too many places at once.
+
+Texts. Notes. Memory. Half-finished lists. Repeated conversations.
+
+Maison gives that layer of home life one calm place to live.
 
 ---
 
-## Section 2, value proposition
+## Section 2: What Maison holds
 
 ### Headline
-Everything your household needs, in one calm flow.
+**One place for the small moving parts.**
+
+### Intro line
+Maison is built for the things that quietly shape how a home feels day to day.
 
 ### Feature blocks
 
 #### Shared shopping
-Keep one live household shopping list that everyone can update.
+Keep one living household list instead of scattered texts and forgotten notes.
 
-#### Home maintenance
-Track recurring tasks and the upkeep that keeps a home running.
+#### Home upkeep
+Track recurring maintenance before it turns into urgency.
 
-#### Reminders that matter
-Send household reminders without relying on memory or nagging.
+#### Helpful reminders
+Let reminders live in a system, not in one person’s head.
 
-#### Household planning
-See the important shared home tasks and dates in one place.
+#### Household follow-through
+Keep open loops visible so they stop disappearing into memory.
 
-#### Multi-member access
-Built for a shared household, not just one person managing everything alone.
+#### Shared visibility
+Make sure both people can see what the home needs, what is pending, and what is already handled.
 
 ---
 
-## Section 3, emotional promise
+## Section 3: Emotional promise
 
 ### Headline
-Less coordination friction. More calm.
+**Less household drag. More ease.**
 
 ### Body copy
-Maison is not trying to turn your home into a startup. It is built to reduce the tiny coordination failures that make home life feel heavier than it should.
+Maison is not here to turn your home into a productivity game.
 
-The goal is simple: fewer dropped balls, fewer repeated conversations, and a smoother shared rhythm at home.
+It is here to reduce the tiny coordination failures that make life at home feel heavier than it should.
+
+Less guessing.
+Less repeating.
+Less mental load sitting with one person.
+More clarity, more follow-through, and a calmer shared rhythm.
 
 ---
 
-## Section 4, who it is for
+## Section 4: Who it is for
 
 ### Headline
-Built for couples and households who actually share responsibility.
+**Built for people sharing a real home life.**
 
 ### Bullets
 - couples living together
-- busy homeowners
-- households managing recurring home responsibilities
-- people who want one shared source of truth
+- shared households carrying recurring home admin
+- busy homeowners and renters
+- people tired of running home life across memory, texts, and loose lists
+
+### Supporting line
+Maison is for households that want to feel more coordinated without becoming more managerial.
 
 ---
 
-## Section 5, offer section
+## Section 5: Product truth section
 
 ### Headline
-Founding launch pricing
+**Maison is not another generic organizer.**
 
 ### Body copy
-Maison is launching as a paid product from day one.
+It is a shared-home system with a specific job:
+make the invisible layer of household life easier to hold together.
 
-For the first 7 days, founding members can lock in:
-- **Lifetime access for $179**
-
-After the founding window closes:
-- **$12/month**
-- **$96/year**
-
-### Offer framing line
-The founding offer is for early households helping shape the product, not a discount that stays open forever.
+That means the product should be framed as:
+- domestic, not corporate
+- warm, not hyper-optimized
+- premium, not flashy
+- useful, not performative
 
 ---
 
-## Section 6, FAQ preview
-
-### Question
-Is Maison for individuals or households?
-
-### Answer
-It is built for shared household coordination, especially couples living together.
-
-### Question
-Is there a free plan?
-
-### Answer
-No. Maison is positioned as a paid household product from launch.
-
-### Question
-What does one subscription cover?
-
-### Answer
-Recommended answer: one household. Final billing language should match the actual product setup.
-
----
-
-## Final CTA section
+## Section 6: Founding launch
 
 ### Headline
-Bring your home into one calm system.
+**Join the founding launch.**
 
 ### Body copy
-Join the founding launch and be one of the first households to use Maison as your shared home operating system.
+Maison is launching as a paid product from day one for households who want a calmer shared system and want to help shape what it becomes early.
+
+### Offer structure placeholder
+Recommended current framing:
+- **Founding lifetime access: $179**
+- **Later pricing: $12/month or $96/year**
+
+### Framing line
+The founding offer is for early households who want to get in early and help shape the product — not an always-open discount.
+
+---
+
+## Section 7: FAQ preview
+
+### Is Maison for one person or a household?
+Maison is built for shared-home coordination first.
+
+### Is Maison free?
+No. The product is positioned as a paid household tool from launch.
+
+### What does one subscription cover?
+Recommended answer: one household.
+
+### Is this for perfect routines and highly organized people?
+No. It is for real homes, real friction, and the things people actually forget or lose track of.
+
+---
+
+## Final CTA
+
+### Headline
+**Bring your home into one calm system.**
+
+### Body copy
+If home life currently lives across texts, memory, notes, and repeated conversations, Maison is built for exactly that layer.
 
 ### CTA
-**Join the founding launch**
+**Bring your home into Maison**
 
 ---
 
-## Tone notes
+## Tone rules
 
-Keep the landing page:
-- calm
-- premium
-- domestic, not corporate
-- simple, not hyper-optimized
+Keep the page:
+- emotionally intelligent
+- domestic
+- lightly editorial
+- human
+- clear
 
 Avoid:
-- generic productivity buzzwords
-- startup-sounding hype
-- feature overload above the fold
-- admin-heavy or technical language
+- startup swagger
+- generic productivity words like optimize, streamline, maximize
+- too many feature bullets above the fold
+- sounding like a concept deck or strategy presentation
+- overusing the phrase "operating system"
+
+## Visual / writing alignment notes
+
+The copy should match the current strongest visual direction:
+- cream / parchment / walnut palette
+- quieter CTA treatment
+- lived-in household details
+- less polished-brand-site perfection
+- more warmth and specific domestic texture

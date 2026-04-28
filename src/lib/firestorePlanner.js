@@ -507,6 +507,7 @@ export async function deleteCurrentUserData(currentUser, membership) {
   const members = household.members ?? []
   const remainingMembers = members.filter((member) => member.id !== currentUser.uid)
   const currentMember = members.find((member) => member.id === currentUser.uid)
+  const isDepartingOwner = currentMember?.role === 'owner'
 
   if (remainingMembers.length === 0) {
     const reminderSnaps = await getDocs(remindersRef(householdId))
@@ -528,7 +529,7 @@ export async function deleteCurrentUserData(currentUser, membership) {
     return { ok: true, deletedHousehold: true }
   }
 
-  const nextMembers = currentMember?.role === 'owner' && !remainingMembers.some((member) => member.role === 'owner')
+  const nextMembers = isDepartingOwner && !remainingMembers.some((member) => member.role === 'owner')
     ? remainingMembers.map((member, index) => index === 0 ? { ...member, role: 'owner' } : member)
     : remainingMembers
 
@@ -537,10 +538,12 @@ export async function deleteCurrentUserData(currentUser, membership) {
     members: nextMembers,
     updatedAt: serverTimestamp(),
   })
-  if (household.inviteCode) {
+  if (isDepartingOwner && household.inviteCode) {
     await syncInviteCodeRecord(batch, householdId, household.inviteCode, nextMembers)
   }
-  syncMemberRecords(batch, nextMembers, household.inviteCode || '')
+  if (isDepartingOwner) {
+    syncMemberRecords(batch, nextMembers, household.inviteCode || '')
+  }
   batch.delete(userMembershipRef(currentUser.uid))
   await batch.commit()
   return { ok: true, deletedHousehold: false }

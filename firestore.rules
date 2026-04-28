@@ -116,11 +116,34 @@ service cloud.firestore {
         && request.resource.data.members[request.resource.data.members.size() - 1].householdId == householdId;
     }
 
+    function currentMemberRecord(householdId) {
+      return {
+        id: request.auth.uid,
+        email: userMembershipDoc(request.auth.uid).data.email,
+        name: userMembershipDoc(request.auth.uid).data.name,
+        role: userMembershipDoc(request.auth.uid).data.role,
+        joinedAt: userMembershipDoc(request.auth.uid).data.joinedAt,
+        householdId: householdId
+      };
+    }
+
+    function isSelfRemovingHouseholdMembership(householdId) {
+      return signedIn()
+        && request.auth.uid != null
+        && isHouseholdMember(householdId)
+        && request.resource.data.diff(resource.data).changedKeys().hasOnly(['members', 'updatedAt'])
+        && request.resource.data.members.size() == resource.data.members.size() - 1
+        && resource.data.members.hasAll(request.resource.data.members)
+        && resource.data.members.hasAny([currentMemberRecord(householdId)])
+        && !request.resource.data.members.hasAny([currentMemberRecord(householdId)]);
+    }
+
     match /households/{householdId} {
       allow read: if isHouseholdMember(householdId);
       allow create: if householdCreateIsValid(householdId);
       allow update: if isOwner(householdId)
         || isSelfSyncingHouseholdMembership(householdId)
+        || isSelfRemovingHouseholdMembership(householdId)
         || (isHouseholdMember(householdId)
           && request.resource.data.diff(resource.data).changedKeys().hasOnly(['lastReminderRunAt', 'lastReminderChannel', 'updatedAt']));
       allow delete: if isOwner(householdId);

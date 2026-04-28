@@ -2,20 +2,23 @@
   font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   line-height: 1.5;
   font-weight: 400;
-  color: #2f1d15;
-  --maison-paper: #faf3e0;
-  --maison-cotton: #eadbc5;
-  --maison-terracotta: #89523d;
-  --maison-gold: #917043;
-  --maison-walnut: #4b392d;
-  --maison-leather: #3e2318;
-  --maison-ink: #2f1d15;
-  --maison-muted: #cdb9a1;
-  --maison-line: rgba(75, 57, 45, 0.18);
-  background:
-    radial-gradient(circle at top, rgba(145, 112, 67, 0.14), transparent 30%),
-    radial-gradient(circle at bottom right, rgba(137, 82, 61, 0.12), transparent 34%),
-    linear-gradient(180deg, #faf3e0 0%, #f5ead6 52%, #eadbc5 100%);
+  color: #2f2720;
+  --maison-paper: #f6f0e8;
+  --maison-paper-deep: #ebdfcf;
+  --maison-card: rgba(255, 251, 246, 0.78);
+  --maison-card-solid: #fbf6ef;
+  --maison-cream: #fffaf3;
+  --maison-line: rgba(82, 66, 48, 0.12);
+  --maison-ink: #2f2720;
+  --maison-body: #5f5448;
+  --maison-muted: #877668;
+  --maison-walnut: #4a392d;
+  --maison-gold: #c39a48;
+  --maison-teal: #708f89;
+  --maison-clay: #b97860;
+  --maison-clay-deep: #8f553f;
+  --maison-shadow: 0 22px 64px rgba(79, 60, 40, 0.08);
+  background: linear-gradient(180deg, var(--maison-paper), var(--maison-paper-deep));
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -34,6 +37,8 @@ body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  color: var(--maison-ink);
+  background: linear-gradient(180deg, var(--maison-paper), var(--maison-paper-deep));
 }
 
 button {

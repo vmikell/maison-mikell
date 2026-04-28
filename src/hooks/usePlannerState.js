@@ -38,6 +38,30 @@ import {
   updateShoppingListMeta,
 } from '../lib/model'
 
+const INVITE_INTENT_STORAGE_KEY = 'maison:onboarding-invite-intent'
+
+function readStoredInviteChoice() {
+  if (typeof window === 'undefined') return false
+  try {
+    return window.sessionStorage?.getItem(INVITE_INTENT_STORAGE_KEY) === '1'
+  } catch {
+    return false
+  }
+}
+
+function writeStoredInviteChoice(nextValue) {
+  if (typeof window === 'undefined') return
+  try {
+    if (nextValue) {
+      window.sessionStorage?.setItem(INVITE_INTENT_STORAGE_KEY, '1')
+    } else {
+      window.sessionStorage?.removeItem(INVITE_INTENT_STORAGE_KEY)
+    }
+  } catch {
+    // Session storage is a convenience only; onboarding must still work without it.
+  }
+}
+
 export function usePlannerState(currentUser = null) {
   const [houseProfile, setHouseProfile] = useState(starterHouseProfile)
   const [taskState, setTaskState] = useState([])
@@ -50,7 +74,7 @@ export function usePlannerState(currentUser = null) {
   const [membership, setMembership] = useState(null)
   const [joinError, setJoinError] = useState('')
   const [joinSuccess, setJoinSuccess] = useState('')
-  const [inviteChoice, setInviteChoice] = useState(false)
+  const [inviteChoice, setInviteChoiceState] = useState(() => readStoredInviteChoice())
   const [isCreatingHousehold, setIsCreatingHousehold] = useState(false)
   const [createHouseholdError, setCreateHouseholdError] = useState('')
   const [createHouseholdSuccess, setCreateHouseholdSuccess] = useState('')
@@ -86,7 +110,7 @@ export function usePlannerState(currentUser = null) {
       setMembership(null)
       setJoinError('')
       setJoinSuccess('')
-      setInviteChoice(false)
+      setInviteChoiceState(readStoredInviteChoice())
       setCreateHouseholdError('')
       setCreateHouseholdSuccess('')
       setFreshInviteCode('')
@@ -407,6 +431,14 @@ export function usePlannerState(currentUser = null) {
 
   const resolvedActorName = currentUser?.displayName || currentUser?.email || null
 
+  function setInviteChoice(nextValue) {
+    setInviteChoiceState((current) => {
+      const resolvedValue = typeof nextValue === 'function' ? nextValue(current) : nextValue
+      writeStoredInviteChoice(Boolean(resolvedValue))
+      return Boolean(resolvedValue)
+    })
+  }
+
   async function handleGenerateInviteCode() {
     const nextCode = Math.random().toString(36).slice(2, 8).toUpperCase()
     setSettingsMessage('')
@@ -518,6 +550,7 @@ export function usePlannerState(currentUser = null) {
         setSetupError(result.error || 'Could not save your home setup right now.')
         return false
       }
+      const generatedTasks = result.tasks || []
       setHouseProfile((current) => ({
         ...current,
         ...setupInput,
@@ -527,7 +560,11 @@ export function usePlannerState(currentUser = null) {
         },
         setupCompleted: true,
       }))
-      setSetupSuccess('Your home setup is saved.')
+      setTaskState(generatedTasks)
+      setReminders(generatedTasks.map(buildReminderRecord))
+      setPlannerTone('success')
+      setPlannerMessage(`Maison generated ${generatedTasks.length} starter task${generatedTasks.length === 1 ? '' : 's'} from your home setup.`)
+      setSetupSuccess(`Your home setup is saved, and Maison generated ${generatedTasks.length} starter task${generatedTasks.length === 1 ? '' : 's'}.`)
       setShowInvitePanel(true)
       return true
     } catch (error) {
@@ -681,6 +718,7 @@ export function usePlannerState(currentUser = null) {
     handleDeleteCurrentAccount,
     finalizeDeletedAccount,
     resetPlannerStateAfterDelete,
+    setDeleteAccountError,
     setInviteChoice,
     setShowInvitePanel,
   }

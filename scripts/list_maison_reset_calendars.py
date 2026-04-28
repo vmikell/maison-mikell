@@ -7,8 +7,8 @@ from googleapiclient.discovery import build
 import json
 
 SCOPES = ['https://www.googleapis.com/auth/calendar']
-CLIENT_SECRET = Path('/home/vboxuser/Downloads/client_secret_521736129971-3p5a8itaj85r4jdjbbc8736jv7hfiphj.apps.googleusercontent.com.json')
-TOKEN_PATH = Path('/home/vboxuser/.secrets/maison-reset-google-token.json')
+CLIENT_SECRET = Path.home() / 'Downloads' / 'client_secret_521736129971-3p5a8itaj85r4jdjbbc8736jv7hfiphj.apps.googleusercontent.com.json'
+TOKEN_PATH = Path.home() / '.secrets' / 'maison-reset-google-token.json'
 
 
 def get_creds():
@@ -16,9 +16,12 @@ def get_creds():
     if TOKEN_PATH.exists():
         creds = Credentials.from_authorized_user_file(str(TOKEN_PATH), SCOPES)
     if not creds or not creds.valid:
-        if creds and creds.expired and creds.refresh_token:
-            creds.refresh(Request())
-        else:
+        try:
+            if creds and creds.expired and creds.refresh_token:
+                creds.refresh(Request())
+            else:
+                raise Exception('interactive_reauth_required')
+        except Exception:
             flow = InstalledAppFlow.from_client_secrets_file(str(CLIENT_SECRET), SCOPES)
             creds = flow.run_local_server(port=0)
         TOKEN_PATH.parent.mkdir(parents=True, exist_ok=True)

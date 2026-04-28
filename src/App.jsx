@@ -8,12 +8,51 @@ import { usePlannerState } from './hooks/usePlannerState'
 import { createEmailPasswordAccount, deleteSignedInAuthUser, ensureRecentLogin, sendPasswordReset, signInWithEmailPassword, signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
 import { useNativeDiagnostics } from './lib/nativeDiagnostics'
 import { firestore } from './lib/firebase'
-import heroImage from './assets/hero.png'
 
 const emptyTaskForm = {
   id: '', title: '', area: '', category: 'Cleaning', room: '', system: '', assetName: '', vendor: '', supplyNote: '', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
 }
 const emptyShoppingForm = { id: '', name: '', qty: '1', aisleHint: 'Household', url: '', checked: false }
+const FIRST_RUN_GUIDE_STORAGE_PREFIX = 'maison:first-run-guide:'
+const FIRST_RUN_GUIDE_STEPS = [
+  {
+    target: 'navigation',
+    tab: 'planner',
+    title: 'Start with the main rooms',
+    body: 'Planner, Calendar, Shopping, and Admin are the core places users return to. The guide follows those same tabs so the app feels navigable right away.',
+  },
+  {
+    target: 'stats',
+    tab: 'planner',
+    title: 'Your setup becomes task health',
+    body: 'These cards summarize the tasks Maison generated from onboarding, including overdue work, reminders, large maintenance, and weekly routines.',
+  },
+  {
+    target: 'task-list',
+    tab: 'planner',
+    title: 'Open tasks for details',
+    body: 'Task cards open into claim, edit, and completion actions. This is where generated tasks turn into household follow-through.',
+  },
+  {
+    target: 'task-editor',
+    tab: 'planner',
+    title: 'Add anything Maison missed',
+    body: 'The generated planner is a starting point. Users can add custom tasks for unusual systems, rooms, vendors, or household habits.',
+  },
+  {
+    target: 'shopping',
+    tab: 'shopping',
+    title: 'Shopping stays separate',
+    body: 'Shopping lists are ready after household creation, so errands do not clutter the maintenance planner.',
+  },
+  {
+    target: 'admin',
+    tab: 'admin',
+    ownerOnly: true,
+    title: 'Invite and manage the household',
+    body: 'Owners can reveal or refresh invite codes, promote members, review reminders, and leave the household cleanly from Admin.',
+  },
+]
 
 function App() {
   const nativeDiagnostics = useNativeDiagnostics()
@@ -80,6 +119,8 @@ function App() {
   const [editingShopping, setEditingShopping] = useState({})
   const [activeShoppingListId, setActiveShoppingListId] = useState('home-depot')
   const [authMessage, setAuthMessage] = useState('')
+  const [authMessageTone, setAuthMessageTone] = useState('success')
+  const [isGoogleAuthLoading, setIsGoogleAuthLoading] = useState(false)
   const [inviteCodeInput, setInviteCodeInput] = useState('')
   const [householdNameInput, setHouseholdNameInput] = useState('')
   const [isInviteCodeVisible, setIsInviteCodeVisible] = useState(true)
@@ -93,6 +134,8 @@ function App() {
   const [launchInterestTone, setLaunchInterestTone] = useState('success')
   const [deleteAccountPassword, setDeleteAccountPassword] = useState('')
   const [deleteAccountConfirmText, setDeleteAccountConfirmText] = useState('')
+  const [isFirstRunGuideOpen, setIsFirstRunGuideOpen] = useState(false)
+  const [firstRunGuideStepIndex, setFirstRunGuideStepIndex] = useState(0)
   const filterCloseButtonRef = useRef(null)
   const modalCloseButtonRef = useRef(null)
   const lastOverlayTriggerRef = useRef(null)
@@ -101,6 +144,7 @@ function App() {
     event.preventDefault()
     setIsEmailAuthLoading(true)
     setAuthMessage('')
+    setAuthMessageTone('success')
     setAuthError('')
     setAuthErrorCode('')
 
@@ -110,29 +154,35 @@ function App() {
 
     if (result?.error) {
       setAuthMessage(result.error)
+      setAuthMessageTone('error')
       setAuthError(result.error)
       setAuthErrorCode(result.rawCode || '')
       setIsEmailAuthLoading(false)
       return
     }
 
-    setAuthMessage(emailAuthMode === 'signup' ? 'Creating your account…' : 'Signing you in…')
+    setAuthMessage(emailAuthMode === 'signup' ? 'Creating your account...' : 'Signing you in...')
+    setAuthMessageTone('success')
     setEmailAuthForm((current) => ({ ...current, password: '' }))
-    setIsEmailAuthLoading(false)
+    // Keep loading true — onAuthStateChanged will trigger the transition.
+    // Clearing it here causes a brief re-enabled form before the user state lands.
   }
 
   async function handlePasswordReset() {
     setAuthMessage('')
+    setAuthMessageTone('success')
     setAuthError('')
     setAuthErrorCode('')
     const result = await sendPasswordReset({ email: emailAuthForm.email })
     if (!result?.ok) {
       setAuthMessage(result?.error || 'Could not send a password reset email right now.')
+      setAuthMessageTone('error')
       setAuthError(result?.error || '')
       setAuthErrorCode(result?.rawCode || '')
       return
     }
     setAuthMessage('Password reset email sent. Check your inbox and spam folder, then come back and sign in with the new password.')
+    setAuthMessageTone('success')
     setEmailAuthForm((current) => ({ ...current, password: '' }))
   }
 
@@ -244,6 +294,7 @@ function App() {
     handleCompleteSetup,
     handleDeleteCurrentAccount,
     finalizeDeletedAccount,
+    setDeleteAccountError,
     setInviteChoice,
     setShowInvitePanel,
   } = usePlannerState(user)
@@ -310,7 +361,6 @@ function App() {
 
   useEffect(() => {
     if (!inviteCodeVisibilityKey) {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
       setIsInviteCodeVisible(true)
       return
     }
@@ -418,6 +468,42 @@ function App() {
   const deleteAccountActionLabel = membership?.role === 'owner' && deletingLastMember
     ? 'Delete household and account'
     : 'Delete my account'
+  const firstRunGuideSteps = useMemo(() => FIRST_RUN_GUIDE_STEPS.filter((step) => !step.ownerOnly || membership?.role === 'owner'), [membership?.role])
+  const firstRunGuideStorageKey = user?.uid && membership?.householdId ? `${FIRST_RUN_GUIDE_STORAGE_PREFIX}${membership.householdId}:${user.uid}` : ''
+  const currentFirstRunGuideStep = isFirstRunGuideOpen ? firstRunGuideSteps[Math.min(firstRunGuideStepIndex, firstRunGuideSteps.length - 1)] : null
+  const firstRunGuideTarget = currentFirstRunGuideStep?.target || ''
+  const guideHighlight = (target) => firstRunGuideTarget === target ? ' guide-highlight' : ''
+
+  function completeFirstRunGuide() {
+    if (firstRunGuideStorageKey && typeof window !== 'undefined') {
+      try {
+        window.localStorage?.setItem(firstRunGuideStorageKey, 'done')
+      } catch {
+        // A blocked localStorage write should not keep the guide stuck open.
+      }
+    }
+    setIsFirstRunGuideOpen(false)
+    setFirstRunGuideStepIndex(0)
+  }
+
+  function openFirstRunGuide() {
+    setSelectedTask(null)
+    setFiltersOpen(false)
+    setFirstRunGuideStepIndex(0)
+    setIsFirstRunGuideOpen(true)
+  }
+
+  function advanceFirstRunGuide() {
+    if (firstRunGuideStepIndex >= firstRunGuideSteps.length - 1) {
+      completeFirstRunGuide()
+      return
+    }
+    setFirstRunGuideStepIndex((current) => Math.min(current + 1, firstRunGuideSteps.length - 1))
+  }
+
+  function goBackFirstRunGuide() {
+    setFirstRunGuideStepIndex((current) => Math.max(current - 1, 0))
+  }
 
   function togglePlannerPanel(panelKey) {
     setPlannerPanelsOpen((current) => ({ ...current, [panelKey]: !current[panelKey] }))
@@ -463,6 +549,39 @@ function App() {
     }
   }, [filtersOpen, selectedTask])
 
+  useEffect(() => {
+    if (!firstRunGuideStorageKey || !user || !membership || houseProfile.setupCompleted === false || showInvitePanel || isRemoteLoading) return
+
+    try {
+      if (window.localStorage?.getItem(firstRunGuideStorageKey) === 'done') return
+    } catch {
+      // If storage is unavailable, show the guide for the current session.
+    }
+
+    setFirstRunGuideStepIndex(0)
+    setIsFirstRunGuideOpen(true)
+  }, [firstRunGuideStorageKey, user, membership, houseProfile.setupCompleted, showInvitePanel, isRemoteLoading])
+
+  useEffect(() => {
+    if (!currentFirstRunGuideStep) return
+
+    if (currentFirstRunGuideStep.tab && activeTab !== currentFirstRunGuideStep.tab) {
+      setActiveTab(currentFirstRunGuideStep.tab)
+      setFiltersOpen(false)
+      setSelectedTask(null)
+    }
+
+    if (currentFirstRunGuideStep.target === 'task-list') {
+      setSelectedCategory('All')
+      setSelectedStatus('All')
+      setPlannerPanelsOpen((current) => ({ ...current, schedule: true }))
+    }
+
+    if (currentFirstRunGuideStep.target === 'task-editor') {
+      setPlannerPanelsOpen((current) => ({ ...current, editor: true }))
+    }
+  }, [currentFirstRunGuideStep, activeTab])
+
   function startEditTask(task) {
     setEditingTaskId(task.id)
     setTaskForm({ id: task.id, title: task.title, area: task.area, category: task.category, room: task.room || '', system: task.system || '', assetName: task.assetName || '', vendor: task.vendor || '', supplyNote: task.supplyNote || '', frequency: task.frequency, cadenceDays: task.cadenceDays, reminderLeadDays: task.reminderLeadDays, effort: task.effort, season: task.season, priority: task.priority, notes: task.notes, lastDone: task.lastDone, major: task.major })
@@ -489,13 +608,13 @@ function App() {
 
   async function runDeleteAccountFlow() {
     if (deleteAccountConfirmText.trim().toUpperCase() !== 'DELETE') {
-      window.alert('Type DELETE to confirm this offboarding step.')
+      setDeleteAccountError('Type DELETE in the confirmation box to continue.')
       return
     }
 
     const recentLogin = await ensureRecentLogin({ email: user?.email || '', password: deleteAccountPassword })
     if (!recentLogin.ok) {
-      window.alert(recentLogin.error)
+      setDeleteAccountError(recentLogin.error)
       return
     }
 
@@ -504,11 +623,12 @@ function App() {
 
     const authResult = await deleteSignedInAuthUser()
     if (!authResult.ok) {
-      window.alert(authResult.error)
+      setDeleteAccountError(authResult.error)
       return
     }
 
     setAuthMessage('')
+    setAuthMessageTone('success')
     setAuthError('')
     setAuthErrorCode('')
     finalizeDeletedAccount(result, user?.email || '')
@@ -571,10 +691,22 @@ function App() {
               </section>
             ) : (
               <>
+                {!showDeletedAccountNotice ? (
+                  <nav className="maison-landing-nav" aria-label="Maison landing">
+                    <a className="maison-logo" href="#top" aria-label="Maison home">Maison</a>
+                    <div className="maison-navlinks" aria-hidden="true">
+                      <span>How it works</span>
+                      <span>For households</span>
+                      <span>Preview</span>
+                    </div>
+                    <a className="secondary-button invite-link-button" href="#maison-waitlist">Join waitlist</a>
+                  </nav>
+                ) : null}
+
                 <section className="maison-hero">
                   <div className="maison-hero-copy">
-                    <p className="eyebrow">{showDeletedAccountView ? 'Maison goodbye' : 'A calmer way to run your home'}</p>
-                    <h1>{showDeletedAccountView ? 'Goodbye for now.' : 'The home operating system for couples'}</h1>
+                    <p className="eyebrow">{showDeletedAccountView ? 'Maison goodbye' : 'Shared home, less mental load'}</p>
+                    <h1>{showDeletedAccountView ? 'Goodbye for now.' : 'The calmer way to run a home together.'}</h1>
                     {showDeletedAccountView ? (
                       <>
                         <p className="hero-copy">{deletedAccountSummary.message}</p>
@@ -589,18 +721,43 @@ function App() {
                       </>
                     ) : (
                       <>
-                        <p className="hero-copy">Maison brings maintenance, shared shopping, reminders, and household planning into one clean place, so running a home feels lighter instead of chaotic.</p>
-                        <p className="hero-copy maison-hero-support">For couples who want their home life to feel calmer, cleaner, and less dependent on memory.</p>
+                        <p className="hero-copy">Maison gives your household one warm place for routines, groceries, reminders, upkeep, and the small details that usually live in someone’s head.</p>
+                        <p className="hero-copy maison-hero-support">Built for couples, roommates, and busy households who want fewer “did you remember?” moments.</p>
                       </>
                     )}
                     {!showDeletedAccountNotice ? <div className="maison-hero-actions">
-                      <a className="primary-button invite-link-button" href="#maison-waitlist">Join the founding launch</a>
+                      <a className="primary-button invite-link-button" href="#maison-waitlist">Get early access</a>
                       <a className="secondary-button invite-link-button" href="#how-maison-works">See how it works</a>
                     </div> : null}
                   </div>
                   <div className="maison-hero-visual">
-                    <div className="maison-hero-frame">
-                      <img src={heroImage} alt="Maison home illustration" className="maison-hero-image" />
+                    <div className="maison-preview-phone" aria-label="Maison home preview">
+                      <div className="maison-preview-screen">
+                        <div className="maison-preview-top">
+                          <strong>Today at home</strong>
+                          <span className="maison-preview-pill">3 done</span>
+                        </div>
+                        <article className="maison-preview-card">
+                          <h3>Kitchen reset</h3>
+                          <p>Riah · after dinner · recurring</p>
+                          <div className="maison-preview-mini-row"><span>done by 8</span><span>shared</span></div>
+                        </article>
+                        <article className="maison-preview-card">
+                          <h3>Pick up lemons + coffee</h3>
+                          <p>Victor · market run · on the way home</p>
+                          <div className="maison-preview-mini-row"><span>grocery</span><span>reminder set</span></div>
+                        </article>
+                        <article className="maison-preview-card">
+                          <h3>Sunday reset</h3>
+                          <p>Bathroom, floors, laundry, prep list</p>
+                          <div className="maison-preview-mini-row"><span>routine</span><span>4 steps</span></div>
+                        </article>
+                        <article className="maison-preview-card maison-preview-note">
+                          <h3>House note</h3>
+                          <p>Trash pickup moved to Friday this week.</p>
+                          <div className="maison-preview-mini-row"><span>everyone sees it</span></div>
+                        </article>
+                      </div>
                     </div>
                     <div className="maison-hero-statline">
                       <div className="maison-metric-card">
@@ -766,25 +923,38 @@ function App() {
                 <p className="hero-copy">{showDeletedAccountNotice ? 'Maison is back at a safe resting state. You can return with Google or email whenever you want.' : 'Choose Google or email below. If a partner already invited you, keep the invite path selected and Maison will take you to code entry right after sign-in.'}</p>
               </div>
               {!hasFirebaseConfig ? <p className="auth-help error">Maison auth is not configured in this live build yet, so sign-in and account creation cannot start until the Firebase build env is fixed.</p> : null}
-              {authMessage ? <p className="auth-help error">{authMessage}</p> : null}
+              {authMessage ? <p className={`auth-help ${authMessageTone}`}>{authMessage}</p> : null}
               {!authMessage && authError ? <p className="auth-help error">{authError}</p> : null}
               {showDeletedAccountNotice ? <div className="auth-landing-note onboarding-note-card goodbye-note"><strong>Signed out cleanly</strong><span>{deletedAccountSummary.email || 'This account'} has been removed, and Maison is now back at a safe resting state.</span></div> : null}
-              <button className="primary-button" type="button" onClick={async () => {
-                setInviteChoice(false)
-                setAuthMessage('Redirecting you to Google sign-in…')
+              {!showDeletedAccountNotice ? <div className="auth-intent-row" role="group" aria-label="Choose how you want to enter Maison">
+                <button className={`auth-intent-option ${!inviteChoice ? 'active' : ''}`} type="button" aria-pressed={!inviteChoice} onClick={() => setInviteChoice(false)}>
+                  <strong>Start or return</strong>
+                  <span>Create a household or open the one you already use.</span>
+                </button>
+                <button className={`auth-intent-option ${inviteChoice ? 'active' : ''}`} type="button" aria-pressed={inviteChoice} onClick={() => setInviteChoice(true)}>
+                  <strong>Join with invite</strong>
+                  <span>Sign in first, then Maison asks for your partner's code.</span>
+                </button>
+              </div> : null}
+              <button className="primary-button" type="button" disabled={isGoogleAuthLoading || !hasFirebaseConfig} onClick={async () => {
+                setAuthMessage('Opening Google sign-in...')
+                setAuthMessageTone('success')
                 setAuthError('')
                 setAuthErrorCode('')
+                setIsGoogleAuthLoading(true)
                 const result = await signInWithGoogle()
                 if (result?.error) {
                   setAuthMessage(result.error)
+                  setAuthMessageTone('error')
                   setAuthError(result.error)
                   setAuthErrorCode(result.rawCode || '')
                 }
-              }}>{showDeletedAccountNotice ? 'Sign in again with Google' : 'Continue with Google'}</button>
-              <button className="secondary-button" type="button" onClick={() => setInviteChoice(true)}>{showDeletedAccountNotice ? 'Join with an invite code later' : 'I already have an invite code'}</button>
+                setIsGoogleAuthLoading(false)
+              }}>{isGoogleAuthLoading ? 'Opening Google...' : showDeletedAccountNotice ? 'Sign in again with Google' : inviteChoice ? 'Continue with Google to join' : 'Continue with Google'}</button>
+              {showDeletedAccountNotice ? <button className="secondary-button" type="button" onClick={() => setInviteChoice(true)}>Join with an invite code later</button> : null}
               {!showDeletedAccountNotice ? <div className="auth-landing-note onboarding-note-card maison-invite-note">
-                <strong>Invite code flow</strong>
-                <span>Select the invite option before you sign in, and Maison will take you directly to household join after authentication.</span>
+                <strong>{inviteChoice ? 'Invite path selected' : 'Invite code flow'}</strong>
+                <span>{inviteChoice ? 'After sign-in, Maison will keep this choice and take you to the household code screen.' : 'If your partner already sent a code, choose Join with invite before you continue.'}</span>
               </div> : null}
               <div className="auth-divider"><span>or use email</span></div>
               <form className="auth-email-form onboarding-section-block" onSubmit={submitEmailAuth}>
@@ -802,6 +972,7 @@ function App() {
                   <button className="secondary-button" type="button" onClick={() => {
                     setEmailAuthMode((current) => current === 'signup' ? 'signin' : 'signup')
                     setAuthMessage('')
+                    setAuthMessageTone('success')
                     setAuthError('')
                     setAuthErrorCode('')
                     setEmailAuthForm((current) => ({ ...current, password: '' }))
@@ -921,7 +1092,7 @@ function App() {
             <p className="eyebrow">{maisonLabel}</p>
             <h1>Set up your home</h1>
             <p className="hero-copy">Shape Maison around the real home, so the planner starts feeling useful immediately.</p>
-            <div className="onboarding-bullet-list"><span>Home profile first</span><span>Starter planner already waiting behind it</span><span>Invite your partner right after setup</span></div>
+            <div className="onboarding-bullet-list"><span>Home profile first</span><span>Maison generates the first task plan from these details</span><span>Invite your partner right after setup</span></div>
             {createHouseholdSuccess ? <p className="auth-help success">{createHouseholdSuccess}</p> : null}
             {setupSuccess ? <p className="auth-help success">{setupSuccess}</p> : null}
             {setupError ? <p className="auth-help error">{setupError}</p> : null}
@@ -969,7 +1140,7 @@ function App() {
             </div>
             <div className="auth-landing-note onboarding-note-card">
               <strong>What happens after setup</strong>
-              <span>Maison saves the home, keeps your starter planner in place, and then gives you the invite code so your partner can join cleanly.</span>
+              <span>Maison saves the home, creates a starter maintenance plan from these answers, and then gives you the invite code so your partner can join cleanly.</span>
             </div>
             <button className="primary-button" type="submit" disabled={isCompletingSetup}>{isCompletingSetup ? 'Saving…' : 'Save home setup'}</button>
           </form>
@@ -1021,6 +1192,7 @@ function App() {
     <div className="shell">
       <div className="top-bar-row">
         <SignedInPill user={user} membership={membership} />
+        {membership && houseProfile.setupCompleted !== false ? <button className="guide-reopen-button" type="button" onClick={openFirstRunGuide}>Guide</button> : null}
         {activeTab === 'planner' ? <button className="menu-button" type="button" onClick={() => setFiltersOpen((open) => !open)} aria-label={filtersOpen ? 'Close filters' : 'Open filters'} aria-expanded={filtersOpen} aria-controls="planner-filter-drawer">☰</button> : null}
       </div>
       <StatusBanner hasFirebaseConfig={hasFirebaseConfig} isRemoteLoaded={isRemoteLoaded} isRemoteLoading={isRemoteLoading} remoteError={remoteError} maisonLabel={maisonLabel} />
@@ -1028,7 +1200,7 @@ function App() {
       {showRemoteWarning ? <section className="panel remote-warning-panel"><p className="panel-label">Live sync issue</p><h2>Some household data may be stale</h2><p className="hero-copy">{maisonLabel} had trouble reaching the live household data just now. You can keep browsing, but if something looks off, refresh or sign out and back in before making decisions.</p></section> : null}
       {deleteAccountError ? <section className="panel remote-warning-panel"><p className="panel-label">Account deletion</p><h2>Could not delete account</h2><p className="hero-copy">{deleteAccountError}</p></section> : null}
       {deleteAccountSuccess ? <section className="panel remote-warning-panel"><p className="panel-label">Account deletion</p><h2>Account removed</h2><p className="hero-copy">{deleteAccountSuccess}</p></section> : null}
-      <nav className="top-tabs" aria-label="Primary sections">
+      <nav className={`top-tabs${guideHighlight('navigation')}`} aria-label="Primary sections">
         <div className="top-tabs-left">
           <button className={`top-tab ${activeTab === 'planner' ? 'active' : ''}`} type="button" aria-pressed={activeTab === 'planner'} onClick={() => { setActiveTab('planner'); setFiltersOpen(false) }}>Planner</button>
           <button className={`top-tab ${activeTab === 'calendar' ? 'active' : ''}`} type="button" aria-pressed={activeTab === 'calendar'} onClick={() => { setActiveTab('calendar'); setFiltersOpen(false); setSelectedTask(null) }}>Calendar</button>
@@ -1040,6 +1212,17 @@ function App() {
             : <button className="top-tab" type="button" onClick={() => signOutUser()}>Sign out</button>}
         </div>
       </nav>
+
+      {currentFirstRunGuideStep ? (
+        <FirstRunGuide
+          step={currentFirstRunGuideStep}
+          stepIndex={firstRunGuideStepIndex}
+          totalSteps={firstRunGuideSteps.length}
+          onBack={goBackFirstRunGuide}
+          onNext={advanceFirstRunGuide}
+          onDismiss={completeFirstRunGuide}
+        />
+      ) : null}
 
       {activeTab === 'planner' ? (
         <>
@@ -1145,7 +1328,7 @@ function App() {
       </header>
 
       {activeTab === 'planner' ? (
-        <section className="stats-grid">
+        <section className={`stats-grid${guideHighlight('stats')}`}>
           <StatCard label="Overdue now" value={summary.overdue} tone="rose" active={selectedStatus === 'overdue'} onClick={() => applyStatusCardFilter('overdue')} />
           <StatCard label="In reminder window" value={summary.remind} tone="gold" active={selectedStatus === 'remind'} onClick={() => applyStatusCardFilter('remind')} />
           <StatCard label="Large maintenance" value={summary.major} tone="violet" active={selectedCategory === 'Systems'} onClick={() => applyStatusCardFilter('major')} />
@@ -1224,7 +1407,7 @@ function App() {
           </section>
 
           <CollapsiblePanel
-            className="task-form-panel"
+            className={`task-form-panel${guideHighlight('task-editor')}`}
             panelId="planner-editor-panel"
             isOpen={plannerPanelsOpen.editor}
             onToggle={() => togglePlannerPanel('editor')}
@@ -1234,7 +1417,7 @@ function App() {
             {taskEditorOpen ? <form className="task-form-grid" onSubmit={submitTaskForm}><label><span>Title</span><input value={taskForm.title} onChange={(e) => setTaskForm((current) => ({ ...current, title: e.target.value }))} required /></label><label><span>Area</span><input value={taskForm.area} onChange={(e) => setTaskForm((current) => ({ ...current, area: e.target.value }))} required /></label><label><span>Category</span><input value={taskForm.category} onChange={(e) => setTaskForm((current) => ({ ...current, category: e.target.value }))} required /></label><label><span>Frequency</span><input value={taskForm.frequency} onChange={(e) => setTaskForm((current) => ({ ...current, frequency: e.target.value }))} required /></label><label><span>Cadence days</span><input type="number" min="1" value={taskForm.cadenceDays} onChange={(e) => setTaskForm((current) => ({ ...current, cadenceDays: Number(e.target.value) }))} required /></label><label><span>Reminder lead days</span><input type="number" min="1" value={taskForm.reminderLeadDays} onChange={(e) => setTaskForm((current) => ({ ...current, reminderLeadDays: Number(e.target.value), major: Number(e.target.value) >= 30 || current.major }))} required /></label><label><span>Effort</span><input value={taskForm.effort} onChange={(e) => setTaskForm((current) => ({ ...current, effort: e.target.value }))} /></label><label><span>Season</span><input value={taskForm.season} onChange={(e) => setTaskForm((current) => ({ ...current, season: e.target.value }))} /></label><label><span>Priority</span><input value={taskForm.priority} onChange={(e) => setTaskForm((current) => ({ ...current, priority: e.target.value }))} /></label><label><span>Last done</span><input type="date" value={taskForm.lastDone} onChange={(e) => setTaskForm((current) => ({ ...current, lastDone: e.target.value }))} required /></label><label className="checkbox-field"><input type="checkbox" checked={taskForm.major} onChange={(e) => setTaskForm((current) => ({ ...current, major: e.target.checked }))} /><span>Large maintenance item</span></label><label className="full-span"><span>Notes</span><textarea rows="3" value={taskForm.notes} onChange={(e) => setTaskForm((current) => ({ ...current, notes: e.target.value }))} /></label><div className="form-actions full-span"><button className="primary-button" type="submit">{editingTaskId ? 'Save changes' : 'Add task'}</button><button className="secondary-button" type="button" onClick={resetTaskForm}>{editingTaskId ? 'Cancel edit' : 'Close'}</button></div></form> : <p className="empty-copy">Open the task form whenever you want to add a new maintenance item or update an existing one.</p>}
           </CollapsiblePanel>
 
-          {!statusCardFilterActive ? <CollapsiblePanel className="planner-schedule-panel" panelId="planner-schedule-panel" isOpen={plannerPanelsOpen.schedule} onToggle={() => togglePlannerPanel('schedule')} header={<div><p className="panel-label">Maintenance schedule</p><h2>{filteredTasks.length} tasks in view</h2></div>}><div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" type="button" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div></CollapsiblePanel> : null}
+          {!statusCardFilterActive ? <CollapsiblePanel className={`planner-schedule-panel${guideHighlight('task-list')}`} panelId="planner-schedule-panel" isOpen={plannerPanelsOpen.schedule} onToggle={() => togglePlannerPanel('schedule')} header={<div><p className="panel-label">Maintenance schedule</p><h2>{filteredTasks.length} tasks in view</h2></div>}><div className="compact-task-list">{filteredTasks.map((task) => (<button key={task.id} className="compact-task-card" type="button" onClick={() => openTaskModal(task)}><span className="compact-task-title">{task.title}</span><span className={`status-pill ${task.status}`}>{task.status}</span></button>))}</div></CollapsiblePanel> : null}
         </>
       ) : activeTab === 'calendar' ? (
         <>
@@ -1284,7 +1467,7 @@ function App() {
         </>
       ) : activeTab === 'admin' ? (
         <>
-          <section className="panel auth-panel">
+          <section className={`panel auth-panel${guideHighlight('admin')}`}>
             <div>
               <p className="panel-label">Household access</p>
               <h2>Admin controls</h2>
@@ -1363,7 +1546,7 @@ function App() {
           </section> : null}
         </>
       ) : (
-        <section className="panel shopping-panel">
+        <section className={`panel shopping-panel${guideHighlight('shopping')}`}>
           <div className="section-head shopping-section-head"><div><p className="panel-label">Shopping lists</p><h2>Household errands by store</h2><p className="hero-copy">Keep the open items easy to scan, and let checked items fall to a separate bucket instead of cluttering the main list.</p>{shoppingMessage ? <p className={`auth-help ${shoppingMessageClass}`}>{shoppingMessage}</p> : null}</div><div className="shopping-summary"><div className="ops-stat"><span>Open items</span><strong>{openShoppingItems.length}</strong></div><div className="ops-stat"><span>Checked</span><strong>{checkedShoppingItems.length}</strong></div><div className="ops-stat"><span>Progress</span><strong>{shoppingCompletion}%</strong></div></div></div>{lists.length ? <div className="shopping-tabs">{lists.map((list) => (<button key={list.id} className={`shopping-tab ${activeShoppingList?.id === list.id ? 'active' : ''}`} type="button" aria-pressed={activeShoppingList?.id === list.id} onClick={() => setActiveShoppingListId(list.id)}>{list.title}</button>))}</div> : <p className="empty-copy">No shopping lists are available yet.</p>}{activeShoppingList ? <article className={`shopping-card ${activeShoppingList.tone}`}><div className="shopping-top"><div><p className="task-meta">Store list</p><h3>{activeShoppingList.id === 'other' ? (activeShoppingList.storeName || 'Other') : activeShoppingList.title}</h3><p className="shopping-progress-copy">{activeShoppingItems.length ? `${openShoppingItems.length} to grab, ${checkedShoppingItems.length} already handled.` : 'Start the list by adding your first item.'}</p></div><span className="count-pill">{openShoppingItems.length} open</span></div>{activeShoppingList.id === 'other' ? <label className="shopping-store-field"><span>Store name</span><input aria-label="Store name" placeholder="Store name" value={activeShoppingList.storeName || ''} onChange={(e) => handleSaveShoppingListMeta(activeShoppingList.id, { storeName: e.target.value })} /></label> : null}<form className="shopping-form" onSubmit={(event) => submitShoppingForm(event, activeShoppingList.id)}><input aria-label="Item name" placeholder="Item name" value={getShoppingForm(activeShoppingList.id).name} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), name: e.target.value })} required /><input aria-label="Quantity" placeholder="Qty" value={getShoppingForm(activeShoppingList.id).qty} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), qty: e.target.value })} /><input aria-label="Aisle or note" placeholder="Aisle / note" value={getShoppingForm(activeShoppingList.id).aisleHint} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), aisleHint: e.target.value })} /><input aria-label="Product URL" placeholder="Product URL" value={getShoppingForm(activeShoppingList.id).url || ''} onChange={(e) => setShoppingFormValue(activeShoppingList.id, { ...getShoppingForm(activeShoppingList.id), url: e.target.value })} /><div className="form-actions"><button className="primary-button" type="submit">{editingShopping[activeShoppingList.id] ? 'Save item' : 'Add item'}</button>{editingShopping[activeShoppingList.id] ? <button className="secondary-button" type="button" onClick={() => resetShoppingForm(activeShoppingList.id)}>Cancel</button> : null}</div></form><div className="shopping-group"><div className="shopping-group-head"><p className="panel-label">To grab now</p><span className="count-pill">{openShoppingItems.length}</span></div><div className="shopping-items">{openShoppingItems.length ? openShoppingItems.map((item) => (<div key={item.id} className="shopping-item"><input type="checkbox" aria-label={`${item.checked ? 'Uncheck' : 'Check'} ${item.name}`} checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span>{item.url ? <a className="shopping-link" href={item.url} target="_blank" rel="noreferrer">Open link</a> : null}</div><div className="shopping-item-actions"><button className="inline-action" type="button" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" type="button" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>)) : <p className="empty-copy">Nothing open on this list right now.</p>}</div></div>{checkedShoppingItems.length ? <div className="shopping-group checked-group"><div className="shopping-group-head"><div><p className="panel-label">Already grabbed</p><span className="checked-group-copy">Checked off items can be cleared once you’re done with the run.</span></div><div className="checked-group-actions"><span className="count-pill">{checkedShoppingItems.length}</span><button className="inline-action danger" type="button" onClick={() => handleDeleteCheckedShoppingItems(activeShoppingList.id)}>Clear checked</button></div></div><div className="shopping-items">{checkedShoppingItems.map((item) => (<div key={item.id} className="shopping-item checked"><input type="checkbox" aria-label={`${item.checked ? 'Uncheck' : 'Check'} ${item.name}`} checked={item.checked} onChange={() => handleToggleShoppingItem(activeShoppingList.id, item.id)} /><div><strong>{item.name}</strong><span>{item.qty} · {item.aisleHint}</span>{item.url ? <a className="shopping-link" href={item.url} target="_blank" rel="noreferrer">Open link</a> : null}</div><div className="shopping-item-actions"><button className="inline-action" type="button" onClick={() => startEditShoppingItem(activeShoppingList.id, item)}>Edit</button><button className="inline-action danger" type="button" onClick={() => handleDeleteShoppingItem(activeShoppingList.id, item.id)}>Delete</button></div></div>))}</div></div> : null}</article> : <p className="empty-copy">Pick up household shopping by creating or restoring a list first.</p>}</section>
       )}
 
@@ -1461,6 +1644,31 @@ function CollapsiblePanel({ className = '', headClassName = '', panelId, header,
         <span className="collapsible-toggle-meta"><span>{isOpen ? 'Hide' : 'Open'}</span><span className={`panel-collapse-chevron ${isOpen ? 'open' : ''}`} aria-hidden="true">⌄</span></span>
       </button>
       {isOpen ? <div className="collapsible-body" id={panelId ? `${panelId}-body` : undefined} role={panelId ? 'region' : undefined} aria-labelledby={panelId ? `${panelId}-toggle` : undefined}>{children}</div> : null}
+    </section>
+  )
+}
+function FirstRunGuide({ step, stepIndex, totalSteps, onBack, onNext, onDismiss }) {
+  const isLastStep = stepIndex >= totalSteps - 1
+
+  return (
+    <section className="first-run-guide" role="dialog" aria-labelledby="first-run-guide-title" aria-describedby="first-run-guide-body">
+      <div className="first-run-guide-scrim" aria-hidden="true" />
+      <article className={`first-run-guide-card guide-target-${step.target}`}>
+        <div className="first-run-guide-topline">
+          <p className="panel-label">First-time guide</p>
+          <span className="count-pill">{stepIndex + 1} of {totalSteps}</span>
+        </div>
+        <h2 id="first-run-guide-title">{step.title}</h2>
+        <p id="first-run-guide-body" className="hero-copy">{step.body}</p>
+        <div className="first-run-guide-progress" aria-hidden="true">
+          <span style={{ width: `${((stepIndex + 1) / totalSteps) * 100}%` }} />
+        </div>
+        <div className="form-actions first-run-guide-actions">
+          <button className="secondary-button" type="button" onClick={onBack} disabled={stepIndex === 0}>Back</button>
+          <button className="primary-button" type="button" onClick={onNext}>{isLastStep ? 'Finish guide' : 'Next'}</button>
+          <button className="secondary-button" type="button" onClick={onDismiss}>Skip</button>
+        </div>
+      </article>
     </section>
   )
 }

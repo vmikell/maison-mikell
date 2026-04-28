@@ -38,7 +38,7 @@ async function captureFailure(page, label) {
 
 async function gotoLanding(page) {
   await page.goto(baseUrl, { waitUntil: 'networkidle', timeout: 120000 })
-  await page.getByRole('heading', { name: /welcome home/i }).waitFor({ timeout: 30000 })
+  await page.getByRole('heading', { name: /the home operating system/i }).waitFor({ timeout: 30000 })
 }
 
 async function switchToEmailSignup(page) {
@@ -49,10 +49,11 @@ async function switchToEmailSignup(page) {
 async function signUpWithEmail(page, { name, email, password }) {
   await gotoLanding(page)
   await switchToEmailSignup(page)
-  await page.getByPlaceholder('Your name').fill(name)
-  await page.getByPlaceholder('Email address').fill(email)
-  await page.getByPlaceholder('Password').fill(password)
-  await page.getByRole('button', { name: /^create email account$/i }).click()
+  const emailForm = page.locator('form.auth-email-form')
+  await emailForm.getByPlaceholder('Your name').fill(name)
+  await emailForm.getByPlaceholder('Email address').fill(email)
+  await emailForm.getByPlaceholder('Password').fill(password)
+  await emailForm.getByRole('button', { name: /^create email account$/i }).click()
   await page.getByRole('heading', { name: /start your household/i }).waitFor({ timeout: 60000 })
 }
 
@@ -89,7 +90,7 @@ try {
   try {
     await gotoLanding(landingPage)
     results.deploy = {
-      resetPasswordButton: await landingPage.getByRole('button', { name: /reset password/i }).count() > 0,
+      resetPasswordButton: await landingPage.getByRole('button', { name: /forgot password/i }).count() > 0,
       emailAuthSection: await landingPage.getByText(/email and password/i).count() > 0,
       authConfiguredMessageVisible: await landingPage.getByText(/auth is not configured/i).count() > 0,
     }
@@ -164,8 +165,8 @@ try {
     resetPage.setDefaultTimeout(30000)
     try {
       await gotoLanding(resetPage)
-      await resetPage.getByPlaceholder('Email address').fill(memberEmail)
-      await resetPage.getByRole('button', { name: /reset password/i }).click()
+      await resetPage.locator('form.auth-email-form').getByPlaceholder('Email address').fill(memberEmail)
+      await resetPage.getByRole('button', { name: /forgot password/i }).click()
       await resetPage.getByText(/password reset email sent/i).waitFor({ timeout: 30000 })
       results.passwordReset = { email: memberEmail, success: true }
     } catch (error) {
@@ -194,7 +195,8 @@ try {
     if (await continueButton.count()) await continueButton.click()
     await deletePage.getByRole('button', { name: /^admin$/i }).click()
     await deletePage.getByPlaceholder('Current password to confirm deletion').fill(password)
-    await deletePage.getByRole('button', { name: /^delete my account$/i }).click()
+    await deletePage.getByPlaceholder('Type DELETE to confirm').fill('DELETE')
+    await deletePage.getByRole('button', { name: /delete household and account|delete my account/i }).click()
     await deletePage.getByRole('heading', { name: /goodbye for now/i }).waitFor({ timeout: 60000 })
     results.deleteSoloOwner = { email: deleteEmail, success: true }
   } catch (error) {
