@@ -10,13 +10,15 @@
   --maison-cream: #fffaf3;
   --maison-line: rgba(82, 66, 48, 0.12);
   --maison-ink: #2f2720;
-  --maison-body: #5f5448;
-  --maison-muted: #877668;
+  --maison-body: #53483f;
+  --maison-muted: #66574b;
+  --maison-label: #705039;
   --maison-walnut: #4a392d;
   --maison-gold: #c39a48;
   --maison-teal: #708f89;
+  --maison-teal-deep: #44635e;
   --maison-clay: #b97860;
-  --maison-clay-deep: #8f553f;
+  --maison-clay-deep: #744233;
   --maison-shadow: 0 22px 64px rgba(79, 60, 40, 0.08);
   background: linear-gradient(180deg, var(--maison-paper), var(--maison-paper-deep));
   font-synthesis: none;
