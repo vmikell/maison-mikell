@@ -7,8 +7,9 @@ Maison should launch as a paid product.
 Recommendation:
 - no free tier
 - no permanent free plan
-- short founding offer at launch
-- standard subscription pricing after launch window closes
+- founding lifetime offer for the first 14 days after public launch
+- standard monthly and yearly subscription pricing after the founding window closes
+- one shared RevenueCat entitlement unlocks paid access
 
 ## Why no free tier makes sense
 
@@ -19,45 +20,39 @@ Recommendation:
 ## Recommended launch offer
 
 ### Founding offer
-- **Lifetime access:** `$179`
-- availability: first 7 days after public launch
-- framing: founding-member pricing, never repeated casually
 
-This should be presented as a limited early-adopter reward, not a discount trap.
+- **Lifetime access:** `$179`
+- availability: first 14 days after public launch
+- framing: founding-member pricing, not an always-open discount
+- RevenueCat product: `lifetime`
+
+This should be presented as a limited early-adopter reward for households helping shape Maison at launch.
 
 ## Recommended standard pricing
 
-### Option A, recommended
 - **Monthly:** `$12/month`
 - **Yearly:** `$96/year`
-
-### Option B, more premium
-- **Monthly:** `$15/month`
-- **Yearly:** `$120/year`
-
-## Recommendation
-
-Use Option A first.
-
-Why:
-- easier initial conversion
-- still premium enough to avoid commodity positioning
-- strong yearly value story
+- **Entitlement:** `Mikell Labs | Maison Pro`
+- **Lifetime product:** `lifetime`
+- **Monthly product:** `monthly`
+- **Yearly product:** `yearly`
 
 ## Launch messaging
 
 Maison should be framed as:
-- the home operating system for couples
+- the home operating system for shared households
 - one calm place for maintenance, shopping, reminders, and household coordination
 - built for real homes, not generic productivity hacks
 
 ## Open pricing questions
 
-- [ ] Will one subscription cover one household or only one account?
-- [ ] Will lifetime include all future features forever, or only the current core product line?
-- [ ] Will billing be available on web, native, or both at launch?
-- [ ] Is annual pricing the primary offer with monthly as a secondary option?
+- [x] No free tier for v1.
+- [x] Founding lifetime tier is included for the first 14 days.
+- [x] iOS billing must use Apple In-App Purchase through RevenueCat/StoreKit, not Stripe.
+- [x] Yearly pricing is the primary recurring offer with monthly as the flexible option.
+- [ ] Confirm whether App Store Connect should expose the lifetime product at launch or whether founders access is handled in a separate launch/offering flow.
+- [ ] Finalize whether the RevenueCat app user ID maps strictly to Firebase user ID or later needs household-level transfer rules.
 
 ## My current recommendation
 
-Treat the yearly plan as the main plan, monthly as the flexible option, and lifetime as a short launch-only founding offer.
+Lead with the 14-day founding lifetime offer, keep monthly and yearly as the standard plans, and avoid adding any free tier.

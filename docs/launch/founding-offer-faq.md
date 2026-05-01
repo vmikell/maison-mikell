@@ -2,7 +2,7 @@
 
 ## What is the founding offer?
 
-For the first 7 days after launch, founding members can get **lifetime access for $179**.
+For the first 14 days after launch, founding members can get **lifetime access for $179**.
 
 This is an early-adopter launch offer for households getting in at the beginning.
 

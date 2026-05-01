@@ -962,7 +962,191 @@ select:focus-visible {
   background: rgba(255, 255, 255, 0.74);
 }
 
+.maison-mobile-launch-flow {
+  display: none;
+}
+
+.maison-web-landing-blocks {
+  display: grid;
+  gap: 18px;
+}
+
+.invite-code-input:focus,
+.task-form-grid input:focus,
+.task-form-grid textarea:focus,
+.shopping-form input:focus,
+.shopping-store-field input:focus,
+.maison-select-input:focus,
+.maison-textarea-input:focus {
+  background: #fffaf4;
+  color: var(--maison-ink);
+  border-color: var(--maison-label);
+}
+
+.invite-code-input::selection,
+.task-form-grid input::selection,
+.task-form-grid textarea::selection,
+.shopping-form input::selection,
+.shopping-store-field input::selection,
+.maison-textarea-input::selection {
+  color: var(--maison-cream);
+  background: var(--maison-walnut);
+}
+
+.invite-code-input:-webkit-autofill,
+.task-form-grid input:-webkit-autofill,
+.shopping-form input:-webkit-autofill,
+.shopping-store-field input:-webkit-autofill,
+.maison-select-input:-webkit-autofill,
+.maison-textarea-input:-webkit-autofill {
+  -webkit-text-fill-color: var(--maison-ink);
+  caret-color: var(--maison-ink);
+  box-shadow: 0 0 0 1000px #fffaf4 inset;
+}
+
 @media (max-width: 819px) {
+  .shell.auth-shell {
+    padding: calc(34px + env(safe-area-inset-top)) 14px 40px;
+  }
+
+  .maison-landing-main {
+    gap: 14px;
+  }
+
+  .maison-landing-nav {
+    padding: 10px 2px 12px !important;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+  }
+
+  .maison-landing-nav .secondary-button {
+    display: none;
+  }
+
+  .maison-web-landing-block,
+  .maison-web-landing-blocks {
+    display: none !important;
+  }
+
+  .maison-mobile-launch-flow {
+    display: grid;
+    gap: 14px;
+  }
+
+  .maison-mobile-shared-card,
+  .maison-mobile-pricing,
+  .maison-app-screenshot-frame {
+    border: 1px solid var(--maison-line);
+    border-radius: 24px;
+    background: var(--maison-card);
+    box-shadow: var(--maison-shadow);
+  }
+
+  .maison-mobile-shared-card {
+    display: grid;
+    gap: 12px;
+    padding: 24px;
+  }
+
+  .maison-mobile-shared-card h1 {
+    max-width: none !important;
+    font-size: 2.25rem !important;
+    line-height: 0.98 !important;
+  }
+
+  .maison-app-screenshot-frame {
+    margin: 0;
+    max-height: 430px;
+    padding: 10px;
+    overflow: hidden;
+  }
+
+  .maison-app-screenshot-frame img {
+    display: block;
+    width: 100%;
+    height: auto;
+    margin-top: -92px;
+    border-radius: 18px;
+    border: 1px solid var(--maison-line);
+  }
+
+  .maison-mobile-pricing {
+    display: grid;
+    gap: 10px;
+    padding: 16px;
+  }
+
+  .maison-mobile-price-primary,
+  .maison-mobile-price-row > div {
+    display: grid;
+    gap: 6px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: rgba(255, 255, 255, 0.58);
+    border: 1px solid var(--maison-line);
+  }
+
+  .maison-mobile-price-primary {
+    background: rgba(195, 154, 72, 0.16);
+  }
+
+  .maison-mobile-price-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  .maison-mobile-price-primary span,
+  .maison-mobile-price-row span {
+    color: var(--maison-label);
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  .maison-mobile-price-primary strong,
+  .maison-mobile-price-row strong {
+    color: var(--maison-walnut);
+    font-size: 1.12rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+
+  .maison-auth-rail {
+    display: flex;
+    flex-direction: column;
+  }
+
+  .maison-auth-rail .panel-label,
+  .maison-auth-rail .auth-divider,
+  .maison-auth-rail .auth-landing-note:not(.goodbye-note),
+  .maison-auth-rail .maison-auth-card:not(.maison-waitlist-card) > div:first-child .hero-copy,
+  .maison-auth-rail .auth-email-form > div:first-child .hero-copy,
+  .maison-auth-rail .auth-intent-option span {
+    display: none;
+  }
+
+  .maison-auth-rail .auth-intent-option {
+    min-height: auto;
+  }
+
+  .maison-auth-rail .maison-auth-card:not(.maison-waitlist-card) {
+    order: 1;
+  }
+
+  .maison-auth-rail .maison-waitlist-card {
+    display: none;
+  }
+
+  .maison-auth-card,
+  .onboarding-section-block,
+  .auth-landing-note {
+    box-shadow: none !important;
+  }
+
   .maison-hero {
     padding: 28px 24px !important;
     gap: 18px;

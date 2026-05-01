@@ -627,6 +627,11 @@ export function usePlannerState(currentUser = null) {
     })
   }
 
+  function clearDeletedAccountSummary() {
+    setDeletedAccountSummary(null)
+    setDeleteAccountSuccess('')
+  }
+
   async function handleJoinHousehold(inviteCode) {
     if (!currentUser) {
       setJoinError('Sign in first, then enter the household invite code.')
@@ -717,6 +722,7 @@ export function usePlannerState(currentUser = null) {
     handleCompleteSetup,
     handleDeleteCurrentAccount,
     finalizeDeletedAccount,
+    clearDeletedAccountSummary,
     resetPlannerStateAfterDelete,
     setDeleteAccountError,
     setInviteChoice,

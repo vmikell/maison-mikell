@@ -68,7 +68,7 @@ Lead with:
 - push broader social/content outreach
 - test couple/homeowner communities carefully
 - highlight testimonials and real household outcomes
-- close founding lifetime offer after 7 days
+- close founding lifetime offer after 14 days
 
 ## Metrics to watch
 

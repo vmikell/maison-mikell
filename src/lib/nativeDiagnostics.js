@@ -23,16 +23,20 @@ function readDebugFlagFromUrl() {
   return DEBUG_QUERY_KEYS.some((key) => TRUTHY_QUERY_VALUES.has((params.get(key) || '').toLowerCase()))
 }
 
+function readDebugFlagFromEnv() {
+  return TRUTHY_QUERY_VALUES.has((import.meta.env.VITE_NATIVE_DIAGNOSTICS || '').toLowerCase())
+}
+
 export function useNativeDiagnostics() {
   const platform = Capacitor.getPlatform()
   const isNativeShell = platform === 'ios' || platform === 'android'
 
   const [currentUrl, setCurrentUrl] = useState(() => getCurrentUrl())
   const [appState, setAppState] = useState(() => getDocumentAppState())
-  const [debugEnabled] = useState(() => readDebugFlagFromUrl())
+  const [debugEnabled] = useState(() => readDebugFlagFromUrl() || readDebugFlagFromEnv())
   const lastRecordedUrl = useRef(getCurrentUrl())
 
-  const shouldShowDiagnostics = isNativeShell || debugEnabled
+  const shouldShowDiagnostics = debugEnabled
   const [events, setEvents] = useState(() => shouldShowDiagnostics ? readDiagnosticsEvents() : [])
   const [copyMessage, setCopyMessage] = useState('')
 

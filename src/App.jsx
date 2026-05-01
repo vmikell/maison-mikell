@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { addDoc, collection } from 'firebase/firestore'
 import './App.css'
+import maisonAppScreenshot from './assets/maison-app-screenshot.png'
 import { formatDate, addDays } from './lib/model'
 import { starterHouseProfile } from './lib/data'
 import { sendWelcomeEmail } from './lib/welcomeEmail'
@@ -8,6 +9,16 @@ import { usePlannerState } from './hooks/usePlannerState'
 import { createEmailPasswordAccount, deleteSignedInAuthUser, ensureRecentLogin, sendPasswordReset, signInWithEmailPassword, signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
 import { useNativeDiagnostics } from './lib/nativeDiagnostics'
 import { firestore } from './lib/firebase'
+import {
+  LIFETIME_PRODUCT_ID,
+  MONTHLY_PRODUCT_ID,
+  PRIVACY_POLICY_URL,
+  SUBSCRIPTION_ENTITLEMENT_DISPLAY_NAME,
+  SUBSCRIPTION_ENTITLEMENT_ID,
+  TERMS_URL,
+  YEARLY_PRODUCT_ID,
+  useSubscriptionAccess,
+} from './lib/subscriptions'
 
 const emptyTaskForm = {
   id: '', title: '', area: '', category: 'Cleaning', room: '', system: '', assetName: '', vendor: '', supplyNote: '', frequency: 'Monthly', cadenceDays: 30, reminderLeadDays: 7, effort: '20 min', season: 'All year', priority: 'Routine', notes: '', lastDone: '2026-04-02', major: false,
@@ -53,6 +64,117 @@ const FIRST_RUN_GUIDE_STEPS = [
     body: 'Owners can reveal or refresh invite codes, promote members, review reminders, and leave the household cleanly from Admin.',
   },
 ]
+
+function getPackagePriceLabel(revenueCatPackage, fallback) {
+  return revenueCatPackage?.product?.priceString || revenueCatPackage?.product?.price_string || fallback
+}
+
+function Paywall({ subscriptionAccess, user, membership, nativeDiagnostics }) {
+  const [selectedPlan, setSelectedPlan] = useState('lifetime')
+  const plans = [
+    {
+      id: 'lifetime',
+      label: 'Founders',
+      helper: 'Lifetime access during the 14-day launch window',
+      productId: LIFETIME_PRODUCT_ID,
+      package: subscriptionAccess.lifetimePackage,
+      fallbackPrice: '$179 one-time',
+    },
+    {
+      id: 'monthly',
+      label: 'Monthly',
+      helper: 'Flexible month-to-month access',
+      productId: MONTHLY_PRODUCT_ID,
+      package: subscriptionAccess.monthlyPackage,
+      fallbackPrice: '$12/mo',
+    },
+    {
+      id: 'yearly',
+      label: 'Yearly',
+      helper: 'Best recurring value',
+      productId: YEARLY_PRODUCT_ID,
+      package: subscriptionAccess.yearlyPackage,
+      fallbackPrice: '$96/yr',
+    },
+  ]
+  const selectedPlanConfig = plans.find((plan) => plan.id === selectedPlan) || plans[0]
+  const activePackage = selectedPlanConfig.package
+  const isPurchaseBusy = subscriptionAccess.action === 'purchase'
+  const isRestoreBusy = subscriptionAccess.action === 'restore'
+  const isPaywallBusy = subscriptionAccess.action === 'paywall'
+  const isCustomerCenterBusy = subscriptionAccess.action === 'customer-center'
+  const isBusy = subscriptionAccess.loading || isPurchaseBusy || isRestoreBusy || isPaywallBusy || isCustomerCenterBusy
+
+  return (
+    <div className="shell auth-shell">
+      <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
+      <section className="hero-card auth-landing-card onboarding-card paywall-card">
+        <div>
+          <p className="eyebrow">Mikell Labs | Maison</p>
+          <h1>Unlock Maison Pro.</h1>
+          <p className="hero-copy">Maison uses RevenueCat to manage subscription access. The native app checks the <strong>{SUBSCRIPTION_ENTITLEMENT_DISPLAY_NAME}</strong> entitlement before unlocking the household experience.</p>
+          <div className="onboarding-bullet-list compact">
+            <span>Founders lifetime, monthly, and yearly products are configured through the current RevenueCat offering</span>
+            <span>Customer info is refreshed after paywall, purchase, restore, and Customer Center actions</span>
+            <span>Access key: <code>{SUBSCRIPTION_ENTITLEMENT_ID}</code></span>
+          </div>
+          {membership ? <p className="auth-help success">Signed in as {user?.email || user?.displayName || 'your Maison account'}.</p> : null}
+        </div>
+
+        <div className="auth-landing-actions onboarding-actions paywall-actions">
+          <div className="paywall-plan-grid" role="radiogroup" aria-label="Choose subscription plan">
+            {plans.map((plan) => (
+              <button className={`paywall-plan ${selectedPlan === plan.id ? 'active' : ''}`} type="button" role="radio" aria-checked={selectedPlan === plan.id} onClick={() => setSelectedPlan(plan.id)} key={plan.id}>
+                <span>{plan.label}</span>
+                <strong>{getPackagePriceLabel(plan.package, plan.fallbackPrice)}</strong>
+                <small>{plan.helper}</small>
+                <small>Product ID: {plan.productId}</small>
+              </button>
+            ))}
+          </div>
+
+          {subscriptionAccess.loading ? (
+            <div className="auth-landing-note onboarding-note-card" role="status">
+              <strong>Checking subscription</strong>
+              <span>Maison is asking RevenueCat whether this account already has active Pro access.</span>
+            </div>
+          ) : null}
+
+          {!subscriptionAccess.configured && !subscriptionAccess.loading ? (
+            <div className="auth-landing-note onboarding-note-card">
+              <strong>RevenueCat native setup needed</strong>
+              <span>{subscriptionAccess.configurationReason} Native paywalls and purchases run on iOS and Android device builds, not the web preview.</span>
+            </div>
+          ) : null}
+
+          {subscriptionAccess.error ? <p className="auth-help error">{subscriptionAccess.error}</p> : null}
+
+          <button className="primary-button" type="button" disabled={!subscriptionAccess.configured || isBusy} onClick={subscriptionAccess.presentPaywallIfNeeded}>
+            {isPaywallBusy ? 'Opening paywall...' : 'View RevenueCat Paywall'}
+          </button>
+          <button className="secondary-button" type="button" disabled={!subscriptionAccess.configured || isBusy || !activePackage} onClick={() => subscriptionAccess.purchase(activePackage)}>
+            {isPurchaseBusy ? 'Opening purchase...' : `Buy selected plan directly`}
+          </button>
+          <div className="form-actions">
+            <button className="secondary-button" type="button" disabled={!subscriptionAccess.configured || isBusy} onClick={subscriptionAccess.restore}>
+              {isRestoreBusy ? 'Restoring...' : 'Restore purchases'}
+            </button>
+            <button className="secondary-button" type="button" disabled={!subscriptionAccess.configured || isBusy} onClick={subscriptionAccess.presentCustomerCenter}>
+              {isCustomerCenterBusy ? 'Opening...' : 'Manage subscription'}
+            </button>
+            <button className="secondary-button" type="button" disabled={subscriptionAccess.loading} onClick={subscriptionAccess.refresh}>Check access again</button>
+            <button className="secondary-button" type="button" onClick={() => signOutUser()}>Use a different account</button>
+          </div>
+          <p className="paywall-disclaimer">Subscriptions renew unless canceled through your App Store or Google Play account. Do not ship a production app with the RevenueCat Test Store key.</p>
+          <div className="paywall-legal-links">
+            <a href={PRIVACY_POLICY_URL} target="_blank" rel="noreferrer">Privacy Policy</a>
+            <a href={TERMS_URL} target="_blank" rel="noreferrer">Terms</a>
+          </div>
+        </div>
+      </section>
+    </div>
+  )
+}
 
 function App() {
   const nativeDiagnostics = useNativeDiagnostics()
@@ -127,6 +249,7 @@ function App() {
   const [setupForm, setSetupForm] = useState({ name: '', homeType: '', sizeSqFt: '', levels: '', bedrooms: '', bathrooms: '', hvacSystem: '', hvacHeads: '' })
   const [emailAuthMode, setEmailAuthMode] = useState('signin')
   const [isEmailAuthLoading, setIsEmailAuthLoading] = useState(false)
+  const [isPasswordResetLoading, setIsPasswordResetLoading] = useState(false)
   const [emailAuthForm, setEmailAuthForm] = useState({ name: '', email: '', password: '' })
   const [launchInterestForm, setLaunchInterestForm] = useState({ name: '', email: '', householdType: 'Couple', friction: '' })
   const [isLaunchInterestLoading, setIsLaunchInterestLoading] = useState(false)
@@ -161,19 +284,21 @@ function App() {
       return
     }
 
-    setAuthMessage(emailAuthMode === 'signup' ? 'Creating your account...' : 'Signing you in...')
+    clearDeletedAccountSummary()
+    setAuthMessage(emailAuthMode === 'signup' ? 'Account created. Finishing sign-in...' : 'Signed in. Loading your Maison home...')
     setAuthMessageTone('success')
     setEmailAuthForm((current) => ({ ...current, password: '' }))
-    // Keep loading true — onAuthStateChanged will trigger the transition.
-    // Clearing it here causes a brief re-enabled form before the user state lands.
+    setIsEmailAuthLoading(false)
   }
 
   async function handlePasswordReset() {
+    setIsPasswordResetLoading(true)
     setAuthMessage('')
     setAuthMessageTone('success')
     setAuthError('')
     setAuthErrorCode('')
     const result = await sendPasswordReset({ email: emailAuthForm.email })
+    setIsPasswordResetLoading(false)
     if (!result?.ok) {
       setAuthMessage(result?.error || 'Could not send a password reset email right now.')
       setAuthMessageTone('error')
@@ -181,6 +306,7 @@ function App() {
       setAuthErrorCode(result?.rawCode || '')
       return
     }
+    clearDeletedAccountSummary()
     setAuthMessage('Password reset email sent. Check your inbox and spam folder, then come back and sign in with the new password.')
     setAuthMessageTone('success')
     setEmailAuthForm((current) => ({ ...current, password: '' }))
@@ -190,7 +316,7 @@ function App() {
     event.preventDefault()
     if (!firestore || !hasFirebaseConfig) {
       setLaunchInterestTone('error')
-      setLaunchInterestMessage('Founding-launch capture is not configured yet in this build.')
+      setLaunchInterestMessage('Access-request capture is not configured yet in this build.')
       return
     }
 
@@ -208,11 +334,11 @@ function App() {
         createdAt: new Date().toISOString(),
       })
 
-      setLaunchInterestMessage('You’re on the founding-launch list. We’ll reach out when the next access wave opens.')
+      setLaunchInterestMessage('You’re on the access-request list. We’ll reach out when the next access wave opens.')
       setLaunchInterestForm({ name: '', email: '', householdType: 'Couple', friction: '' })
     } catch {
       setLaunchInterestTone('error')
-      setLaunchInterestMessage('Could not save your founding-launch request right now. Please try again in a minute.')
+      setLaunchInterestMessage('Could not save your access request right now. Please try again in a minute.')
     } finally {
       setIsLaunchInterestLoading(false)
     }
@@ -294,10 +420,12 @@ function App() {
     handleCompleteSetup,
     handleDeleteCurrentAccount,
     finalizeDeletedAccount,
+    clearDeletedAccountSummary,
     setDeleteAccountError,
     setInviteChoice,
     setShowInvitePanel,
   } = usePlannerState(user)
+  const subscriptionAccess = useSubscriptionAccess(user)
 
   const reminderRules = houseProfile.reminderRules ?? starterHouseProfile.reminderRules
   const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile.name || 'our Maison home'
@@ -307,17 +435,16 @@ function App() {
   const emailInviteHref = `mailto:?subject=${encodeURIComponent(`Join our Maison household`)}&body=${encodeURIComponent(`${inviteMessage}\n\n${inviteInstructions}`)}`
   const textInviteHref = `sms:?&body=${encodeURIComponent(`${inviteMessage} ${inviteInstructions}`)}`
   const landingFeatures = [
-    { title: 'Shared shopping', body: 'Keep one live household shopping list that both people can update, without the usual text-thread drift.' },
-    { title: 'Home maintenance', body: 'Track recurring upkeep and the invisible work that keeps a home running well over time.' },
-    { title: 'Reminders that matter', body: 'Handle household reminders without relying on memory, repeated conversations, or nagging.' },
-    { title: 'Household planning', body: 'See the important shared tasks and dates in one calm place instead of six disconnected ones.' },
-    { title: 'Multi-member access', body: 'Built for a shared home from the start, not one person carrying the whole operational load alone.' },
+    'Keep one live household shopping list that both people can update, without the usual text-thread drift.',
+    'Track recurring upkeep and the invisible work that keeps a home running well over time.',
+    'Handle household reminders without relying on memory, repeated conversations, or nagging.',
+    'See the important shared tasks and dates in one calm place instead of six disconnected ones.',
+    'Give the whole household shared access without one person carrying the operational load alone.',
   ]
-  const landingAudience = ['Couples living together', 'Busy homeowners', 'Households with recurring home-admin friction', 'People who want one shared source of truth']
   const landingFaqs = [
     { question: 'Is Maison for individuals or households?', answer: 'It is built for shared household coordination, especially couples living together.' },
     { question: 'Is there a free plan?', answer: 'No. Maison is positioned as a paid household product from launch.' },
-    { question: 'What does one subscription cover?', answer: 'One household. Final billing language should match the actual product setup.' },
+    { question: 'What does one subscription cover?', answer: 'One subscription unlocks Maison for the signed-in account, with one shared entitlement controlling access.' },
   ]
 
   const categories = useMemo(() => ['All', ...new Set(enrichedTasks.map((task) => task.category))], [enrichedTasks])
@@ -329,6 +456,13 @@ function App() {
     if (/FBAN|FBAV|FB_IAB|FB4A/i.test(ua)) return 'Facebook'
     return null
   }, [])
+
+  useEffect(() => {
+    if (!authLoading) {
+      setIsEmailAuthLoading(false)
+      setIsPasswordResetLoading(false)
+    }
+  }, [authLoading, user?.uid])
 
   useEffect(() => {
     if (!user?.uid || !user?.email || typeof window === 'undefined') return
@@ -385,6 +519,16 @@ function App() {
     const nextCode = await handleGenerateInviteCode()
     if (nextCode) setIsInviteCodeVisible(true)
   }
+
+  function chooseInviteAfterOffboarding() {
+    clearDeletedAccountSummary()
+    setInviteChoice(true)
+    setAuthMessage('Sign in first, then Maison will ask for the invite code.')
+    setAuthMessageTone('success')
+    setAuthError('')
+    setAuthErrorCode('')
+  }
+
   const filteredTasks = enrichedTasks.filter((task) => {
     const categoryMatch = selectedCategory === 'All' || task.category === selectedCategory
     const statusMatch = selectedStatus === 'All' || task.status === selectedStatus
@@ -696,14 +840,42 @@ function App() {
                     <a className="maison-logo" href="#top" aria-label="Maison home">Maison</a>
                     <div className="maison-navlinks" aria-hidden="true">
                       <span>How it works</span>
-                      <span>For households</span>
                       <span>Preview</span>
                     </div>
                     <a className="secondary-button invite-link-button" href="#maison-waitlist">Join waitlist</a>
                   </nav>
                 ) : null}
 
-                <section className="maison-hero">
+                {!showDeletedAccountNotice ? (
+                  <section className="maison-mobile-launch-flow" aria-label="Maison mobile introduction">
+                    <section className="maison-mobile-shared-card" aria-label="Shared home">
+                      <h1>Shared home, less mental load.</h1>
+                      <p className="hero-copy">Maison keeps routines, groceries, reminders, upkeep, and household details in one calm place.</p>
+                    </section>
+                    <figure className="maison-app-screenshot-frame">
+                      <img src={maisonAppScreenshot} alt="Maison app planner dashboard screenshot" />
+                    </figure>
+                    <section className="maison-mobile-pricing" aria-label="Maison subscription options">
+                      <div className="maison-mobile-price-primary">
+                        <span>Founders</span>
+                        <strong>$179 lifetime</strong>
+                      </div>
+                      <div className="maison-mobile-price-row">
+                        <div>
+                          <span>Monthly</span>
+                          <strong>$12/month</strong>
+                        </div>
+                        <div>
+                          <span>Yearly</span>
+                          <strong>$96/year</strong>
+                        </div>
+                      </div>
+                      <p className="hero-copy">Founders access is available for the first 14 days after launch.</p>
+                    </section>
+                  </section>
+                ) : null}
+
+                <section className="maison-hero maison-web-landing-block">
                   <div className="maison-hero-copy">
                     <p className="eyebrow">{showDeletedAccountView ? 'Maison goodbye' : 'Shared home, less mental load'}</p>
                     <h1>{showDeletedAccountView ? 'Goodbye for now.' : 'The calmer way to run a home together.'}</h1>
@@ -720,10 +892,7 @@ function App() {
                         </div>
                       </>
                     ) : (
-                      <>
-                        <p className="hero-copy">Maison gives your household one warm place for routines, groceries, reminders, upkeep, and the small details that usually live in someone’s head.</p>
-                        <p className="hero-copy maison-hero-support">Built for couples, roommates, and busy households who want fewer “did you remember?” moments.</p>
-                      </>
+                      <p className="hero-copy">Maison gives your household one warm place for routines, groceries, reminders, upkeep, and the small details that usually live in someone’s head.</p>
                     )}
                     {!showDeletedAccountNotice ? <div className="maison-hero-actions">
                       <a className="primary-button invite-link-button" href="#maison-waitlist">Get early access</a>
@@ -765,8 +934,8 @@ function App() {
                         <strong>Shopping, upkeep, reminders, planning</strong>
                       </div>
                       <div className="maison-metric-card">
-                        <span>Positioning</span>
-                        <strong>The home operating system for couples</strong>
+                        <span>Daily rhythm</span>
+                        <strong>One place for the details that usually scatter</strong>
                       </div>
                     </div>
                   </div>
@@ -791,7 +960,7 @@ function App() {
                 ) : null}
 
                 {!showDeletedAccountNotice ? (
-                  <>
+                  <div className="maison-web-landing-blocks">
                     <section className="maison-section" id="how-maison-works">
                       <div className="section-head">
                         <p className="panel-label">The problem</p>
@@ -810,54 +979,35 @@ function App() {
                       </div>
                       <div className="maison-feature-grid">
                         {landingFeatures.map((feature) => (
-                          <article key={feature.title} className="maison-feature-card">
-                            <h3>{feature.title}</h3>
-                            <p className="hero-copy">{feature.body}</p>
+                          <article key={feature} className="maison-feature-card">
+                            <p className="hero-copy">{feature}</p>
                           </article>
                         ))}
                       </div>
                     </section>
 
-                    <section className="maison-section maison-promise-band">
-                      <div className="section-head">
-                        <p className="panel-label">Emotional promise</p>
-                        <h2>Less coordination friction. More calm.</h2>
-                      </div>
-                      <p className="hero-copy">Maison is not trying to turn your home into a startup. It is built to reduce the tiny coordination failures that make home life feel heavier than it should.</p>
-                      <p className="hero-copy">The goal is simple: fewer dropped balls, fewer repeated conversations, and a smoother shared rhythm at home.</p>
-                    </section>
-
-                    <section className="maison-section maison-two-column">
-                      <article className="maison-audience-card">
-                        <div className="section-head">
-                          <p className="panel-label">Who it is for</p>
-                          <h2>Built for couples and households who actually share responsibility.</h2>
-                        </div>
-                        <div className="onboarding-bullet-list maison-check-list">
-                          {landingAudience.map((item) => <span key={item}>{item}</span>)}
-                        </div>
-                      </article>
+                    <section className="maison-section">
                       <article className="maison-offer-card">
                         <div className="section-head">
-                          <p className="panel-label">Founding launch pricing</p>
-                          <h2>Paid from day one, with a short founding window.</h2>
+                          <p className="panel-label">Subscription pricing</p>
+                          <h2>Paid from day one.</h2>
                         </div>
-                        <p className="hero-copy">Maison is launching as a paid product from day one.</p>
+                        <p className="hero-copy">Maison is launching as a paid app with App Store and Google Play subscriptions.</p>
                         <div className="maison-price-lockup">
-                          <span>First 7 days</span>
-                          <strong>Lifetime access for $179</strong>
+                          <span>Founders lifetime</span>
+                          <strong>$179</strong>
                         </div>
                         <div className="maison-price-grid">
                           <div className="maison-price-card">
-                            <span>After the window</span>
+                            <span>Monthly</span>
                             <strong>$12/month</strong>
                           </div>
                           <div className="maison-price-card">
-                            <span>Annual option</span>
+                            <span>Yearly</span>
                             <strong>$96/year</strong>
                           </div>
                         </div>
-                        <p className="hero-copy">The founding offer is for early households helping shape the product, not a discount that stays open forever.</p>
+                        <p className="hero-copy">The founders lifetime tier is available for the first 14 days after launch, then Maison continues with monthly and yearly subscriptions.</p>
                       </article>
                     </section>
 
@@ -880,14 +1030,14 @@ function App() {
                       <div>
                         <p className="panel-label">Final CTA</p>
                         <h2>Bring your home into one calm system.</h2>
-                        <p className="hero-copy">Join the founding launch and be one of the first households to use Maison as your shared home operating system.</p>
+                        <p className="hero-copy">Sign in, finish setup, and choose the subscription that fits your household.</p>
                       </div>
                       <div className="maison-hero-actions">
-                        <a className="primary-button invite-link-button" href="#maison-waitlist">Join the founding launch</a>
+                        <a className="primary-button invite-link-button" href="#maison-waitlist">Request access</a>
                         <a className="secondary-button invite-link-button" href="#maison-auth">Sign in now</a>
                       </div>
                     </section>
-                  </>
+                  </div>
                 ) : null}
               </>
             )}
@@ -896,7 +1046,7 @@ function App() {
           <aside className="auth-landing-actions onboarding-actions maison-auth-rail" id="maison-auth">
             {!showDeletedAccountNotice ? <div className="maison-auth-card onboarding-section-block maison-waitlist-card" id="maison-waitlist">
               <div>
-                <p className="panel-label">Founding launch</p>
+                <p className="panel-label">Launch access</p>
                 <h3>Request early access</h3>
                 <p className="hero-copy">If you want in before the broader launch, drop your info here and tell us what home-admin friction you want Maison to make lighter.</p>
               </div>
@@ -911,7 +1061,7 @@ function App() {
                   <option value="Other">Other</option>
                 </select>
                 <textarea className="invite-code-input no-caps-input maison-textarea-input" rows="4" aria-label="Biggest coordination or home-admin friction" placeholder="What’s the biggest coordination or home-admin friction in your house right now?" value={launchInterestForm.friction} onChange={(event) => setLaunchInterestForm((current) => ({ ...current, friction: event.target.value }))} required />
-                <button className="primary-button" type="submit" disabled={isLaunchInterestLoading}>{isLaunchInterestLoading ? 'Saving your request…' : 'Request founding access'}</button>
+                <button className="primary-button" type="submit" disabled={isLaunchInterestLoading}>{isLaunchInterestLoading ? 'Saving your request…' : 'Request access'}</button>
               </form>
               {launchInterestMessage ? <p className={`auth-help ${launchInterestTone}`}>{launchInterestMessage}</p> : null}
             </div> : null}
@@ -937,6 +1087,7 @@ function App() {
                 </button>
               </div> : null}
               <button className="primary-button" type="button" disabled={isGoogleAuthLoading || !hasFirebaseConfig} onClick={async () => {
+                clearDeletedAccountSummary()
                 setAuthMessage('Opening Google sign-in...')
                 setAuthMessageTone('success')
                 setAuthError('')
@@ -951,7 +1102,7 @@ function App() {
                 }
                 setIsGoogleAuthLoading(false)
               }}>{isGoogleAuthLoading ? 'Opening Google...' : showDeletedAccountNotice ? 'Sign in again with Google' : inviteChoice ? 'Continue with Google to join' : 'Continue with Google'}</button>
-              {showDeletedAccountNotice ? <button className="secondary-button" type="button" onClick={() => setInviteChoice(true)}>Join with an invite code later</button> : null}
+              {showDeletedAccountNotice ? <button className="secondary-button" type="button" onClick={chooseInviteAfterOffboarding}>Join with an invite code</button> : null}
               {!showDeletedAccountNotice ? <div className="auth-landing-note onboarding-note-card maison-invite-note">
                 <strong>{inviteChoice ? 'Invite path selected' : 'Invite code flow'}</strong>
                 <span>{inviteChoice ? 'After sign-in, Maison will keep this choice and take you to the household code screen.' : 'If your partner already sent a code, choose Join with invite before you continue.'}</span>
@@ -968,16 +1119,18 @@ function App() {
                 <input className="invite-code-input no-caps-input" type="password" aria-label="Password" placeholder="Password" value={emailAuthForm.password} onChange={(event) => setEmailAuthForm((current) => ({ ...current, password: event.target.value }))} autoComplete={emailAuthMode === 'signup' ? 'new-password' : 'current-password'} minLength={6} required />
                 {emailAuthMode === 'signin' ? <p className="auth-help auth-inline-help">Forgot your password? Enter your email first, then tap the reset button.</p> : null}
                 <div className="form-actions">
-                  <button className="primary-button" type="submit" disabled={isEmailAuthLoading}>{isEmailAuthLoading ? (emailAuthMode === 'signup' ? 'Creating…' : 'Signing in…') : (emailAuthMode === 'signup' ? 'Create email account' : 'Sign in with email')}</button>
+                  <button className="primary-button" type="submit" disabled={isEmailAuthLoading || isPasswordResetLoading}>{isEmailAuthLoading ? (emailAuthMode === 'signup' ? 'Creating…' : 'Signing in…') : (emailAuthMode === 'signup' ? 'Create email account' : 'Sign in with email')}</button>
                   <button className="secondary-button" type="button" onClick={() => {
+                    clearDeletedAccountSummary()
                     setEmailAuthMode((current) => current === 'signup' ? 'signin' : 'signup')
                     setAuthMessage('')
                     setAuthMessageTone('success')
                     setAuthError('')
                     setAuthErrorCode('')
+                    setIsEmailAuthLoading(false)
                     setEmailAuthForm((current) => ({ ...current, password: '' }))
                   }}>{emailAuthMode === 'signup' ? 'I already have an account' : 'Create an email account'}</button>
-                  {emailAuthMode === 'signin' ? <button className="secondary-button" type="button" onClick={handlePasswordReset} disabled={isEmailAuthLoading}>Forgot password?</button> : null}
+                  {emailAuthMode === 'signin' ? <button className="secondary-button" type="button" onClick={handlePasswordReset} disabled={isEmailAuthLoading || isPasswordResetLoading}>{isPasswordResetLoading ? 'Sending reset…' : 'Forgot password?'}</button> : null}
                 </div>
               </form>
               {inAppBrowserWarning && !showDeletedAccountNotice ? <div className="auth-landing-note onboarding-note-card">
@@ -1185,6 +1338,12 @@ function App() {
           </form>
         </section>
       </div>
+    )
+  }
+
+  if (user && membership && houseProfile.setupCompleted !== false && !subscriptionAccess.isActive) {
+    return (
+      <Paywall subscriptionAccess={subscriptionAccess} user={user} membership={membership} nativeDiagnostics={nativeDiagnostics} />
     )
   }
 

@@ -7,12 +7,18 @@ from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
 
-BG_TOP = (21, 16, 33)
-BG_BOTTOM = (11, 12, 22)
-PINK = (255, 142, 207)
-VIOLET = (157, 123, 255)
-LILAC = (247, 240, 255)
-OUTLINE = (230, 221, 244, 90)
+BG_TOP = (251, 246, 239)
+BG_BOTTOM = (235, 223, 207)
+CREAM = (255, 250, 243)
+WALNUT = (74, 57, 45)
+WALNUT_DARK = (47, 39, 32)
+GOLD = (178, 139, 78)
+GOLD_DEEP = (117, 84, 49)
+TEAL = (130, 148, 140)
+TEAL_DEEP = (82, 104, 96)
+CLAY = (137, 82, 61)
+CLAY_DEEP = (98, 64, 50)
+OUTLINE = (74, 57, 45, 130)
 
 ANDROID_ICON_SIZES = {
     "mdpi": 48,
@@ -89,7 +95,7 @@ def rounded_gradient_box(size: Tuple[int, int], radius: int, start: Tuple[int, i
 
 def add_piece(layer: Image.Image, piece: Image.Image, position: Tuple[float, float], angle: float = 0) -> None:
     glow = piece.copy().filter(ImageFilter.GaussianBlur(max(6, piece.size[0] * 0.08)))
-    glow_alpha = glow.getchannel("A").point(lambda value: min(255, int(value * 0.45)))
+    glow_alpha = glow.getchannel("A").point(lambda value: min(255, int(value * 0.28)))
     glow.putalpha(glow_alpha)
     rotated_glow = glow.rotate(angle, resample=Image.Resampling.BICUBIC, expand=True)
     rotated_piece = piece.rotate(angle, resample=Image.Resampling.BICUBIC, expand=True)
@@ -125,11 +131,14 @@ def create_house_mark(size: int, adaptive: bool = False) -> Image.Image:
     layer = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     center_x = size / 2
     center_y = size * (0.54 if adaptive else 0.53)
-    scale = size * (0.7 if adaptive else 0.58)
+    scale = size * (0.76 if adaptive else 0.68)
 
-    roof = rounded_gradient_box((int(scale * 0.28), int(scale * 0.08)), radius=max(6, int(scale * 0.04)), start=PINK, end=VIOLET)
-    wall = rounded_gradient_box((int(scale * 0.15), int(scale * 0.19)), radius=max(8, int(scale * 0.04)), start=PINK, end=VIOLET, vertical=True)
-    base = rounded_gradient_box((int(scale * 0.15), int(scale * 0.16)), radius=max(8, int(scale * 0.04)), start=PINK, end=VIOLET, vertical=True)
+    roof_left = rounded_gradient_box((int(scale * 0.28), int(scale * 0.08)), radius=max(6, int(scale * 0.04)), start=WALNUT, end=CLAY)
+    roof_right = rounded_gradient_box((int(scale * 0.28), int(scale * 0.08)), radius=max(6, int(scale * 0.04)), start=CLAY, end=WALNUT)
+    wall_left = rounded_gradient_box((int(scale * 0.15), int(scale * 0.19)), radius=max(8, int(scale * 0.04)), start=CLAY, end=CLAY_DEEP, vertical=True)
+    wall_right = rounded_gradient_box((int(scale * 0.15), int(scale * 0.19)), radius=max(8, int(scale * 0.04)), start=TEAL, end=TEAL_DEEP, vertical=True)
+    base_left = rounded_gradient_box((int(scale * 0.15), int(scale * 0.16)), radius=max(8, int(scale * 0.04)), start=(214, 190, 139), end=GOLD, vertical=True)
+    base_right = rounded_gradient_box((int(scale * 0.15), int(scale * 0.16)), radius=max(8, int(scale * 0.04)), start=WALNUT, end=WALNUT_DARK, vertical=True)
 
     roof_y = center_y - 0.16 * scale
     wall_y = center_y + 0.02 * scale
@@ -137,12 +146,12 @@ def create_house_mark(size: int, adaptive: bool = False) -> Image.Image:
     left_x = center_x - 0.16 * scale
     right_x = center_x + 0.16 * scale
 
-    add_piece(layer, roof, (center_x - 0.13 * scale, roof_y), angle=-35)
-    add_piece(layer, roof, (center_x + 0.13 * scale, roof_y), angle=35)
-    add_piece(layer, wall, (left_x, wall_y))
-    add_piece(layer, wall, (right_x, wall_y))
-    add_piece(layer, base, (left_x, base_y))
-    add_piece(layer, base, (right_x, base_y))
+    add_piece(layer, roof_left, (center_x - 0.13 * scale, roof_y), angle=-35)
+    add_piece(layer, roof_right, (center_x + 0.13 * scale, roof_y), angle=35)
+    add_piece(layer, wall_left, (left_x, wall_y))
+    add_piece(layer, wall_right, (right_x, wall_y))
+    add_piece(layer, base_left, (left_x, base_y))
+    add_piece(layer, base_right, (right_x, base_y))
 
     sparkle = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     sparkle_draw = ImageDraw.Draw(sparkle)
@@ -155,7 +164,7 @@ def create_house_mark(size: int, adaptive: bool = False) -> Image.Image:
             center_y + 0.03 * scale + sparkle_radius,
         ),
         radius=sparkle_radius,
-        fill=LILAC + (210,),
+        fill=CREAM + (230,),
     )
     sparkle = sparkle.filter(ImageFilter.GaussianBlur(max(2, size * 0.005)))
     layer.alpha_composite(sparkle)
@@ -170,9 +179,9 @@ def create_house_mark(size: int, adaptive: bool = False) -> Image.Image:
 
 def create_icon_base(size: int) -> Image.Image:
     image = vertical_gradient(size, size, BG_TOP, BG_BOTTOM)
-    add_radial_glow(image, (size * 0.34, size * 0.18), size * 0.18, PINK, 100)
-    add_radial_glow(image, (size * 0.76, size * 0.78), size * 0.22, VIOLET, 110)
-    add_radial_glow(image, (size * 0.5, size * 0.42), size * 0.18, VIOLET, 35)
+    add_radial_glow(image, (size * 0.28, size * 0.18), size * 0.22, GOLD, 38)
+    add_radial_glow(image, (size * 0.78, size * 0.76), size * 0.26, CLAY, 32)
+    add_radial_glow(image, (size * 0.5, size * 0.44), size * 0.22, TEAL, 18)
     return image
 
 
@@ -196,8 +205,9 @@ def create_adaptive_foreground(size: int) -> Image.Image:
 
 def create_splash(width: int, height: int) -> Image.Image:
     splash = vertical_gradient(width, height, BG_TOP, BG_BOTTOM)
-    add_radial_glow(splash, (width * 0.28, height * 0.16), min(width, height) * 0.22, PINK, 95)
-    add_radial_glow(splash, (width * 0.72, height * 0.78), min(width, height) * 0.26, VIOLET, 110)
+    add_radial_glow(splash, (width * 0.28, height * 0.16), min(width, height) * 0.22, GOLD, 36)
+    add_radial_glow(splash, (width * 0.72, height * 0.78), min(width, height) * 0.26, CLAY, 32)
+    add_radial_glow(splash, (width * 0.55, height * 0.4), min(width, height) * 0.2, TEAL, 18)
     mark_size = int(min(width, height) * 0.34)
     mark = create_house_mark(mark_size)
     shadow = mark.filter(ImageFilter.GaussianBlur(mark_size * 0.05))
@@ -221,7 +231,7 @@ def write_android_background_color() -> None:
     path.write_text(
         "<?xml version=\"1.0\" encoding=\"utf-8\"?>\n"
         "<resources>\n"
-        "    <color name=\"ic_launcher_background\">#151021</color>\n"
+        "    <color name=\"ic_launcher_background\">#FBF6EF</color>\n"
         "</resources>\n",
         encoding="utf-8",
     )

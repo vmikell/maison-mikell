@@ -115,7 +115,9 @@ function buildChecks() {
   const hasAndroidCallbackScheme = androidManifest.includes('android:scheme="@string/custom_url_scheme"') || androidManifest.includes(`android:scheme="${reservedCallbackScheme}"`)
   const hasAndroidCallbackHost = androidManifest.includes(`android:host="${reservedCallbackHost}"`)
   const hasAndroidCallbackIntentFilter = hasAndroidViewIntentFilter && hasAndroidDefaultCategory && hasAndroidBrowsableCategory && hasAndroidCallbackScheme && hasAndroidCallbackHost
-  const hasAndroidSingleTaskLaunchMode = androidManifest.includes('android:launchMode="singleTask"')
+  const androidLaunchModeMatch = androidManifest.match(/android:launchMode="([^"]+)"/)
+  const androidLaunchMode = androidLaunchModeMatch?.[1] || ''
+  const hasRevenueCatSafeAndroidLaunchMode = !androidLaunchMode || androidLaunchMode === 'singleTop' || androidLaunchMode === 'standard'
   const hasIosUrlTypes = iosInfoPlist.includes('CFBundleURLTypes')
   const hasIosCallbackScheme = iosInfoPlist.includes(`<string>${reservedCallbackScheme}</string>`)
   const hasIosUniversalLinkForwarder = iosAppDelegate.includes('continue userActivity')
@@ -144,7 +146,7 @@ function buildChecks() {
   checks.push({ ok: hasCapacitorAppPlugin, level: 'warn', label: '@capacitor/app plugin', detail: hasCapacitorAppPlugin ? 'Installed for lifecycle and appUrlOpen diagnostics' : 'Missing @capacitor/app dependency' })
   checks.push({ ok: hasCapacitorFirebaseAuthPlugin, level: 'warn', label: '@capacitor-firebase/authentication plugin', detail: hasCapacitorFirebaseAuthPlugin ? 'Installed for native Google auth bridge mode' : 'Missing @capacitor-firebase/authentication dependency' })
   checks.push({ ok: hasGoogleProviderConfig && hasSkipNativeAuthConfig, level: 'warn', label: 'FirebaseAuthentication Capacitor config', detail: hasGoogleProviderConfig && hasSkipNativeAuthConfig ? 'capacitor.config.json enables google.com with skipNativeAuth=true' : 'capacitor.config.json is missing FirebaseAuthentication google.com + skipNativeAuth=true config' })
-  checks.push({ ok: hasAndroidSingleTaskLaunchMode, level: 'warn', label: 'Android singleTask activity', detail: hasAndroidSingleTaskLaunchMode ? 'MainActivity is configured with singleTask launchMode' : 'MainActivity is not configured with singleTask launchMode' })
+  checks.push({ ok: hasRevenueCatSafeAndroidLaunchMode, level: 'warn', label: 'Android RevenueCat-safe launch mode', detail: hasRevenueCatSafeAndroidLaunchMode ? `MainActivity launchMode is ${androidLaunchMode || 'default standard'}` : `MainActivity launchMode is ${androidLaunchMode}; RevenueCat purchase flows should use singleTop or standard.` })
   checks.push({ ok: hasAndroidCallbackIntentFilter, level: 'warn', label: 'Android callback intent filter', detail: hasAndroidCallbackIntentFilter ? `AndroidManifest declares VIEW/BROWSABLE callback routing for ${reservedCallbackUrl}` : `AndroidManifest is missing a VIEW/BROWSABLE callback filter for ${reservedCallbackUrl}` })
   checks.push({ ok: hasAndroidGoogleServices, level: 'warn', label: 'Android google-services.json', detail: hasAndroidGoogleServices ? `${androidGoogleServicesRelativePath} is present` : `Missing ${androidGoogleServicesRelativePath}. Native Google auth cannot start on Android until this file is added.` })
   checks.push({ ok: !hasAndroidGoogleServices || androidGoogleServicesPackageName === reservedCallbackScheme, level: 'warn', label: 'Android Firebase package name', detail: hasAndroidGoogleServices ? (androidGoogleServicesPackageName === reservedCallbackScheme ? `${androidGoogleServicesRelativePath} matches ${reservedCallbackScheme}` : `${androidGoogleServicesRelativePath} targets ${androidGoogleServicesPackageName || 'unknown package'}, expected ${reservedCallbackScheme}`) : `Waiting on ${androidGoogleServicesRelativePath} before package-name validation.` })
