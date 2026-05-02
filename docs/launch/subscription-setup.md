@@ -47,8 +47,8 @@ VITE_REVENUECAT_OFFERING_ID=default
 VITE_REVENUECAT_LIFETIME_PRODUCT_ID=founders_lifetime_v2
 VITE_REVENUECAT_YEARLY_PRODUCT_ID=yearly_v2
 VITE_REVENUECAT_MONTHLY_PRODUCT_ID=monthly_v2
-VITE_PRIVACY_POLICY_URL=/privacy.html
-VITE_TERMS_URL=/terms.html
+VITE_PRIVACY_POLICY_URL=https://maisonhomeapp.com/privacy.html
+VITE_TERMS_URL=https://maisonhomeapp.com/terms.html
 ```
 
 ## RevenueCat Dashboard Setup

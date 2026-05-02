@@ -147,11 +147,11 @@ Needs confirmation:
 
 ### Required Before Privacy Answers Are Final
 
-- [ ] Confirm support email. Current draft pages use `support@maisonmikell.com`.
-- [ ] Confirm privacy email. Current draft pages use `support@maisonmikell.com`.
-- [ ] Confirm public Privacy Policy URL. Current local page is `/privacy.html`; final hosted URL still needs confirmation.
-- [ ] Confirm Support URL. Current local page is `/support.html`; final hosted URL still needs confirmation.
-- [ ] Confirm Terms of Use / EULA URL. Current local page is `/terms.html`; final hosted URL still needs confirmation.
+- [x] Confirm support email: `support@maisonhomeapp.com`.
+- [x] Confirm privacy email: `privacy@maisonhomeapp.com`.
+- [x] Confirm public Privacy Policy URL: `https://maisonhomeapp.com/privacy.html`.
+- [x] Confirm Support URL: `https://maisonhomeapp.com/support.html`.
+- [x] Confirm Terms of Use / EULA URL: `https://maisonhomeapp.com/terms.html`.
 - [ ] Confirm App Store / RevenueCat products are founding lifetime $179, monthly $12, and yearly $96.
 - [ ] Confirm no free tier is exposed in the submitted iOS build.
 - [ ] Confirm the founders lifetime tier is limited to the first 14 days after launch.
@@ -171,9 +171,9 @@ Needs confirmation:
 
 ### Store Metadata / Legal Blocks
 
-- Privacy Policy URL: Draft page exists at `/privacy.html`; final public hosted URL needs confirmation.
-- Support URL: Draft page exists at `/support.html`; final public hosted URL needs confirmation.
-- Terms/EULA URL: Draft page exists at `/terms.html`; final public hosted URL needs confirmation.
+- Privacy Policy URL: `https://maisonhomeapp.com/privacy.html`.
+- Support URL: `https://maisonhomeapp.com/support.html`.
+- Terms/EULA URL: `https://maisonhomeapp.com/terms.html`.
 - Marketing URL: Optional / needs confirmation.
 - Copyright holder: Mikell Labs, needs confirmation of exact legal name.
 - App category and age rating: Needs confirmation.

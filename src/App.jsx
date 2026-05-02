@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { addDoc, collection } from 'firebase/firestore'
 import './App.css'
+import maisonLogo from './assets/maison-logo.png'
 import maisonAppScreenshot from './assets/maison-app-screenshot.png'
 import { formatDate, addDays } from './lib/model'
 import { starterHouseProfile } from './lib/data'
@@ -110,7 +111,7 @@ function Paywall({ subscriptionAccess, user, membership, nativeDiagnostics }) {
       <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
       <section className="hero-card auth-landing-card onboarding-card paywall-card">
         <div>
-          <p className="eyebrow">Mikell Labs | Maison</p>
+          <AppLogo className="card-logo" />
           <h1>Unlock Maison Pro.</h1>
           <p className="hero-copy">Maison uses RevenueCat to manage subscription access. The native app checks the <strong>{SUBSCRIPTION_ENTITLEMENT_DISPLAY_NAME}</strong> entitlement before unlocking the household experience.</p>
           <div className="onboarding-bullet-list compact">
@@ -184,18 +185,13 @@ function App() {
     const host = window.location.hostname || ''
     const path = `${window.location.pathname}${window.location.search}${window.location.hash}`
 
-    if (host.endsWith('--maison-mikell.netlify.app')) {
-      window.location.replace(`https://maison-mikell.netlify.app${path}`)
+    if (host === 'www.maisonhomeapp.com') {
+      window.location.replace(`https://maisonhomeapp.com${path}`)
       return
     }
 
-    if (host === 'maison-mikell.netlify.app') {
-      window.location.replace(`https://maison-reset.firebaseapp.com${path}`)
-      return
-    }
-
-    if (host === 'maison-reset.web.app') {
-      window.location.replace(`https://maison-reset.firebaseapp.com${path}`)
+    if (host.endsWith('--maison-mikell.netlify.app') || host === 'maison-mikell.netlify.app' || host === 'maison-reset.web.app' || host === 'maison-reset.firebaseapp.com') {
+      window.location.replace(`https://maisonhomeapp.com${path}`)
     }
   }, [])
 
@@ -259,6 +255,7 @@ function App() {
   const [deleteAccountConfirmText, setDeleteAccountConfirmText] = useState('')
   const [isFirstRunGuideOpen, setIsFirstRunGuideOpen] = useState(false)
   const [firstRunGuideStepIndex, setFirstRunGuideStepIndex] = useState(0)
+  const [firstRunGuideSpotlight, setFirstRunGuideSpotlight] = useState(null)
   const filterCloseButtonRef = useRef(null)
   const modalCloseButtonRef = useRef(null)
   const lastOverlayTriggerRef = useRef(null)
@@ -441,6 +438,7 @@ function App() {
     'See the important shared tasks and dates in one calm place instead of six disconnected ones.',
     'Give the whole household shared access without one person carrying the operational load alone.',
   ]
+  const landingAudience = ['Couples living together', 'Busy homeowners', 'Households with recurring home-admin friction', 'People who want one shared source of truth']
   const landingFaqs = [
     { question: 'Is Maison for individuals or households?', answer: 'It is built for shared household coordination, especially couples living together.' },
     { question: 'Is there a free plan?', answer: 'No. Maison is positioned as a paid household product from launch.' },
@@ -726,6 +724,57 @@ function App() {
     }
   }, [currentFirstRunGuideStep, activeTab])
 
+  useEffect(() => {
+    if (!currentFirstRunGuideStep || typeof window === 'undefined' || typeof document === 'undefined') {
+      setFirstRunGuideSpotlight(null)
+      return undefined
+    }
+
+    let animationFrame = 0
+
+    function updateSpotlight() {
+      if (animationFrame) window.cancelAnimationFrame(animationFrame)
+      animationFrame = window.requestAnimationFrame(() => {
+        const target = document.querySelector('.guide-highlight')
+        if (!target) {
+          setFirstRunGuideSpotlight(null)
+          return
+        }
+
+        const rect = target.getBoundingClientRect()
+        const inset = window.matchMedia?.('(max-width: 819px)').matches ? 6 : 10
+        const top = Math.max(rect.top - inset, 8)
+        const left = Math.max(rect.left - inset, 8)
+
+        setFirstRunGuideSpotlight({
+          top: `${top}px`,
+          left: `${left}px`,
+          width: `${Math.min(rect.width + inset * 2, window.innerWidth - left - 8)}px`,
+          height: `${Math.min(rect.height + inset * 2, window.innerHeight - top - 8)}px`,
+        })
+      })
+    }
+
+    const scrollTimer = window.setTimeout(() => {
+      const target = document.querySelector('.guide-highlight')
+      target?.scrollIntoView({ block: 'center', inline: 'nearest', behavior: 'smooth' })
+      updateSpotlight()
+    }, 120)
+    const settleTimer = window.setTimeout(updateSpotlight, 520)
+
+    updateSpotlight()
+    window.addEventListener('resize', updateSpotlight)
+    window.addEventListener('scroll', updateSpotlight, true)
+
+    return () => {
+      window.clearTimeout(scrollTimer)
+      window.clearTimeout(settleTimer)
+      window.removeEventListener('resize', updateSpotlight)
+      window.removeEventListener('scroll', updateSpotlight, true)
+      if (animationFrame) window.cancelAnimationFrame(animationFrame)
+    }
+  }, [currentFirstRunGuideStep, activeTab, plannerPanelsOpen.editor, plannerPanelsOpen.schedule])
+
   function startEditTask(task) {
     setEditingTaskId(task.id)
     setTaskForm({ id: task.id, title: task.title, area: task.area, category: task.category, room: task.room || '', system: task.system || '', assetName: task.assetName || '', vendor: task.vendor || '', supplyNote: task.supplyNote || '', frequency: task.frequency, cadenceDays: task.cadenceDays, reminderLeadDays: task.reminderLeadDays, effort: task.effort, season: task.season, priority: task.priority, notes: task.notes, lastDone: task.lastDone, major: task.major })
@@ -837,7 +886,7 @@ function App() {
               <>
                 {!showDeletedAccountNotice ? (
                   <nav className="maison-landing-nav" aria-label="Maison landing">
-                    <a className="maison-logo" href="#top" aria-label="Maison home">Maison</a>
+                    <a className="maison-logo" href="#top" aria-label="Maison home"><AppLogo /></a>
                     <div className="maison-navlinks" aria-hidden="true">
                       <span>How it works</span>
                       <span>Preview</span>
@@ -984,6 +1033,19 @@ function App() {
                           </article>
                         ))}
                       </div>
+                    </section>
+
+                    <section className="maison-section maison-promise-band">
+                      <p className="hero-copy">Maison is not trying to turn your home into a startup. It is built to reduce the tiny coordination failures that make home life feel heavier than it should.</p>
+                      <p className="hero-copy">The goal is simple: fewer dropped balls, fewer repeated conversations, and a smoother shared rhythm at home.</p>
+                    </section>
+
+                    <section className="maison-section maison-two-column">
+                      <article className="maison-audience-card">
+                        <div className="onboarding-bullet-list maison-check-list">
+                          {landingAudience.map((item) => <span key={item}>{item}</span>)}
+                        </div>
+                      </article>
                     </section>
 
                     <section className="maison-section">
@@ -1348,7 +1410,7 @@ function App() {
   }
 
   return (
-    <div className="shell">
+    <div className={`shell ${isNativeShell ? 'native-shell' : ''}`.trim()}>
       <div className="top-bar-row">
         <SignedInPill user={user} membership={membership} />
         {membership && houseProfile.setupCompleted !== false ? <button className="guide-reopen-button" type="button" onClick={openFirstRunGuide}>Guide</button> : null}
@@ -1380,6 +1442,7 @@ function App() {
           onBack={goBackFirstRunGuide}
           onNext={advanceFirstRunGuide}
           onDismiss={completeFirstRunGuide}
+          spotlightStyle={firstRunGuideSpotlight}
         />
       ) : null}
 
@@ -1721,7 +1784,15 @@ function StatusBanner({ hasFirebaseConfig, remoteError, maisonLabel = 'Maison' }
 function SignedInPill({ user, membership }) {
   if (!user) return null
   const label = membership?.role === 'owner' ? `Signed in as ${user.displayName || user.email} (owner)` : `Signed in as ${user.displayName || user.email}`
-  return <div className="status-pill-bar">{label}</div>
+  return (
+    <div className="signed-in-header">
+      <AppLogo />
+      <div className="status-pill-bar">{label}</div>
+    </div>
+  )
+}
+function AppLogo({ className = '' }) {
+  return <img className={`app-logo ${className}`.trim()} src={maisonLogo} alt="Maison" />
 }
 function formatDiagnosticsDetail(detail) {
   if (detail == null) return '—'
@@ -1806,12 +1877,13 @@ function CollapsiblePanel({ className = '', headClassName = '', panelId, header,
     </section>
   )
 }
-function FirstRunGuide({ step, stepIndex, totalSteps, onBack, onNext, onDismiss }) {
+function FirstRunGuide({ step, stepIndex, totalSteps, onBack, onNext, onDismiss, spotlightStyle }) {
   const isLastStep = stepIndex >= totalSteps - 1
 
   return (
     <section className="first-run-guide" role="dialog" aria-labelledby="first-run-guide-title" aria-describedby="first-run-guide-body">
       <div className="first-run-guide-scrim" aria-hidden="true" />
+      {spotlightStyle ? <div className="first-run-guide-spotlight" style={spotlightStyle} aria-hidden="true" /> : null}
       <article className={`first-run-guide-card guide-target-${step.target}`}>
         <div className="first-run-guide-topline">
           <p className="panel-label">First-time guide</p>

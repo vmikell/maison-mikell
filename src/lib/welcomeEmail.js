@@ -1,11 +1,11 @@
 function getWelcomeEmailEndpoint() {
-  if (typeof window === 'undefined') return 'https://maison-mikell.netlify.app/.netlify/functions/send-welcome-email'
+  if (typeof window === 'undefined') return 'https://maisonhomeapp.com/.netlify/functions/send-welcome-email'
 
   const host = window.location.hostname || ''
   if (host === 'localhost' || host === '127.0.0.1') return '/.netlify/functions/send-welcome-email'
-  if (host === 'maison-mikell.netlify.app' || host.endsWith('--maison-mikell.netlify.app')) return '/.netlify/functions/send-welcome-email'
+  if (host === 'maisonhomeapp.com' || host === 'www.maisonhomeapp.com' || host === 'maison-mikell.netlify.app' || host.endsWith('--maison-mikell.netlify.app')) return '/.netlify/functions/send-welcome-email'
 
-  return 'https://maison-mikell.netlify.app/.netlify/functions/send-welcome-email'
+  return 'https://maisonhomeapp.com/.netlify/functions/send-welcome-email'
 }
 
 export async function sendWelcomeEmail(input = {}) {

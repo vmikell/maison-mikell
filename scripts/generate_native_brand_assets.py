@@ -6,6 +6,7 @@ from typing import Iterable, Tuple
 from PIL import Image, ImageDraw, ImageFilter
 
 ROOT = Path(__file__).resolve().parents[1]
+CUSTOM_ICON_SOURCE = ROOT / "mobile/branding/maison-app-icon-custom-source.png"
 
 BG_TOP = (251, 246, 239)
 BG_BOTTOM = (235, 223, 207)
@@ -186,6 +187,10 @@ def create_icon_base(size: int) -> Image.Image:
 
 
 def create_full_icon(size: int) -> Image.Image:
+    if CUSTOM_ICON_SOURCE.exists():
+        with Image.open(CUSTOM_ICON_SOURCE) as source:
+            return source.convert("RGBA").resize((size, size), Image.Resampling.LANCZOS)
+
     icon = create_icon_base(size)
     mark = create_house_mark(size)
     shadow = mark.filter(ImageFilter.GaussianBlur(size * 0.018))
@@ -197,6 +202,10 @@ def create_full_icon(size: int) -> Image.Image:
 
 
 def create_adaptive_foreground(size: int) -> Image.Image:
+    if CUSTOM_ICON_SOURCE.exists():
+        with Image.open(CUSTOM_ICON_SOURCE) as source:
+            return source.convert("RGBA").resize((size, size), Image.Resampling.LANCZOS)
+
     foreground = Image.new("RGBA", (size, size), (0, 0, 0, 0))
     mark = create_house_mark(size, adaptive=True)
     foreground.alpha_composite(mark)

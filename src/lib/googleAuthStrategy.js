@@ -4,9 +4,9 @@ export const WEB_REDIRECT_MODE = 'firebase-web-redirect'
 export const NATIVE_BRIDGE_MODE = 'native-bridge'
 export const HOSTED_BROWSER_MODE = 'hosted-browser-deeplink'
 
-function normalizePreferredMode(rawValue = '') {
+function normalizePreferredMode(rawValue = '', fallbackMode = WEB_REDIRECT_MODE) {
   const value = String(rawValue || '').trim().toLowerCase()
-  if (!value) return WEB_REDIRECT_MODE
+  if (!value) return fallbackMode
   if (value === WEB_REDIRECT_MODE) return WEB_REDIRECT_MODE
   if (value === NATIVE_BRIDGE_MODE) return NATIVE_BRIDGE_MODE
   if (value === HOSTED_BROWSER_MODE) return HOSTED_BROWSER_MODE
@@ -22,7 +22,8 @@ function isNativeShellPlatform(platform) {
 export function getGoogleAuthStrategyPlan() {
   const platform = Capacitor.getPlatform()
   const isNativeShell = isNativeShellPlatform(platform)
-  const preferredMode = normalizePreferredMode(import.meta.env.VITE_NATIVE_GOOGLE_AUTH_MODE)
+  const defaultMode = isNativeShell ? NATIVE_BRIDGE_MODE : WEB_REDIRECT_MODE
+  const preferredMode = normalizePreferredMode(import.meta.env.VITE_NATIVE_GOOGLE_AUTH_MODE, defaultMode)
 
   if (!isNativeShell) {
     return {
@@ -42,7 +43,7 @@ export function getGoogleAuthStrategyPlan() {
       preferredMode,
       effectiveMode: WEB_REDIRECT_MODE,
       fallbackApplied: false,
-      rationale: 'Native auth scaffold is present, but the shell is intentionally still using Firebase web redirect until the dedicated mobile path is fully wired and verified.',
+      rationale: 'Native shell was explicitly configured to use Firebase web redirect instead of the native Google bridge.',
     }
   }
 

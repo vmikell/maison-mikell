@@ -29,11 +29,11 @@ function getCurrentPageUrl() {
 }
 
 function getPasswordResetContinueUrl() {
-  if (typeof window === 'undefined') return 'https://maison-mikell.netlify.app'
+  if (typeof window === 'undefined') return 'https://maisonhomeapp.com'
 
   const host = window.location.hostname || ''
-  if (host === 'maison-reset.web.app' || host === 'maison-reset.firebaseapp.com') return 'https://maison-mikell.netlify.app'
-  return window.location.origin || 'https://maison-mikell.netlify.app'
+  if (host === 'maison-reset.web.app' || host === 'maison-reset.firebaseapp.com' || host === 'maison-mikell.netlify.app' || host.endsWith('--maison-mikell.netlify.app')) return 'https://maisonhomeapp.com'
+  return window.location.origin || 'https://maisonhomeapp.com'
 }
 
 function recordAuthDiagnostic(type, detail) {

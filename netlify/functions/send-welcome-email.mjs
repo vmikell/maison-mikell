@@ -1,11 +1,13 @@
 const allowedOrigins = new Set([
+  'https://maisonhomeapp.com',
+  'https://www.maisonhomeapp.com',
   'https://maison-mikell.netlify.app',
   'https://maison-reset.web.app',
   'https://maison-reset.firebaseapp.com',
 ])
 
 function corsHeaders(origin = '') {
-  const allowOrigin = allowedOrigins.has(origin) ? origin : 'https://maison-mikell.netlify.app'
+  const allowOrigin = allowedOrigins.has(origin) ? origin : 'https://maisonhomeapp.com'
   return {
     'Access-Control-Allow-Origin': allowOrigin,
     'Access-Control-Allow-Headers': 'content-type',
@@ -53,8 +55,8 @@ export const handler = async (event) => {
   if (!email || !email.includes('@')) return json(400, { error: 'A valid email address is required.' }, origin)
 
   const resendApiKey = process.env.MAISON_RESEND_API_KEY || process.env.RESEND_API_KEY || ''
-  const fromEmail = process.env.MAISON_WELCOME_EMAIL_FROM || 'Maison <welcome@mail.maison.place>'
-  const replyTo = process.env.MAISON_WELCOME_EMAIL_REPLY_TO || ''
+  const fromEmail = process.env.MAISON_WELCOME_EMAIL_FROM || 'Maison <welcome@maisonhomeapp.com>'
+  const replyTo = process.env.MAISON_WELCOME_EMAIL_REPLY_TO || 'support@maisonhomeapp.com'
 
   if (!resendApiKey) {
     return json(202, {

@@ -10,8 +10,8 @@ export const LIFETIME_PRODUCT_ID = import.meta.env.VITE_REVENUECAT_LIFETIME_PROD
 export const YEARLY_PRODUCT_ID = import.meta.env.VITE_REVENUECAT_YEARLY_PRODUCT_ID || 'yearly_v2'
 export const MONTHLY_PRODUCT_ID = import.meta.env.VITE_REVENUECAT_MONTHLY_PRODUCT_ID || 'monthly_v2'
 export const REVENUECAT_OFFERING_ID = import.meta.env.VITE_REVENUECAT_OFFERING_ID || 'default'
-export const PRIVACY_POLICY_URL = import.meta.env.VITE_PRIVACY_POLICY_URL || '/privacy.html'
-export const TERMS_URL = import.meta.env.VITE_TERMS_URL || '/terms.html'
+export const PRIVACY_POLICY_URL = import.meta.env.VITE_PRIVACY_POLICY_URL || 'https://maisonhomeapp.com/privacy.html'
+export const TERMS_URL = import.meta.env.VITE_TERMS_URL || 'https://maisonhomeapp.com/terms.html'
 
 let configuredForUserId = ''
 let didSetLogLevel = false
