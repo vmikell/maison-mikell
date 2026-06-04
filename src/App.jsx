@@ -10,14 +10,10 @@ import { usePlannerState } from './hooks/usePlannerState'
 import { createEmailPasswordAccount, deleteSignedInAuthUser, ensureRecentLogin, sendPasswordReset, signInWithEmailPassword, signInWithGoogle, signOutUser, useAuthState } from './lib/auth'
 import { useNativeDiagnostics } from './lib/nativeDiagnostics'
 import { firestore } from './lib/firebase'
+import { usePushNotifications } from './lib/pushNotifications'
 import {
-  LIFETIME_PRODUCT_ID,
-  MONTHLY_PRODUCT_ID,
   PRIVACY_POLICY_URL,
-  SUBSCRIPTION_ENTITLEMENT_DISPLAY_NAME,
-  SUBSCRIPTION_ENTITLEMENT_ID,
   TERMS_URL,
-  YEARLY_PRODUCT_ID,
   useSubscriptionAccess,
 } from './lib/subscriptions'
 
@@ -71,29 +67,29 @@ function getPackagePriceLabel(revenueCatPackage, fallback) {
 }
 
 function Paywall({ subscriptionAccess, user, membership, nativeDiagnostics }) {
-  const [selectedPlan, setSelectedPlan] = useState('lifetime')
+  const [selectedPlan, setSelectedPlan] = useState('yearly')
   const plans = [
     {
       id: 'lifetime',
-      label: 'Founders',
-      helper: 'Lifetime access during the 14-day launch window',
-      productId: LIFETIME_PRODUCT_ID,
+      eyebrow: 'Founding offer',
+      label: 'Lifetime',
+      helper: 'Lock in Maison for the household during the opening window.',
       package: subscriptionAccess.lifetimePackage,
       fallbackPrice: '$179 one-time',
     },
     {
       id: 'monthly',
+      eyebrow: 'Flexible',
       label: 'Monthly',
-      helper: 'Flexible month-to-month access',
-      productId: MONTHLY_PRODUCT_ID,
+      helper: 'Start month to month and keep the house moving.',
       package: subscriptionAccess.monthlyPackage,
       fallbackPrice: '$12/mo',
     },
     {
       id: 'yearly',
+      eyebrow: 'Best value',
       label: 'Yearly',
-      helper: 'Best recurring value',
-      productId: YEARLY_PRODUCT_ID,
+      helper: 'The calm default for a shared home system.',
       package: subscriptionAccess.yearlyPackage,
       fallbackPrice: '$96/yr',
     },
@@ -110,53 +106,61 @@ function Paywall({ subscriptionAccess, user, membership, nativeDiagnostics }) {
     <div className="shell auth-shell">
       <NativeDiagnosticsPanel diagnostics={nativeDiagnostics} />
       <section className="hero-card auth-landing-card onboarding-card paywall-card">
-        <div>
+        <div className="paywall-story">
           <AppLogo className="card-logo" />
-          <h1>Unlock Maison Pro.</h1>
-          <p className="hero-copy">Maison uses RevenueCat to manage subscription access. The native app checks the <strong>{SUBSCRIPTION_ENTITLEMENT_DISPLAY_NAME}</strong> entitlement before unlocking the household experience.</p>
-          <div className="onboarding-bullet-list compact">
-            <span>Founders lifetime, monthly, and yearly products are configured through the current RevenueCat offering</span>
-            <span>Customer info is refreshed after paywall, purchase, restore, and Customer Center actions</span>
-            <span>Access key: <code>{SUBSCRIPTION_ENTITLEMENT_ID}</code></span>
+          <p className="eyebrow">Maison Pro</p>
+          <h1>Keep the home system running.</h1>
+          <p className="hero-copy">Maison brings the shared household into one steady place: maintenance, shopping, reminders, setup details, and the little follow-through that keeps home life lighter.</p>
+          <div className="paywall-value-grid" aria-label="Maison Pro includes">
+            <span>Shared household planner</span>
+            <span>Shopping and restock lists</span>
+            <span>Maintenance reminders</span>
+            <span>Invite-based household access</span>
           </div>
           {membership ? <p className="auth-help success">Signed in as {user?.email || user?.displayName || 'your Maison account'}.</p> : null}
         </div>
 
         <div className="auth-landing-actions onboarding-actions paywall-actions">
+          <div className="paywall-offer-header">
+            <p className="panel-label">Choose access</p>
+            <h2>Founding pricing is available first.</h2>
+            <p>Pick the plan that fits your household. Purchases are handled securely through the App Store or Google Play.</p>
+          </div>
+
           <div className="paywall-plan-grid" role="radiogroup" aria-label="Choose subscription plan">
             {plans.map((plan) => (
               <button className={`paywall-plan ${selectedPlan === plan.id ? 'active' : ''}`} type="button" role="radio" aria-checked={selectedPlan === plan.id} onClick={() => setSelectedPlan(plan.id)} key={plan.id}>
-                <span>{plan.label}</span>
+                <span>{plan.eyebrow}</span>
+                <b>{plan.label}</b>
                 <strong>{getPackagePriceLabel(plan.package, plan.fallbackPrice)}</strong>
                 <small>{plan.helper}</small>
-                <small>Product ID: {plan.productId}</small>
               </button>
             ))}
           </div>
 
           {subscriptionAccess.loading ? (
             <div className="auth-landing-note onboarding-note-card" role="status">
-              <strong>Checking subscription</strong>
-              <span>Maison is asking RevenueCat whether this account already has active Pro access.</span>
+              <strong>Checking access</strong>
+              <span>Maison is looking for an active subscription on this account.</span>
             </div>
           ) : null}
 
           {!subscriptionAccess.configured && !subscriptionAccess.loading ? (
             <div className="auth-landing-note onboarding-note-card">
-              <strong>RevenueCat native setup needed</strong>
-              <span>{subscriptionAccess.configurationReason} Native paywalls and purchases run on iOS and Android device builds, not the web preview.</span>
+              <strong>Purchases open in the native app</strong>
+              <span>{subscriptionAccess.configurationReason} This web preview shows the branded offer, but purchase testing needs an iOS or Android build.</span>
             </div>
           ) : null}
 
           {subscriptionAccess.error ? <p className="auth-help error">{subscriptionAccess.error}</p> : null}
 
-          <button className="primary-button" type="button" disabled={!subscriptionAccess.configured || isBusy} onClick={subscriptionAccess.presentPaywallIfNeeded}>
-            {isPaywallBusy ? 'Opening paywall...' : 'View RevenueCat Paywall'}
+          <button className="primary-button paywall-primary-button" type="button" disabled={!subscriptionAccess.configured || isBusy || !activePackage} onClick={() => subscriptionAccess.purchase(activePackage)}>
+            {isPurchaseBusy ? 'Opening purchase...' : `Continue with ${selectedPlanConfig.label}`}
           </button>
-          <button className="secondary-button" type="button" disabled={!subscriptionAccess.configured || isBusy || !activePackage} onClick={() => subscriptionAccess.purchase(activePackage)}>
-            {isPurchaseBusy ? 'Opening purchase...' : `Buy selected plan directly`}
+          <button className="secondary-button" type="button" disabled={!subscriptionAccess.configured || isBusy} onClick={subscriptionAccess.presentPaywallIfNeeded}>
+            {isPaywallBusy ? 'Opening options...' : 'See all store options'}
           </button>
-          <div className="form-actions">
+          <div className="form-actions paywall-secondary-actions">
             <button className="secondary-button" type="button" disabled={!subscriptionAccess.configured || isBusy} onClick={subscriptionAccess.restore}>
               {isRestoreBusy ? 'Restoring...' : 'Restore purchases'}
             </button>
@@ -166,7 +170,7 @@ function Paywall({ subscriptionAccess, user, membership, nativeDiagnostics }) {
             <button className="secondary-button" type="button" disabled={subscriptionAccess.loading} onClick={subscriptionAccess.refresh}>Check access again</button>
             <button className="secondary-button" type="button" onClick={() => signOutUser()}>Use a different account</button>
           </div>
-          <p className="paywall-disclaimer">Subscriptions renew unless canceled through your App Store or Google Play account. Do not ship a production app with the RevenueCat Test Store key.</p>
+          <p className="paywall-disclaimer">Subscriptions renew unless canceled through your App Store or Google Play account. Lifetime access is a limited founding offer. One subscription is intended to unlock Maison for the signed-in household account.</p>
           <div className="paywall-legal-links">
             <a href={PRIVACY_POLICY_URL} target="_blank" rel="noreferrer">Privacy Policy</a>
             <a href={TERMS_URL} target="_blank" rel="noreferrer">Terms</a>
@@ -185,12 +189,7 @@ function App() {
     const host = window.location.hostname || ''
     const path = `${window.location.pathname}${window.location.search}${window.location.hash}`
 
-    if (host === 'www.maisonhomeapp.com') {
-      window.location.replace(`https://maisonhomeapp.com${path}`)
-      return
-    }
-
-    if (host.endsWith('--maison-mikell.netlify.app') || host === 'maison-mikell.netlify.app' || host === 'maison-reset.web.app' || host === 'maison-reset.firebaseapp.com') {
+    if (host === 'maison-reset.web.app' || host === 'maison-reset.firebaseapp.com') {
       window.location.replace(`https://maisonhomeapp.com${path}`)
     }
   }, [])
@@ -423,6 +422,7 @@ function App() {
     setShowInvitePanel,
   } = usePlannerState(user)
   const subscriptionAccess = useSubscriptionAccess(user)
+  usePushNotifications(user, membership)
 
   const reminderRules = houseProfile.reminderRules ?? starterHouseProfile.reminderRules
   const inviteHomeName = setupForm.name?.trim() || householdNameInput.trim() || houseProfile.name || 'our Maison home'

@@ -1,0 +1,54 @@
+{
+  "project_info": {
+    "project_number": "521736129971",
+    "project_id": "maison-reset",
+    "storage_bucket": "maison-reset.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:521736129971:android:64f164740f8991841d0fc6",
+        "android_client_info": {
+          "package_name": "com.maisonmikell.app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "521736129971-3nfik6o81l9pupvrpt9n4ahg3b1uknnu.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.maisonmikell.app",
+            "certificate_hash": "c157b0b2c9290d79a695dab3bcc121334872c76c"
+          }
+        },
+        {
+          "client_id": "521736129971-j3g270qqp6fps6adfknqsakhm6j7i6j1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCq7jmkQpyklDlUudPvXHrWhKBjAETlmHA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "521736129971-j3g270qqp6fps6adfknqsakhm6j7i6j1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "521736129971-cmghuarcego863gh75j2m47prul26bea.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.maisonmikell.app"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

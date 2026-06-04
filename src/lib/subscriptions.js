@@ -118,7 +118,7 @@ async function fetchSubscriptionSnapshot(user) {
       configurationReason: configuration.reason,
       customerInfo: null,
       offerings: null,
-      isActive: false,
+      isActive: Boolean(user && !Capacitor.isNativePlatform()),
       lifetimePackage: null,
       yearlyPackage: null,
       monthlyPackage: null,

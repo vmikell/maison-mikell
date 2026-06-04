@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Cleanup Concept v2</title>
+  <style>
+    :root {
+      --paper: #f6f0e7;
+      --paper-deep: #ecdfcc;
+      --card: rgba(255, 251, 246, 0.76);
+      --line: rgba(84, 67, 48, 0.12);
+      --ink: #312821;
+      --body: #5f5448;
+      --muted: #877768;
+      --walnut: #4a392d;
+      --walnut-soft: #6a5546;
+      --gold: #c39a48;
+      --gold-soft: #ead9b3;
+      --teal: #6f8e88;
+      --teal-soft: #dfe7e2;
+      --clay: #b97860;
+      --shadow: 0 24px 70px rgba(83, 62, 40, 0.08);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(195,154,72,0.10), transparent 20%),
+        radial-gradient(circle at bottom left, rgba(111,142,136,0.10), transparent 24%),
+        linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+      padding: 38px 28px 70px;
+    }
+
+    .page { max-width: 1380px; margin: 0 auto; display: grid; gap: 26px; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.12fr 0.98fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand-panel {
+      position: relative;
+      overflow: hidden;
+      padding: 34px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .brand-panel::before {
+      content: "";
+      position: absolute;
+      inset: 18px 18px auto auto;
+      width: 88px;
+      height: 88px;
+      border-radius: 24px;
+      border: 1px solid rgba(84,67,48,0.08);
+      background: linear-gradient(135deg, rgba(234,217,179,0.72), rgba(223,231,226,0.72));
+      transform: rotate(12deg);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8a684d;
+      font-weight: 700;
+    }
+
+    .wordmark {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 64px;
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+      color: var(--walnut);
+    }
+
+    .headline {
+      margin: 0;
+      max-width: 11ch;
+      font-size: clamp(38px, 5vw, 56px);
+      line-height: 0.97;
+      letter-spacing: -0.05em;
+    }
+
+    .subhead {
+      margin: 0;
+      max-width: 37rem;
+      font-size: 18px;
+      line-height: 1.62;
+      color: var(--body);
+    }
+
+    .action-row, .signature-row, .footer-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 700;
+      font-size: 14px;
+      border: 1px solid transparent;
+    }
+
+    .button.primary {
+      background: #4a392d;
+      color: #fffaf3;
+      box-shadow: 0 10px 24px rgba(74, 57, 45, 0.14);
+    }
+
+    .button.secondary {
+      background: rgba(255,255,255,0.54);
+      color: var(--walnut);
+      border-color: var(--line);
+    }
+
+    .signature {
+      padding: 12px 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.50);
+      border: 1px solid var(--line);
+      display: grid;
+      gap: 4px;
+      min-width: 180px;
+    }
+
+    .signature span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: #8a684d;
+      font-weight: 700;
+    }
+
+    .signature strong {
+      font-size: 15px;
+      color: var(--walnut);
+      line-height: 1.3;
+    }
+
+    .quote {
+      max-width: 24ch;
+      padding: 22px 24px;
+      border-radius: 26px;
+      background: rgba(255,255,255,0.56);
+      border: 1px solid var(--line);
+      color: var(--walnut);
+      font-size: 28px;
+      line-height: 1.17;
+      font-weight: 700;
+    }
+
+    .quote small {
+      display: block;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.54;
+      font-weight: 500;
+    }
+
+    .phone-wrap {
+      padding: 24px;
+      display: grid;
+      justify-items: center;
+      align-items: center;
+      background:
+        radial-gradient(circle at top, rgba(195,154,72,0.11), transparent 24%),
+        linear-gradient(180deg, rgba(255,250,243,0.92), rgba(237,225,207,0.86));
+    }
+
+    .phone {
+      width: 368px;
+      border-radius: 38px;
+      padding: 18px;
+      background: linear-gradient(180deg, #fffdf9 0%, #f3ebdf 100%);
+      border: 1px solid rgba(74,57,45,0.10);
+      box-shadow: 0 22px 48px rgba(81, 61, 41, 0.14);
+      display: grid;
+      gap: 14px;
+    }
+
+    .phone-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .brand-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-name {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 28px;
+      letter-spacing: -0.05em;
+      color: var(--walnut);
+    }
+
+    .house-card {
+      padding: 20px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #efe1c4, #dee7e1);
+      display: grid;
+      gap: 8px;
+      min-height: 142px;
+      align-content: end;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .house-card::after {
+      content: "";
+      position: absolute;
+      right: 14px;
+      top: 14px;
+      width: 52px;
+      height: 52px;
+      border-radius: 16px;
+      border: 1px solid rgba(74,57,45,0.10);
+      background: rgba(255,255,255,0.26);
+      transform: rotate(14deg);
+    }
+
+    .house-card span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: rgba(49,40,33,0.62);
+      font-weight: 700;
+    }
+
+    .house-card strong {
+      font-size: 28px;
+      line-height: 0.98;
+      letter-spacing: -0.05em;
+      color: var(--walnut);
+      max-width: 10ch;
+    }
+
+    .house-card p {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.52;
+      color: #5a4a3f;
+      max-width: 25ch;
+    }
+
+    .section { display: grid; gap: 8px; }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title strong {
+      font-size: 14px;
+      color: var(--walnut);
+      letter-spacing: -0.02em;
+    }
+
+    .section-title span {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+    }
+
+    .list { display: grid; gap: 10px; }
+
+    .item {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.70);
+      border: 1px solid rgba(74,57,45,0.08);
+      display: grid;
+      gap: 4px;
+    }
+
+    .item strong { font-size: 14px; color: var(--walnut); }
+    .item p { margin: 0; font-size: 12px; line-height: 1.46; color: var(--body); }
+
+    .item.meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 10px;
+    }
+
+    .badge {
+      flex: 0 0 auto;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge.gold { background: rgba(195,154,72,0.18); color: #7b5c1f; }
+    .badge.teal { background: rgba(111,142,136,0.16); color: #456863; }
+    .badge.clay { background: rgba(185,120,96,0.15); color: #8e5b47; }
+
+    .scribble {
+      font-size: 12px;
+      color: #8b6a4e;
+      font-style: italic;
+      letter-spacing: 0.01em;
+      margin-top: -2px;
+    }
+
+    .notes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .note {
+      padding: 22px;
+      border-radius: 26px;
+      background: rgba(255, 251, 246, 0.62);
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 40px rgba(83, 62, 40, 0.05);
+      display: grid;
+      gap: 10px;
+    }
+
+    .note h3 {
+      margin: 0;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+      color: #8a684d;
+    }
+
+    .note p, .note li {
+      margin: 0;
+      color: var(--body);
+      font-size: 15px;
+      line-height: 1.58;
+    }
+
+    .note ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    @media (max-width: 1100px) {
+      .hero, .notes { grid-template-columns: 1fr; }
+      .phone { width: min(100%, 380px); }
+      .brand-panel { padding: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <article class="panel brand-panel">
+        <div class="eyebrow">Maison second pass · from Henry’s feedback</div>
+        <h1 class="wordmark">Maison</h1>
+        <h2 class="headline">A calmer, more ownable home brand.</h2>
+        <p class="subhead">This pass keeps the stronger editorial direction, but removes more of the startup-UI-kit residue. The CTA is quieter, the phone UI is more lived-in, and the brand starts to show a couple signature Maison gestures instead of relying on generic polish.</p>
+
+        <div class="action-row">
+          <div class="button primary">See your home in Maison</div>
+          <div class="button secondary">Preview the household flow</div>
+        </div>
+
+        <div class="signature-row">
+          <div class="signature">
+            <span>Signature move 01</span>
+            <strong>Soft framed tiles with a slight off-axis angle</strong>
+          </div>
+          <div class="signature">
+            <span>Signature move 02</span>
+            <strong>Editorial household notes that feel personal, not app-generic</strong>
+          </div>
+        </div>
+
+        <div class="quote">Maison is strongest when it feels like a real household brand with taste, memory, and texture.<small>Less concept-board perfection. More warmth, restraint, and small signs of real life.</small></div>
+      </article>
+
+      <aside class="panel phone-wrap">
+        <div class="phone">
+          <div class="phone-top">
+            <span>9:41</span>
+            <span>Thursday · Lynn house</span>
+          </div>
+
+          <div class="brand-row">
+            <div class="brand-name">Maison</div>
+            <div class="badge gold">Shared home</div>
+          </div>
+
+          <div class="house-card">
+            <span>This week at home</span>
+            <strong>Hold the small moving parts in one place</strong>
+            <p>Shopping, upkeep, reminders, and the little household loose ends that usually get split across memory and texts.</p>
+          </div>
+
+          <div class="scribble">Riah added hand soap + paper towels this afternoon.</div>
+
+          <section class="section">
+            <div class="section-title">
+              <strong>Shopping</strong>
+              <span>Tonight</span>
+            </div>
+            <div class="list">
+              <div class="item meta">
+                <div>
+                  <strong>Stop & Shop list</strong>
+                  <p>Greek yogurt, lemons, hand soap, garbage bags</p>
+                </div>
+                <div class="badge teal">4 items</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section-title">
+              <strong>Upkeep</strong>
+              <span>Due soon</span>
+            </div>
+            <div class="list">
+              <div class="item">
+                <strong>Replace HVAC filter</strong>
+                <p>Sunday · Hall closet shelf · Last done 31 days ago</p>
+              </div>
+              <div class="item">
+                <strong>Refill dishwasher pods</strong>
+                <p>Only a few left · Add to tonight’s list before you forget</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section-title">
+              <strong>Planning</strong>
+              <span>Open loop</span>
+            </div>
+            <div class="list">
+              <div class="item meta">
+                <div>
+                  <strong>Text landlord about front entry light</strong>
+                  <p>Still pending · Nudge tomorrow if there’s no reply</p>
+                </div>
+                <div class="badge clay">Pending</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </section>
+
+    <section class="notes">
+      <article class="note">
+        <h3>What changed from v1</h3>
+        <ul>
+          <li>Primary CTA is now quiet and solid instead of gradient-heavy</li>
+          <li>Pills/chips were reduced and replaced with more grounded content blocks</li>
+          <li>The phone UI includes more believable household texture</li>
+          <li>The layout starts building Maison-specific repeatable cues</li>
+        </ul>
+      </article>
+
+      <article class="note">
+        <h3>What to push next</h3>
+        <p>Develop one unmistakable Maison pattern language for hero cards, household annotations, and section framing so the product becomes more ownable at a glance.</p>
+      </article>
+
+      <article class="note">
+        <h3>Forge prompt in plain English</h3>
+        <p>Keep this art direction, but make the product feel even less like a concept deck and more like a real, elegant home app with taste and memory.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

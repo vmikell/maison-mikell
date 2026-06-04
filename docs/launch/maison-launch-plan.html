@@ -1,0 +1,161 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Launch Plan</title>
+  <style>
+    body { font-family: Arial, Helvetica, sans-serif; color: #1f1f1f; margin: 48px; line-height: 1.55; }
+    h1, h2, h3 { color: #181027; }
+    h1 { font-size: 30px; margin-bottom: 8px; }
+    h2 { font-size: 22px; margin-top: 34px; border-bottom: 2px solid #eee; padding-bottom: 6px; }
+    h3 { font-size: 17px; margin-top: 22px; }
+    p, li { font-size: 14px; }
+    ul { padding-left: 22px; }
+    .meta { color: #666; margin-bottom: 28px; }
+    .section { page-break-inside: avoid; margin-bottom: 28px; }
+    .card { background: #faf7ff; border: 1px solid #ece3ff; border-radius: 12px; padding: 16px 18px; margin: 14px 0; }
+    .small { font-size: 12px; color: #666; }
+  </style>
+</head>
+<body>
+  <h1>Maison Launch Plan</h1>
+  <p class="meta">Prepared for Victor, April 10, 2026</p>
+
+  <div class="section">
+    <h2>Overview</h2>
+    <p>This package turns Maison from a working household MVP into a launchable paid product with a production checklist, app-store packaging plan, pricing strategy, and a focused marketing plan.</p>
+    <div class="card">
+      <strong>Core recommendation:</strong> Freeze major feature expansion for now and focus the next cycle on production quality, app packaging, onboarding, billing, and positioning.
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>1. Production Readiness Checklist</h2>
+    <p><strong>Objective:</strong> Move Maison from "works for our household" to "safe to sell to other households."</p>
+    <h3>Product reliability, must complete</h3>
+    <ul>
+      <li>Verify the sign-in flow on the real deployed app, especially the join-screen flash issue.</li>
+      <li>Audit all loading, empty, and error states across planner, calendar, shopping, admin, and join flows.</li>
+      <li>Add crash and error tracking, recommended: Sentry.</li>
+      <li>Add product analytics for core events.</li>
+      <li>Confirm Firestore rules cover all intended household actions safely.</li>
+      <li>Review reminder flows for duplicate sends, partial failures, and silent failures.</li>
+      <li>Add a recovery path for failed writes and offline or reconnect edge cases.</li>
+      <li>Make sign-out, session expiry, and membership transitions predictable.</li>
+    </ul>
+    <h3>Core analytics events</h3>
+    <ul>
+      <li>account_created</li>
+      <li>signed_in</li>
+      <li>household_joined</li>
+      <li>invite_code_used</li>
+      <li>task_added</li>
+      <li>task_completed</li>
+      <li>shopping_item_added</li>
+      <li>shopping_item_checked</li>
+      <li>reminder_sent</li>
+    </ul>
+    <h3>Data and operations</h3>
+    <ul>
+      <li>Define backup and export strategy for household data.</li>
+      <li>Add an internal admin and debug checklist for production incidents.</li>
+      <li>Remove or hide any consumer-visible debug text before launch.</li>
+      <li>Document Netlify deployment recovery steps.</li>
+      <li>Repair Git-based Netlify deployment configuration or replace it with a trusted deploy workflow.</li>
+    </ul>
+    <h3>Legal and trust</h3>
+    <ul>
+      <li>Privacy policy</li>
+      <li>Terms of service</li>
+      <li>Support email and support flow</li>
+      <li>Account deletion or request flow</li>
+      <li>Basic data retention policy</li>
+    </ul>
+    <h3>Product polish</h3>
+    <ul>
+      <li>Redesign color system and core visual language.</li>
+      <li>Tighten spacing, typography, and interaction consistency.</li>
+      <li>Improve onboarding clarity for first-time users.</li>
+      <li>Add a cleaner household invitation experience.</li>
+      <li>Review mobile responsiveness across common iPhone and Android sizes.</li>
+    </ul>
+  </div>
+
+  <div class="section">
+    <h2>2. App Store Packaging Roadmap</h2>
+    <p><strong>Recommendation:</strong> Use Capacitor to wrap the existing Vite + React app for iOS and Android.</p>
+    <ul>
+      <li>Fastest route to shipping on both stores</li>
+      <li>Preserves the current codebase</li>
+      <li>Supports gradual addition of native features later</li>
+      <li>Avoids premature full native rewrites</li>
+    </ul>
+    <h3>Target architecture</h3>
+    <ul>
+      <li>Frontend: existing React and Vite app</li>
+      <li>Backend: Firebase Auth and Firestore</li>
+      <li>Hosting: Netlify for web</li>
+      <li>Mobile shell: Capacitor</li>
+    </ul>
+    <h3>Phases</h3>
+    <ul>
+      <li>Prepare the web app for native wrapping.</li>
+      <li>Add Capacitor and generate iOS and Android projects.</li>
+      <li>Set up native shells, signing, icons, and device testing.</li>
+      <li>Prepare store assets, policy URLs, and review metadata.</li>
+      <li>Decide and implement billing compliance for native subscriptions.</li>
+    </ul>
+    <div class="card">
+      <strong>First milestone:</strong> create a mobile implementation branch and get a working internal install on one iPhone and one Android device before store-polish work.
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>3. Pricing and Offer</h2>
+    <p>Maison should launch as a paid product, with no free tier.</p>
+    <h3>Recommended launch offer</h3>
+    <ul>
+      <li><strong>Founding lifetime access:</strong> $179</li>
+      <li>Available for the first 14 days after public launch</li>
+      <li>Positioned as founding-member pricing</li>
+    </ul>
+    <h3>Recommended standard pricing</h3>
+    <ul>
+      <li><strong>Monthly:</strong> $12/month</li>
+      <li><strong>Yearly:</strong> $96/year</li>
+    </ul>
+    <p><strong>Positioning:</strong> The home operating system for couples. One calm place for maintenance, shopping, reminders, and household coordination.</p>
+  </div>
+
+  <div class="section">
+    <h2>4. Marketing Plan</h2>
+    <p><strong>Goal:</strong> Prove that households outside Victor and Riah's own home will pay for Maison.</p>
+    <h3>Ideal first customers</h3>
+    <ul>
+      <li>Couples sharing a home</li>
+      <li>Busy homeowners</li>
+      <li>Households that already feel coordination friction</li>
+      <li>People who want calm, not hyper-optimized productivity culture</li>
+    </ul>
+    <h3>What can be executed next</h3>
+    <ul>
+      <li>Homepage copy and positioning refinement</li>
+      <li>App Store and Play Store listing copy</li>
+      <li>Launch FAQ and launch emails</li>
+      <li>Founding-offer landing page copy</li>
+      <li>Screenshot plan and demo script</li>
+      <li>Warm outreach list and community post drafts</li>
+    </ul>
+    <h3>30-day plan</h3>
+    <ul>
+      <li>Foundation: pricing, positioning, launch page, legal pages</li>
+      <li>Asset creation: screenshots, demo walkthrough, launch posts</li>
+      <li>Controlled launch: warm network, a few outside households, fast feedback loop</li>
+      <li>Expansion: broader content and outreach, testimonials, close founding offer after 14 days</li>
+    </ul>
+  </div>
+
+  <p class="small">Source docs live in maison-mikell/docs/launch/ within the project repository.</p>
+</body>
+</html>

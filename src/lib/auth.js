@@ -13,6 +13,7 @@ import {
   sendPasswordResetEmail,
   signInWithCredential,
   signInWithEmailAndPassword,
+  signInWithPopup,
   signInWithRedirect,
   signOut,
   updateProfile,
@@ -32,7 +33,7 @@ function getPasswordResetContinueUrl() {
   if (typeof window === 'undefined') return 'https://maisonhomeapp.com'
 
   const host = window.location.hostname || ''
-  if (host === 'maison-reset.web.app' || host === 'maison-reset.firebaseapp.com' || host === 'maison-mikell.netlify.app' || host.endsWith('--maison-mikell.netlify.app')) return 'https://maisonhomeapp.com'
+  if (host === 'maison-reset.web.app' || host === 'maison-reset.firebaseapp.com') return 'https://maisonhomeapp.com'
   return window.location.origin || 'https://maisonhomeapp.com'
 }
 
@@ -239,14 +240,43 @@ export async function signInWithGoogle() {
       return { redirected: false, user: result.user, authMode: authPlan.effectiveMode }
     }
 
-    recordAuthDiagnostic('auth_google_redirect_start', {
-      authMode: authPlan.effectiveMode,
-      platform: authPlan.platform,
-      url: getCurrentPageUrl(),
-      userAgent: typeof navigator === 'undefined' ? 'unknown' : navigator.userAgent,
-    })
-    await signInWithRedirect(auth, provider)
-    return { redirected: true, authMode: authPlan.effectiveMode }
+    try {
+      recordAuthDiagnostic('auth_google_popup_start', {
+        authMode: 'firebase-web-popup',
+        platform: authPlan.platform,
+        url: getCurrentPageUrl(),
+        userAgent: typeof navigator === 'undefined' ? 'unknown' : navigator.userAgent,
+      })
+      const result = await signInWithPopup(auth, provider)
+      recordAuthDiagnostic('auth_google_popup_success', {
+        authMode: 'firebase-web-popup',
+        platform: authPlan.platform,
+        url: getCurrentPageUrl(),
+      })
+      return { redirected: false, user: result.user, authMode: 'firebase-web-popup' }
+    } catch (popupError) {
+      const popupCode = popupError?.code || ''
+      recordAuthDiagnostic('auth_google_popup_error', {
+        code: popupCode || 'unknown',
+        authMode: 'firebase-web-popup',
+        platform: authPlan.platform,
+        message: toPlainEnglishAuthError(popupError),
+        url: getCurrentPageUrl(),
+      })
+
+      if (popupCode.includes('popup-closed') || popupCode.includes('cancelled') || popupCode.includes('canceled')) {
+        throw popupError
+      }
+
+      recordAuthDiagnostic('auth_google_redirect_start', {
+        authMode: authPlan.effectiveMode,
+        platform: authPlan.platform,
+        url: getCurrentPageUrl(),
+        userAgent: typeof navigator === 'undefined' ? 'unknown' : navigator.userAgent,
+      })
+      await signInWithRedirect(auth, provider)
+      return { redirected: true, authMode: authPlan.effectiveMode }
+    }
   } catch (error) {
     const message = toPlainEnglishAuthError(error)
     recordAuthDiagnostic(authPlan.effectiveMode === NATIVE_BRIDGE_MODE ? 'auth_google_native_error' : 'auth_google_redirect_error', {

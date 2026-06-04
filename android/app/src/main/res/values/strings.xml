@@ -4,4 +4,5 @@
     <string name="title_activity_main">Maison</string>
     <string name="package_name">com.maisonmikell.app</string>
     <string name="custom_url_scheme">com.maisonmikell.app</string>
+    <string name="default_notification_channel_id">maison-reminders</string>
 </resources>

@@ -1,0 +1,479 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Cleanup Concept</title>
+  <style>
+    :root {
+      --paper: #f7f1e7;
+      --paper-2: #efe4cf;
+      --card: rgba(255, 251, 245, 0.78);
+      --line: rgba(90, 73, 54, 0.12);
+      --ink: #342a22;
+      --body: #62554a;
+      --muted: #8b7a6a;
+      --gold: #caa24d;
+      --gold-deep: #a7802f;
+      --teal: #5b8f8a;
+      --teal-soft: #dbe8e6;
+      --walnut: #4b3a2f;
+      --terracotta: #bb775c;
+      --shadow: 0 24px 70px rgba(88, 66, 44, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(202,162,77,0.16), transparent 20%),
+        radial-gradient(circle at bottom left, rgba(91,143,138,0.12), transparent 22%),
+        linear-gradient(180deg, var(--paper) 0%, var(--paper-2) 100%);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+      padding: 40px 28px 64px;
+    }
+
+    .page {
+      max-width: 1360px;
+      margin: 0 auto;
+      display: grid;
+      gap: 28px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 0.95fr;
+      gap: 24px;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand-panel {
+      padding: 34px;
+      display: grid;
+      gap: 22px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-panel::after {
+      content: "";
+      position: absolute;
+      width: 280px;
+      height: 280px;
+      right: -120px;
+      top: -120px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(202,162,77,0.24), transparent 70%);
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.18em;
+      color: #8b6a4e;
+      font-weight: 700;
+    }
+
+    .wordmark {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 64px;
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+      color: var(--walnut);
+      margin: 0;
+    }
+
+    .headline {
+      font-size: clamp(38px, 5vw, 58px);
+      line-height: 0.96;
+      letter-spacing: -0.05em;
+      max-width: 10ch;
+      margin: 0;
+    }
+
+    .subhead {
+      max-width: 36rem;
+      font-size: 18px;
+      line-height: 1.62;
+      color: var(--body);
+      margin: 0;
+    }
+
+    .action-row, .chip-row, .stats, .mini-list {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    .button {
+      border-radius: 999px;
+      padding: 12px 18px;
+      font-weight: 700;
+      font-size: 14px;
+      border: 1px solid transparent;
+    }
+
+    .button.primary {
+      background: linear-gradient(135deg, var(--gold), var(--teal));
+      color: #fffdf7;
+      box-shadow: 0 12px 26px rgba(91, 143, 138, 0.18);
+    }
+
+    .button.secondary {
+      background: rgba(255,255,255,0.55);
+      border-color: var(--line);
+      color: var(--walnut);
+    }
+
+    .chip {
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255,255,255,0.58);
+      border: 1px solid var(--line);
+      color: var(--body);
+      font-size: 13px;
+      font-weight: 600;
+    }
+
+    .quote {
+      padding: 22px 24px;
+      border-radius: 26px;
+      background: rgba(255,255,255,0.58);
+      border: 1px solid var(--line);
+      color: var(--walnut);
+      font-size: 28px;
+      line-height: 1.16;
+      font-weight: 700;
+      max-width: 22ch;
+    }
+
+    .quote small {
+      display: block;
+      margin-top: 10px;
+      font-size: 14px;
+      line-height: 1.52;
+      color: var(--muted);
+      font-weight: 500;
+    }
+
+    .phone-wrap {
+      padding: 26px;
+      display: grid;
+      align-items: center;
+      justify-items: center;
+      background:
+        radial-gradient(circle at top, rgba(202,162,77,0.14), transparent 26%),
+        linear-gradient(180deg, rgba(255,249,241,0.92), rgba(239,228,207,0.88));
+    }
+
+    .phone {
+      width: 360px;
+      border-radius: 38px;
+      padding: 18px;
+      background: linear-gradient(180deg, #fffdf9 0%, #f5ecde 100%);
+      border: 1px solid rgba(75,58,47,0.10);
+      box-shadow: 0 22px 48px rgba(79, 59, 39, 0.16);
+      display: grid;
+      gap: 14px;
+    }
+
+    .phone-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .brand-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand-name {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 28px;
+      letter-spacing: -0.05em;
+      color: var(--walnut);
+    }
+
+    .house-card {
+      padding: 20px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #f2e3c6, #d8e7e2);
+      display: grid;
+      gap: 8px;
+      min-height: 136px;
+      align-content: end;
+    }
+
+    .house-card span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: rgba(52,42,34,0.62);
+      font-weight: 700;
+    }
+
+    .house-card strong {
+      font-size: 28px;
+      line-height: 0.98;
+      letter-spacing: -0.05em;
+      color: var(--walnut);
+    }
+
+    .house-card p {
+      margin: 0;
+      color: #58493e;
+      font-size: 14px;
+      line-height: 1.5;
+      max-width: 24ch;
+    }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+    }
+
+    .section-title strong {
+      font-size: 14px;
+      color: var(--walnut);
+      letter-spacing: -0.02em;
+    }
+
+    .section-title span {
+      font-size: 11px;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      font-weight: 700;
+    }
+
+    .card-list {
+      display: grid;
+      gap: 10px;
+    }
+
+    .item {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.72);
+      border: 1px solid rgba(75,58,47,0.09);
+      display: grid;
+      gap: 4px;
+    }
+
+    .item strong {
+      font-size: 14px;
+      color: var(--walnut);
+    }
+
+    .item p {
+      margin: 0;
+      color: var(--body);
+      font-size: 12px;
+      line-height: 1.45;
+    }
+
+    .item.meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .badge {
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge.gold { background: rgba(202,162,77,0.18); color: #7c5e1b; }
+    .badge.teal { background: rgba(91,143,138,0.16); color: #346c67; }
+    .badge.rose { background: rgba(187,119,92,0.15); color: #8f5945; }
+
+    .notes {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .note {
+      padding: 22px;
+      border-radius: 26px;
+      background: rgba(255, 251, 246, 0.62);
+      border: 1px solid var(--line);
+      box-shadow: 0 16px 44px rgba(88, 66, 44, 0.06);
+      display: grid;
+      gap: 10px;
+    }
+
+    .note h3 {
+      margin: 0;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #8b6a4e;
+    }
+
+    .note p, .note li {
+      margin: 0;
+      color: var(--body);
+      font-size: 15px;
+      line-height: 1.58;
+    }
+
+    .note ul {
+      margin: 0;
+      padding-left: 18px;
+      display: grid;
+      gap: 8px;
+    }
+
+    @media (max-width: 1100px) {
+      .hero, .notes { grid-template-columns: 1fr; }
+      .phone { width: min(100%, 380px); }
+      .brand-panel { padding: 28px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <article class="panel brand-panel">
+        <div class="eyebrow">Maison cleanup direction · editorial calm</div>
+        <h1 class="wordmark">Maison</h1>
+        <h2 class="headline">A home brand first. Software second.</h2>
+        <p class="subhead">This is the visual direction I’d push: lighter, calmer, more intentional. Less glossy SaaS chrome. More warmth, whitespace, typography, and believable domestic utility.</p>
+
+        <div class="action-row">
+          <div class="button primary">Join the founding launch</div>
+          <div class="button secondary">See how Maison works</div>
+        </div>
+
+        <div class="chip-row">
+          <div class="chip">Shared shopping</div>
+          <div class="chip">Home maintenance</div>
+          <div class="chip">Helpful reminders</div>
+          <div class="chip">Household planning</div>
+        </div>
+
+        <div class="quote">Maison should feel like a beautifully designed home product — not an AI-generated app shell.<small>Warm paper surfaces, walnut type, restrained accents, fewer louder cards, and stronger editorial hierarchy.</small></div>
+      </article>
+
+      <aside class="panel phone-wrap">
+        <div class="phone">
+          <div class="phone-top">
+            <span>9:41</span>
+            <span>Maison · Lynn House</span>
+          </div>
+
+          <div class="brand-row">
+            <div class="brand-name">Maison</div>
+            <div class="badge gold">Founding access</div>
+          </div>
+
+          <div class="house-card">
+            <span>This week</span>
+            <strong>The calm way to run a shared home</strong>
+            <p>One place for shopping, upkeep, reminders, and the small moving parts couples usually carry in their heads.</p>
+          </div>
+
+          <section>
+            <div class="section-title">
+              <strong>Shared shopping</strong>
+              <span>Live list</span>
+            </div>
+            <div class="card-list">
+              <div class="item meta">
+                <div>
+                  <strong>Trader Joe’s run</strong>
+                  <p>Avocados, sparkling water, hand soap, parchment paper</p>
+                </div>
+                <div class="badge teal">4 items</div>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div class="section-title">
+              <strong>Home maintenance</strong>
+              <span>Due soon</span>
+            </div>
+            <div class="card-list">
+              <div class="item">
+                <strong>Replace HVAC filter</strong>
+                <p>Due Sunday · Main hallway return · 15 min</p>
+              </div>
+              <div class="item">
+                <strong>Refill dishwasher pods</strong>
+                <p>Low supply · Add to shopping list</p>
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <div class="section-title">
+              <strong>Household planning</strong>
+              <span>Today</span>
+            </div>
+            <div class="card-list">
+              <div class="item meta">
+                <div>
+                  <strong>Text landlord about entry light</strong>
+                  <p>Assigned to Victor · gentle reminder tomorrow if still open</p>
+                </div>
+                <div class="badge rose">Pending</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </section>
+
+    <section class="notes">
+      <article class="note">
+        <h3>What changes</h3>
+        <ul>
+          <li>Light paper surfaces instead of dark glassy gradients</li>
+          <li>Editorial typography instead of all UI chrome doing the work</li>
+          <li>Fewer nested cards and fewer oversized pills</li>
+          <li>One restrained accent system, not multiple competing moods</li>
+        </ul>
+      </article>
+
+      <article class="note">
+        <h3>Palette direction</h3>
+        <p><strong>Base:</strong> warm cream and soft parchment.</p>
+        <p><strong>Type:</strong> walnut / ink, not pure black.</p>
+        <p><strong>Accent:</strong> muted gold plus restrained teal.</p>
+        <p><strong>Optional warmth:</strong> tiny terracotta moments, not everywhere.</p>
+      </article>
+
+      <article class="note">
+        <h3>Forge brief in one line</h3>
+        <p>Take Maison from “AI-premium app aesthetic” to “beautiful household brand with clear, modern software underneath.”</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

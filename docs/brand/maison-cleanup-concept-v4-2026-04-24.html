@@ -1,0 +1,437 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Concept v4</title>
+  <style>
+    :root {
+      --paper: #f6f0e8;
+      --paper-deep: #ebdfcf;
+      --card: rgba(255, 251, 246, 0.72);
+      --line: rgba(82, 66, 48, 0.10);
+      --ink: #2f2720;
+      --body: #5f5448;
+      --muted: #877668;
+      --walnut: #4a392d;
+      --gold: #c39a48;
+      --teal: #708f89;
+      --clay: #b97860;
+      --shadow: 0 22px 64px rgba(79, 60, 40, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(195,154,72,0.07), transparent 20%),
+        radial-gradient(circle at bottom left, rgba(112,143,137,0.07), transparent 24%),
+        linear-gradient(180deg, var(--paper) 0%, var(--paper-deep) 100%);
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+      padding: 42px 28px 76px;
+    }
+
+    .page { max-width: 1360px; margin: 0 auto; display: grid; gap: 22px; }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.08fr 0.92fr;
+      gap: 22px;
+      align-items: stretch;
+    }
+
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 32px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .brand-panel {
+      position: relative;
+      overflow: hidden;
+      padding: 36px;
+      display: grid;
+      gap: 22px;
+    }
+
+    .brand-panel::after {
+      content: "";
+      position: absolute;
+      width: 250px;
+      height: 250px;
+      right: -110px;
+      top: -120px;
+      border-radius: 999px;
+      background: radial-gradient(circle, rgba(195,154,72,0.13), transparent 72%);
+      pointer-events: none;
+    }
+
+    .wordmark {
+      margin: 0;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 68px;
+      line-height: 0.92;
+      letter-spacing: -0.05em;
+      color: var(--walnut);
+    }
+
+    .headline {
+      margin: 0;
+      max-width: 10ch;
+      font-size: clamp(40px, 5vw, 58px);
+      line-height: 0.96;
+      letter-spacing: -0.055em;
+    }
+
+    .subhead {
+      margin: 0;
+      max-width: 35rem;
+      font-size: 18px;
+      line-height: 1.64;
+      color: var(--body);
+    }
+
+    .button-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 12px 18px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 700;
+      border: 1px solid transparent;
+    }
+
+    .button.primary {
+      background: var(--walnut);
+      color: #fffaf3;
+      box-shadow: 0 10px 22px rgba(74,57,45,0.12);
+    }
+
+    .button.secondary {
+      background: rgba(255,255,255,0.52);
+      color: var(--walnut);
+      border-color: var(--line);
+    }
+
+    .quiet-note {
+      max-width: 28rem;
+      padding: 16px 18px;
+      border-radius: 20px;
+      background: rgba(255,255,255,0.50);
+      border: 1px solid var(--line);
+      color: var(--body);
+      font-size: 15px;
+      line-height: 1.58;
+    }
+
+    .phone-wrap {
+      padding: 24px;
+      display: grid;
+      justify-items: center;
+      align-items: center;
+      background:
+        radial-gradient(circle at top, rgba(195,154,72,0.09), transparent 22%),
+        linear-gradient(180deg, rgba(255,250,243,0.89), rgba(236,225,208,0.85));
+    }
+
+    .phone {
+      width: 372px;
+      border-radius: 38px;
+      padding: 18px;
+      background: linear-gradient(180deg, #fffdf9 0%, #f3ebdf 100%);
+      border: 1px solid rgba(74,57,45,0.10);
+      box-shadow: 0 20px 44px rgba(79, 60, 40, 0.13);
+      display: grid;
+      gap: 14px;
+      transform: rotate(-0.6deg);
+    }
+
+    .phone-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--muted);
+    }
+
+    .brand-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-name {
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 28px;
+      letter-spacing: -0.05em;
+      color: var(--walnut);
+    }
+
+    .house-card {
+      position: relative;
+      overflow: hidden;
+      padding: 20px;
+      border-radius: 24px;
+      background: linear-gradient(135deg, #eee0c4, #dce6e0);
+      min-height: 150px;
+      display: grid;
+      gap: 8px;
+      align-content: end;
+    }
+
+    .house-card::after {
+      content: "";
+      position: absolute;
+      right: 18px;
+      top: 18px;
+      width: 56px;
+      height: 56px;
+      border-radius: 20px;
+      border: 1px solid rgba(74,57,45,0.10);
+      background: rgba(255,255,255,0.18);
+      transform: rotate(8deg);
+    }
+
+    .house-card span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: rgba(47,39,32,0.62);
+      font-weight: 700;
+    }
+
+    .house-card strong {
+      font-size: 30px;
+      line-height: 0.98;
+      letter-spacing: -0.055em;
+      color: var(--walnut);
+      max-width: 10ch;
+    }
+
+    .house-card p {
+      margin: 0;
+      max-width: 24ch;
+      font-size: 14px;
+      line-height: 1.56;
+      color: #5b4b40;
+    }
+
+    .lived-in {
+      font-size: 12px;
+      color: #8a684d;
+      font-style: italic;
+      letter-spacing: 0.01em;
+      padding-left: 2px;
+    }
+
+    .section { display: grid; gap: 8px; }
+
+    .section-title {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .section-title strong {
+      font-size: 14px;
+      color: var(--walnut);
+      letter-spacing: -0.02em;
+    }
+
+    .section-title span {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 0.14em;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .list { display: grid; gap: 10px; }
+
+    .item {
+      padding: 14px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.68);
+      border: 1px solid rgba(74,57,45,0.08);
+      display: grid;
+      gap: 4px;
+    }
+
+    .item.meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      gap: 10px;
+    }
+
+    .item strong { font-size: 14px; color: var(--walnut); }
+    .item p { margin: 0; font-size: 12px; line-height: 1.46; color: var(--body); }
+
+    .badge {
+      flex: 0 0 auto;
+      padding: 7px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .badge.gold { background: rgba(195,154,72,0.18); color: #7b5c1f; }
+    .badge.teal { background: rgba(112,143,137,0.16); color: #456863; }
+    .badge.clay { background: rgba(185,120,96,0.15); color: #8e5b47; }
+
+    .lower {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .soft-card {
+      padding: 22px;
+      border-radius: 26px;
+      background: rgba(255,251,246,0.58);
+      border: 1px solid var(--line);
+      box-shadow: 0 14px 34px rgba(79,60,40,0.04);
+      display: grid;
+      gap: 10px;
+    }
+
+    .soft-card h3 {
+      margin: 0;
+      font-size: 14px;
+      color: #8a684d;
+      text-transform: uppercase;
+      letter-spacing: 0.10em;
+    }
+
+    .soft-card p {
+      margin: 0;
+      color: var(--body);
+      font-size: 16px;
+      line-height: 1.62;
+    }
+
+    @media (max-width: 1100px) {
+      .hero, .lower { grid-template-columns: 1fr; }
+      .phone { width: min(100%, 382px); }
+      .brand-panel { padding: 30px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <article class="panel brand-panel">
+        <h1 class="wordmark">Maison</h1>
+        <h2 class="headline">The calm way to run a shared home.</h2>
+        <p class="subhead">Shopping, upkeep, reminders, and the small household loose ends — held in one place, so home feels lighter to carry together.</p>
+
+        <div class="button-row">
+          <div class="button primary">Bring your home into Maison</div>
+          <div class="button secondary">See how it works</div>
+        </div>
+
+        <div class="quiet-note">For couples and households who want one shared source of truth without turning home into a project-management system.</div>
+      </article>
+
+      <aside class="panel phone-wrap">
+        <div class="phone">
+          <div class="phone-top">
+            <span>9:41</span>
+            <span>Thursday · Lynn house</span>
+          </div>
+
+          <div class="brand-row">
+            <div class="brand-name">Maison</div>
+            <div class="badge gold">Shared home</div>
+          </div>
+
+          <div class="house-card">
+            <span>This week at home</span>
+            <strong>Hold the small moving parts in one place</strong>
+            <p>Shopping, upkeep, reminders, and the little things that usually live in memory, text threads, and mental tabs.</p>
+          </div>
+
+          <div class="lived-in">Riah added paper towels and hand soap around 4:10 this afternoon.</div>
+
+          <section class="section">
+            <div class="section-title">
+              <strong>Shopping</strong>
+              <span>Tonight</span>
+            </div>
+            <div class="list">
+              <div class="item meta">
+                <div>
+                  <strong>Stop &amp; Shop list</strong>
+                  <p>Greek yogurt, lemons, hand soap, garbage bags</p>
+                </div>
+                <div class="badge teal">4 items</div>
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section-title">
+              <strong>Upkeep</strong>
+              <span>Due soon</span>
+            </div>
+            <div class="list">
+              <div class="item">
+                <strong>Replace HVAC filter</strong>
+                <p>Sunday · Hall closet shelf · Last done 31 days ago</p>
+              </div>
+              <div class="item">
+                <strong>Refill dishwasher pods</strong>
+                <p>Only a few left · Add to tonight’s list before you forget</p>
+              </div>
+            </div>
+          </section>
+
+          <section class="section">
+            <div class="section-title">
+              <strong>Planning</strong>
+              <span>Open loop</span>
+            </div>
+            <div class="list">
+              <div class="item meta">
+                <div>
+                  <strong>Text landlord about front entry light</strong>
+                  <p>Still pending · Nudge tomorrow if there’s no reply</p>
+                </div>
+                <div class="badge clay">Pending</div>
+              </div>
+            </div>
+          </section>
+        </div>
+      </aside>
+    </section>
+
+    <section class="lower">
+      <article class="soft-card">
+        <h3>Why it lands</h3>
+        <p>The tone is quieter now. Less presentation, less over-composure, more sense that Maison already belongs in a real home and speaks in a naturally warm voice.</p>
+      </article>
+
+      <article class="soft-card">
+        <h3>What to protect</h3>
+        <p>Keep the palette, the lived-in product details, and the softer emotional tone. Any next revision should be a gentle humanizing pass, not a visual reset.</p>
+      </article>
+    </section>
+  </main>
+</body>
+</html>

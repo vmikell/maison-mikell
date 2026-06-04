@@ -25,10 +25,6 @@ service cloud.firestore {
       return get(membershipDocPath(userId));
     }
 
-    function householdMembers(householdId) {
-      return householdDoc(householdId).data.members;
-    }
-
     function isHouseholdMember(householdId) {
       return signedIn()
         && request.auth.uid != null
@@ -91,6 +87,21 @@ service cloud.firestore {
         && isOwner(request.resource.data.householdId);
     }
 
+    function pushTokenPayloadLooksValid() {
+      return request.resource.data.keys().hasOnly(['token', 'platform', 'householdId', 'updatedAt'])
+        && request.resource.data.token is string
+        && request.resource.data.token.size() > 20
+        && request.resource.data.token.size() <= 4096
+        && (request.resource.data.platform == 'ios' || request.resource.data.platform == 'android')
+        && (request.resource.data.householdId == null || request.resource.data.householdId is string);
+    }
+
+    function selfPushTokenWriteIsValid(userId) {
+      return signedIn()
+        && request.auth.uid == userId
+        && pushTokenPayloadLooksValid();
+    }
+
     function householdCreateIsValid(householdId) {
       return signedIn()
         && request.resource.data.id == householdId
@@ -118,12 +129,12 @@ service cloud.firestore {
 
     function currentMemberRecord(householdId) {
       return {
-        id: request.auth.uid,
-        email: userMembershipDoc(request.auth.uid).data.email,
-        name: userMembershipDoc(request.auth.uid).data.name,
-        role: userMembershipDoc(request.auth.uid).data.role,
-        joinedAt: userMembershipDoc(request.auth.uid).data.joinedAt,
-        householdId: householdId
+        'id': request.auth.uid,
+        'email': userMembershipDoc(request.auth.uid).data.email,
+        'name': userMembershipDoc(request.auth.uid).data.name,
+        'role': userMembershipDoc(request.auth.uid).data.role,
+        'joinedAt': userMembershipDoc(request.auth.uid).data.joinedAt,
+        'householdId': householdId
       };
     }
 
@@ -211,6 +222,11 @@ service cloud.firestore {
       allow delete: if signedIn()
         && request.auth.uid == userId
         && docId == 'membership';
+    }
+
+    match /users/{userId}/pushTokens/{tokenId} {
+      allow read, delete: if signedIn() && request.auth.uid == userId;
+      allow create, update: if selfPushTokenWriteIsValid(userId);
     }
 
     match /launchInterest/{entryId} {

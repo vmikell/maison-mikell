@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Landing + Social Mockups — Signal</title>
+  <style>
+    :root {
+      --paper: #f6f0e8;
+      --paper-deep: #ebdfcf;
+      --card: rgba(255, 251, 246, 0.78);
+      --line: rgba(82, 66, 48, 0.12);
+      --ink: #2f2720;
+      --body: #5f5448;
+      --muted: #877668;
+      --walnut: #4a392d;
+      --gold: #c39a48;
+      --teal: #708f89;
+      --clay: #b97860;
+      --cream: #fffaf3;
+      --shadow: 0 22px 64px rgba(79, 60, 40, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background:
+        radial-gradient(circle at top right, rgba(195,154,72,0.11), transparent 22%),
+        radial-gradient(circle at bottom left, rgba(112,143,137,0.10), transparent 25%),
+        linear-gradient(180deg, var(--paper), var(--paper-deep));
+      -webkit-font-smoothing: antialiased;
+      line-height: 1.45;
+      padding: 40px 24px 72px;
+    }
+    h1,h2,h3,p { margin: 0; }
+    .deck { max-width: 1440px; margin: 0 auto; display: grid; gap: 28px; }
+    .cover, .board, .panel, .phone, .post, .story { background: var(--card); border: 1px solid var(--line); box-shadow: var(--shadow); backdrop-filter: blur(10px); }
+    .cover { border-radius: 34px; padding: 38px; display: grid; grid-template-columns: 1.1fr .9fr; gap: 28px; align-items: end; position: relative; overflow: hidden; }
+    .cover:after { content:""; position:absolute; width:260px; height:260px; border-radius:999px; right:-90px; top:-95px; background:radial-gradient(circle, rgba(195,154,72,.18), transparent 72%); }
+    .eyebrow { font-size: 12px; font-weight: 800; letter-spacing: .18em; text-transform: uppercase; color: #8b694e; margin-bottom: 12px; }
+    .wordmark { font-family: Georgia, "Times New Roman", serif; font-size: clamp(56px, 8vw, 116px); line-height: .86; letter-spacing: -.065em; color: var(--walnut); }
+    .headline { font-size: clamp(42px, 5vw, 76px); line-height: .92; letter-spacing: -.06em; max-width: 11ch; }
+    .subhead { color: var(--body); font-size: 19px; line-height: 1.62; max-width: 660px; margin-top: 18px; }
+    .rule-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+    .rule { border: 1px solid var(--line); background: rgba(255,255,255,.52); border-radius: 22px; padding: 16px; }
+    .rule strong { display:block; margin-bottom: 4px; }
+    .rule span { color: var(--body); font-size: 14px; }
+    .board { border-radius: 34px; padding: 26px; display: grid; gap: 18px; }
+    .label { display:flex; align-items:center; justify-content:space-between; gap:18px; }
+    .label h2 { font-size: 30px; letter-spacing: -.04em; }
+    .label p { color: var(--muted); max-width: 620px; }
+    .landing { border-radius: 30px; overflow: hidden; background: #fbf6ef; border: 1px solid var(--line); }
+    .nav { display:flex; align-items:center; justify-content:space-between; padding: 20px 28px; border-bottom: 1px solid var(--line); }
+    .logo { font-family: Georgia, "Times New Roman", serif; font-size: 34px; letter-spacing:-.055em; color: var(--walnut); }
+    .navlinks { display:flex; gap: 18px; color: var(--muted); font-weight: 700; font-size: 13px; }
+    .btn { display:inline-flex; align-items:center; justify-content:center; border-radius:999px; padding: 12px 18px; font-weight:800; font-size:14px; border: 1px solid transparent; }
+    .btn.primary { color: var(--cream); background: var(--walnut); box-shadow: 0 12px 26px rgba(74,57,45,.14); }
+    .btn.secondary { color: var(--walnut); background: rgba(255,255,255,.58); border-color: var(--line); }
+    .hero { display:grid; grid-template-columns: 1fr .86fr; gap: 28px; padding: 54px 46px; align-items:center; }
+    .hero h1 { font-size: clamp(50px, 5vw, 78px); line-height: .9; letter-spacing:-.065em; max-width: 10.4ch; }
+    .hero p { font-size: 19px; color: var(--body); max-width: 570px; margin: 18px 0 22px; line-height:1.62; }
+    .cta-row { display:flex; gap: 12px; flex-wrap:wrap; align-items:center; }
+    .trust { margin-top: 18px; color: var(--muted); font-weight:700; font-size:13px; }
+    .phone { border-radius: 38px; padding: 18px; background: linear-gradient(180deg,#fffaf4,#f0e4d5); max-width: 390px; margin-left:auto; }
+    .screen { border-radius: 28px; padding: 18px; min-height: 560px; background: #fbf7f1; border: 1px solid var(--line); display:grid; gap:14px; align-content:start; }
+    .screen-top { display:flex; justify-content:space-between; align-items:center; }
+    .pill { border-radius:999px; padding: 8px 12px; background: rgba(185,120,96,.12); color:#8f553f; font-weight:800; font-size:12px; }
+    .task-card { border:1px solid var(--line); border-radius:22px; padding:14px; background:rgba(255,255,255,.72); display:grid; gap:8px; }
+    .task-card h3 { font-size:15px; }
+    .task-card p { font-size:13px; color:var(--body); margin:0; }
+    .mini-row { display:flex; gap:8px; flex-wrap:wrap; }
+    .mini { border-radius:999px; padding:7px 9px; font-size:11px; font-weight:800; color:var(--walnut); background:rgba(195,154,72,.14); }
+    .sections { display:grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding: 0 46px 44px; }
+    .feature { border:1px solid var(--line); border-radius:24px; padding:20px; background:rgba(255,255,255,.58); }
+    .feature h3 { font-size: 18px; margin-bottom: 8px; }
+    .feature p { color: var(--body); font-size: 14px; line-height:1.55; }
+    .social-grid { display:grid; grid-template-columns: repeat(3, 1fr); gap: 18px; align-items:start; }
+    .post { aspect-ratio: 1 / 1; border-radius: 32px; padding: 26px; position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; background: #fbf6ef; }
+    .post:after, .story:after { content:""; position:absolute; width:190px; height:190px; right:-72px; bottom:-78px; border-radius:999px; background:rgba(195,154,72,.15); }
+    .post h3 { font-size: 40px; line-height:.96; letter-spacing:-.055em; max-width:8.5ch; position:relative; z-index:1; }
+    .post p { color:var(--body); font-size:16px; line-height:1.5; position:relative; z-index:1; }
+    .post .tag { color:#8b694e; font-size:12px; font-weight:900; letter-spacing:.16em; text-transform:uppercase; position:relative; z-index:1; }
+    .story-row { display:grid; grid-template-columns: repeat(4, 1fr); gap: 18px; }
+    .story { aspect-ratio: 9 / 16; border-radius: 34px; padding: 24px; position:relative; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; background:#fbf6ef; min-height: 520px; }
+    .story h3 { font-size: 38px; line-height:.94; letter-spacing:-.055em; position:relative; z-index:1; }
+    .story p { color:var(--body); font-size:15px; line-height:1.5; position:relative; z-index:1; }
+    .story .count { font-family: Georgia, "Times New Roman", serif; font-size: 70px; color: rgba(74,57,45,.14); line-height:.8; }
+    .copy-bank { display:grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+    .copy-card { border:1px solid var(--line); border-radius:24px; padding:20px; background:rgba(255,255,255,.58); }
+    .copy-card h3 { color:var(--walnut); margin-bottom:8px; }
+    .copy-card p { color:var(--body); }
+    @media (max-width: 980px) { .cover, .hero, .social-grid, .story-row, .sections, .copy-bank { grid-template-columns: 1fr; } .navlinks { display:none; } .phone { margin:0; max-width:none; } }
+  </style>
+</head>
+<body>
+  <main class="deck">
+    <section class="cover">
+      <div>
+        <div class="eyebrow">Maison mockup system · landing + social</div>
+        <div class="wordmark">Maison</div>
+        <p class="subhead">A warm, clear, brand-consistent direction built from the current style card and the book principles: obvious value, visible actions, natural household workflows, and repeatable brand touchpoints.</p>
+      </div>
+      <div class="rule-grid">
+        <div class="rule"><strong>Krug</strong><span>Make the value and next step obvious in seconds.</span></div>
+        <div class="rule"><strong>Norman</strong><span>Show what actions are possible and give clear feedback.</span></div>
+        <div class="rule"><strong>Wheeler</strong><span>Turn every page and post into one coherent brand system.</span></div>
+      </div>
+    </section>
+
+    <section class="board">
+      <div class="label">
+        <h2>Landing page mockup</h2>
+        <p>Short, scannable, one clear CTA. The page explains Maison as a shared home operating system instead of making users decode the concept.</p>
+      </div>
+      <div class="landing">
+        <div class="nav">
+          <div class="logo">Maison</div>
+          <div class="navlinks"><span>How it works</span><span>For households</span><span>Preview</span></div>
+          <div class="btn secondary">Join waitlist</div>
+        </div>
+        <div class="hero">
+          <div>
+            <div class="eyebrow">Shared home, less mental load</div>
+            <h1>The calmer way to run a home together.</h1>
+            <p>Maison gives your household one warm place for routines, chores, groceries, reminders, and the small details that usually live in someone’s head.</p>
+            <div class="cta-row">
+              <div class="btn primary">Get early access</div>
+              <div class="btn secondary">See how it works</div>
+            </div>
+            <div class="trust">Built for couples, roommates, and busy households who want fewer “did you remember?” moments.</div>
+          </div>
+          <div class="phone">
+            <div class="screen">
+              <div class="screen-top"><strong>Today at home</strong><span class="pill">3 done</span></div>
+              <div class="task-card"><h3>Kitchen reset</h3><p>Riah · after dinner · recurring</p><div class="mini-row"><span class="mini">done by 8</span><span class="mini">shared</span></div></div>
+              <div class="task-card"><h3>Pick up lemons + coffee</h3><p>Victor · Market Basket · on the way home</p><div class="mini-row"><span class="mini">grocery</span><span class="mini">reminder set</span></div></div>
+              <div class="task-card"><h3>Sunday reset</h3><p>Bathroom, floors, laundry, prep list</p><div class="mini-row"><span class="mini">routine</span><span class="mini">4 steps</span></div></div>
+              <div class="task-card"><h3>House note</h3><p>“Trash pickup moved to Friday this week.”</p><div class="mini-row"><span class="mini">everyone sees it</span></div></div>
+            </div>
+          </div>
+        </div>
+        <div class="sections">
+          <div class="feature"><h3>One shared picture</h3><p>Everyone can see what matters today without hunting through texts, notes, and memory.</p></div>
+          <div class="feature"><h3>Routines that stick</h3><p>Recurring home tasks become visible, assigned, and easy to confirm.</p></div>
+          <div class="feature"><h3>Less invisible labor</h3><p>Maison turns the mental checklist into a shared household system.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="board">
+      <div class="label">
+        <h2>Sample social posts</h2>
+        <p>Square feed concepts: bold, simple hooks; one idea per post; consistent Maison visual language.</p>
+      </div>
+      <div class="social-grid">
+        <article class="post"><div class="tag">Maison</div><h3>Your home has a group chat. It needs a system.</h3><p>Tasks, groceries, routines, notes — finally in one calm place.</p></article>
+        <article class="post"><div class="tag">Less mental load</div><h3>Stop asking “did we remember?”</h3><p>Maison keeps the little household details visible before they become friction.</p></article>
+        <article class="post"><div class="tag">For real life</div><h3>Chores without the weird spreadsheet energy.</h3><p>A warmer way for couples and roommates to run the home together.</p></article>
+      </div>
+    </section>
+
+    <section class="board">
+      <div class="label">
+        <h2>Story / Reel frames</h2>
+        <p>A four-frame launch sequence designed for scanning: problem → promise → proof → CTA.</p>
+      </div>
+      <div class="story-row">
+        <article class="story"><div class="count">01</div><h3>The home stuff is never just “small stuff.”</h3><p>It is groceries, resets, reminders, bills, chores, and invisible planning.</p></article>
+        <article class="story"><div class="count">02</div><h3>Maison makes it shared.</h3><p>One place for the household plan, not five apps and someone’s memory.</p></article>
+        <article class="story"><div class="count">03</div><h3>See today. Do the next thing. Move on.</h3><p>Clear actions, visible status, fewer repeated conversations.</p></article>
+        <article class="story"><div class="count">04</div><h3>Early access is opening.</h3><p>Join the Maison waitlist and help shape the calmer home system.</p></article>
+      </div>
+    </section>
+
+    <section class="board">
+      <div class="label">
+        <h2>Caption / ad copy bank</h2>
+        <p>Copy stays plainspoken and concrete: less cleverness, more instant comprehension.</p>
+      </div>
+      <div class="copy-bank">
+        <div class="copy-card"><h3>Launch caption</h3><p>Maison is a shared home system for the things that usually live in someone’s head: chores, routines, groceries, reminders, and household notes. We’re building it for couples, roommates, and busy homes that want less friction and more follow-through.</p></div>
+        <div class="copy-card"><h3>Short ad</h3><p>The calmer way to run a home together. Maison keeps routines, chores, groceries, and reminders visible — so everyone knows what needs doing without another “did you remember?” text.</p></div>
+        <div class="copy-card"><h3>CTA options</h3><p>Join the waitlist · Get early access · See how Maison works · Bring calm to the household · Start your shared home system</p></div>
+        <div class="copy-card"><h3>Design rationale</h3><p>Clear headline, obvious CTA, visible product model, warm home palette, repeatable post system. The goal is instant understanding first, polish second.</p></div>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

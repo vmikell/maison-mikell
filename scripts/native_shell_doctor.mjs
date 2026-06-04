@@ -25,6 +25,20 @@ function readOptionalText(relativePath) {
   return fs.readFileSync(fullPath, 'utf8')
 }
 
+function parseJavaProperties(text) {
+  const properties = new Map()
+  for (const rawLine of text.split(/\r?\n/)) {
+    const line = rawLine.trim()
+    if (!line || line.startsWith('#')) continue
+    const separatorIndex = line.search(/[:=]/)
+    if (separatorIndex === -1) continue
+    const key = line.slice(0, separatorIndex).trim()
+    const value = line.slice(separatorIndex + 1).trim()
+    if (key) properties.set(key, value)
+  }
+  return properties
+}
+
 function parseEnvVar(text, key) {
   const match = text.match(new RegExp(`^${key}=(.*)$`, 'm'))
   if (!match) return ''
@@ -159,11 +173,15 @@ function buildChecks() {
 
   const javaResult = run('java', ['-version'])
   const hasJavaHome = Boolean(process.env.JAVA_HOME)
+  const localProperties = parseJavaProperties(readOptionalText('android/local.properties'))
   const androidSdkCandidates = [
     process.env.ANDROID_HOME,
     process.env.ANDROID_SDK_ROOT,
+    localProperties.get('sdk.dir'),
+    process.env.HOME ? path.join(process.env.HOME, 'Library/Android/sdk') : '',
     process.env.HOME ? path.join(process.env.HOME, '.local/share/android/sdk') : '',
     process.env.HOME ? path.join(process.env.HOME, 'Android/Sdk') : '',
+    '/opt/homebrew/share/android-commandlinetools',
   ].filter(Boolean)
   const androidSdkRoot = androidSdkCandidates.find((candidate) => fs.existsSync(candidate)) || ''
   checks.push({
@@ -179,7 +197,7 @@ function buildChecks() {
     ok: Boolean(androidSdkRoot),
     level: 'fail',
     label: 'Android SDK',
-    detail: androidSdkRoot || 'No Android SDK found in ANDROID_HOME, ANDROID_SDK_ROOT, ~/.local/share/android/sdk, or ~/Android/Sdk',
+    detail: androidSdkRoot || 'No Android SDK found in ANDROID_HOME, ANDROID_SDK_ROOT, android/local.properties sdk.dir, ~/Library/Android/sdk, ~/.local/share/android/sdk, ~/Android/Sdk, or /opt/homebrew/share/android-commandlinetools',
   })
 
   if (process.platform === 'darwin') {

@@ -1,0 +1,384 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Maison Launch Plan</title>
+  <style>
+    :root {
+      --ink: #1d1730;
+      --muted: #6b647c;
+      --paper: #fffdfd;
+      --line: #e9deef;
+      --lavender: #f5efff;
+      --rose: #fff0f6;
+      --accent: linear-gradient(135deg, #ff8ecf 0%, #b18cff 100%);
+      --accent-solid: #8e6bff;
+    }
+    * { box-sizing: border-box; }
+    body {
+      font-family: Inter, Arial, Helvetica, sans-serif;
+      margin: 0;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.55;
+    }
+    .page {
+      padding: 56px 58px;
+      min-height: 100vh;
+      page-break-after: always;
+    }
+    .page:last-child { page-break-after: auto; }
+    .cover {
+      background:
+        radial-gradient(circle at top right, rgba(255, 142, 207, 0.22), transparent 30%),
+        radial-gradient(circle at bottom left, rgba(177, 140, 255, 0.2), transparent 28%),
+        #fffdfd;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--lavender);
+      color: var(--accent-solid);
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
+    h1 {
+      font-size: 44px;
+      line-height: 1.02;
+      margin: 18px 0 14px;
+      max-width: 580px;
+    }
+    .subtitle {
+      font-size: 18px;
+      max-width: 620px;
+      color: var(--muted);
+    }
+    .cover-grid {
+      display: grid;
+      grid-template-columns: 1.2fr 0.8fr;
+      gap: 28px;
+      margin-top: 42px;
+      align-items: end;
+    }
+    .hero-card, .mini-card, .callout, .metric {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      background: rgba(255,255,255,0.92);
+    }
+    .hero-card {
+      padding: 28px;
+      box-shadow: 0 18px 50px rgba(33, 22, 56, 0.08);
+    }
+    .hero-card h2 {
+      font-size: 20px;
+      margin: 0 0 10px;
+    }
+    .hero-card p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 14px;
+    }
+    .mini-stack { display: grid; gap: 16px; }
+    .mini-card {
+      padding: 18px;
+      background: linear-gradient(180deg, #fff 0%, #fcf8ff 100%);
+    }
+    .mini-card strong { display: block; font-size: 14px; margin-bottom: 8px; }
+    .mini-card span { font-size: 13px; color: var(--muted); }
+    .footer-note {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 24px;
+    }
+    h2.section-title {
+      font-size: 28px;
+      margin: 0 0 8px;
+    }
+    .section-intro {
+      color: var(--muted);
+      margin: 0 0 28px;
+      font-size: 15px;
+      max-width: 720px;
+    }
+    .two-col {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 26px;
+    }
+    .callout {
+      padding: 22px;
+      background: linear-gradient(180deg, #fff 0%, #fff7fb 100%);
+      margin-bottom: 18px;
+    }
+    .callout h3 {
+      font-size: 17px;
+      margin: 0 0 10px;
+    }
+    .callout ul {
+      margin: 0;
+      padding-left: 20px;
+    }
+    .callout li { margin: 7px 0; }
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-top: 20px;
+    }
+    .metric {
+      padding: 18px;
+      background: linear-gradient(180deg, #fff 0%, #fcf8ff 100%);
+    }
+    .metric strong {
+      display: block;
+      font-size: 26px;
+      margin-bottom: 8px;
+    }
+    .metric span {
+      font-size: 13px;
+      color: var(--muted);
+    }
+    ul.clean { padding-left: 20px; margin: 10px 0 0; }
+    ul.clean li { margin: 8px 0; }
+    .price-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr 1fr;
+      gap: 18px;
+      margin-top: 24px;
+    }
+    .price-card {
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      padding: 22px;
+      background: #fff;
+    }
+    .price-card.featured {
+      background: linear-gradient(180deg, #fff 0%, #fbf6ff 100%);
+      border-color: #d9c8ff;
+      box-shadow: 0 14px 40px rgba(95, 70, 168, 0.12);
+    }
+    .price-card h3 { margin: 0 0 8px; font-size: 18px; }
+    .price {
+      font-size: 34px;
+      font-weight: 800;
+      margin: 0 0 10px;
+    }
+    .muted { color: var(--muted); }
+    .timeline {
+      display: grid;
+      gap: 14px;
+      margin-top: 20px;
+    }
+    .step {
+      border-left: 4px solid #d8c7ff;
+      padding: 12px 0 12px 16px;
+    }
+    .step strong { display: block; margin-bottom: 4px; }
+    .banner {
+      margin-top: 28px;
+      padding: 18px 20px;
+      border-radius: 18px;
+      background: var(--accent);
+      color: white;
+      font-weight: 700;
+      font-size: 17px;
+    }
+    @page {
+      size: Letter;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <section class="page cover">
+    <div>
+      <span class="eyebrow">Maison Launch Package</span>
+      <h1>From household MVP to polished, paid product.</h1>
+      <p class="subtitle">A focused plan to productionize Maison, package it for iPhone and Android, sharpen the product story, and launch with a premium paid offer.</p>
+      <div class="cover-grid">
+        <div class="hero-card">
+          <h2>Core thesis</h2>
+          <p>Maison already solves a real household problem. That makes it a viable MVP. The next move is not endless feature expansion, it is production hardening, packaging, polish, pricing, and controlled launch execution.</p>
+        </div>
+        <div class="mini-stack">
+          <div class="mini-card">
+            <strong>Best packaging path</strong>
+            <span>Wrap the current React + Vite app with Capacitor for iOS and Android.</span>
+          </div>
+          <div class="mini-card">
+            <strong>Recommended pricing</strong>
+            <span>$179 founding lifetime for 14 days, then $12 monthly or $96 yearly.</span>
+          </div>
+          <div class="mini-card">
+            <strong>Target buyer</strong>
+            <span>Couples and households who want calm, shared home management.</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="footer-note">Prepared for Victor, April 10, 2026</div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">Production readiness</h2>
+    <p class="section-intro">The first bar is simple: Maison has to feel dependable enough that other households can trust it with real home coordination.</p>
+    <div class="two-col">
+      <div>
+        <div class="callout">
+          <h3>Reliability checklist</h3>
+          <ul>
+            <li>Verify the real sign-in flow, especially the join-screen flash issue.</li>
+            <li>Audit loading, empty, and error states across planner, calendar, shopping, admin, and join flows.</li>
+            <li>Add crash and error tracking, recommended: Sentry.</li>
+            <li>Add analytics for core actions like join, add task, complete task, and shopping activity.</li>
+            <li>Review Firestore rules and reminder flows for edge cases and silent failures.</li>
+            <li>Make session expiry, sign-out, and membership transitions predictable.</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3>Operational readiness</h3>
+          <ul>
+            <li>Define household data backup and export strategy.</li>
+            <li>Document deployment recovery because Netlify auto-deploy has been unreliable.</li>
+            <li>Remove consumer-visible debug output before launch.</li>
+            <li>Create a basic production incident checklist.</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="callout">
+          <h3>Trust and polish</h3>
+          <ul>
+            <li>Privacy policy, terms, support flow, and account deletion path.</li>
+            <li>Cleaner onboarding and invite experience.</li>
+            <li>Visual redesign pass: colors, typography, spacing, interaction consistency.</li>
+            <li>Responsive QA across common iPhone and Android screen sizes.</li>
+          </ul>
+        </div>
+        <div class="metrics">
+          <div class="metric"><strong>9</strong><span>core analytics events to instrument first</span></div>
+          <div class="metric"><strong>2</strong><span>critical stability areas: auth flow and write reliability</span></div>
+          <div class="metric"><strong>1</strong><span>launch gate: dependable enough to sell, not just demo</span></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">App Store packaging roadmap</h2>
+    <p class="section-intro">The cleanest route to both app stores is to keep the current codebase and wrap it in a native shell.</p>
+    <div class="callout">
+      <h3>Recommended path: Capacitor</h3>
+      <ul class="clean">
+        <li>Fastest route to ship on both stores</li>
+        <li>Preserves the existing React + Vite app</li>
+        <li>Lets native features arrive gradually: push, deep links, billing, icons, splash, and better auth handling</li>
+        <li>Avoids a premature rewrite into separate native apps</li>
+      </ul>
+    </div>
+    <div class="timeline">
+      <div class="step"><strong>Phase 1, prepare the web app</strong><span class="muted">Audit Firebase auth in native context, remove browser-only assumptions, confirm webview behavior, and decide how Google sign-in should behave in-app.</span></div>
+      <div class="step"><strong>Phase 2, add Capacitor</strong><span class="muted">Initialize Capacitor, define app identity, point at the Vite build output, and generate iOS and Android projects.</span></div>
+      <div class="step"><strong>Phase 3, native shell setup</strong><span class="muted">Configure signing, icons, launch assets, and real-device testing on one iPhone and one Android phone.</span></div>
+      <div class="step"><strong>Phase 4, store-readiness</strong><span class="muted">Prepare screenshots, descriptions, privacy disclosures, support URLs, and review metadata.</span></div>
+      <div class="step"><strong>Phase 5, billing</strong><span class="muted">Implement compliant native subscription handling if purchases happen inside the mobile apps.</span></div>
+    </div>
+    <div class="banner">First milestone: get a working internal install on one iPhone and one Android device before polishing store presentation.</div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">Pricing and launch offer</h2>
+    <p class="section-intro">Maison should launch as a paid product. The goal is premium clarity, not mass free-user accumulation.</p>
+    <div class="price-grid">
+      <div class="price-card featured">
+        <h3>Founding lifetime</h3>
+        <div class="price">$179</div>
+        <p class="muted">Available for the first 14 days after public launch. Positioned as founding-member access.</p>
+      </div>
+      <div class="price-card">
+        <h3>Monthly</h3>
+        <div class="price">$12</div>
+        <p class="muted">Flexible plan for households that want to try the product without a long commitment.</p>
+      </div>
+      <div class="price-card">
+        <h3>Yearly</h3>
+        <div class="price">$96</div>
+        <p class="muted">Recommended primary plan. Better value and better fit for a household operating system.</p>
+      </div>
+    </div>
+    <div class="two-col" style="margin-top: 26px;">
+      <div class="callout">
+        <h3>Why no free tier</h3>
+        <ul>
+          <li>The product is for running a real household, not casual dabbling.</li>
+          <li>Paid-only positioning creates better expectations and stronger perceived value.</li>
+          <li>A free tier adds support load and muddies early product positioning.</li>
+        </ul>
+      </div>
+      <div class="callout">
+        <h3>Positioning line</h3>
+        <p style="margin:0;">Maison should be framed as <strong>the home operating system for couples</strong>, a calm place for maintenance, shopping, reminders, and shared household planning.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="page">
+    <h2 class="section-title">Marketing plan</h2>
+    <p class="section-intro">The first goal is not to reach everyone. It is to get the right households to say, “this genuinely makes our home life easier.”</p>
+    <div class="two-col">
+      <div>
+        <div class="callout">
+          <h3>Best first customers</h3>
+          <ul>
+            <li>Couples sharing a home</li>
+            <li>Busy homeowners</li>
+            <li>Households already feeling coordination friction</li>
+            <li>People who want calm rather than hyper-optimized productivity theater</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3>What can be executed autonomously</h3>
+          <ul>
+            <li>Homepage copy and positioning</li>
+            <li>App Store and Play Store listing copy</li>
+            <li>Launch FAQ and email drafts</li>
+            <li>Founding-offer landing page copy</li>
+            <li>Screenshot and demo script planning</li>
+            <li>Warm outreach list and community post drafts</li>
+          </ul>
+        </div>
+      </div>
+      <div>
+        <div class="callout">
+          <h3>30-day launch sequence</h3>
+          <ul>
+            <li><strong>Foundation:</strong> finalize pricing, positioning, landing page, and legal pages</li>
+            <li><strong>Asset creation:</strong> screenshots, demo walkthrough, founder launch posts</li>
+            <li><strong>Controlled launch:</strong> warm network first, then a small number of outside households</li>
+            <li><strong>Expansion:</strong> broader content and outreach, testimonials, close the founding offer after 14 days</li>
+          </ul>
+        </div>
+        <div class="callout">
+          <h3>Metrics to watch</h3>
+          <ul>
+            <li>Visitor to signup rate</li>
+            <li>Signup to household-created rate</li>
+            <li>Household-created to week-one retention</li>
+            <li>Paid conversion rate</li>
+            <li>Yearly plan share</li>
+            <li>Refund and churn reasons</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <div class="banner">Recommended immediate order: production hardening, Capacitor packaging, then a visual redesign pass and launch asset creation.</div>
+  </section>
+</body>
+</html>

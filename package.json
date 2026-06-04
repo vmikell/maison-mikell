@@ -14,6 +14,8 @@
     "auth:cleanup-example": "node scripts/cleanup_email_auth_accounts.mjs --domain example.com --password MaisonTest123! --confirm",
     "reminders:dry-run": "node scripts/send_due_reminders.mjs --dry-run",
     "reminders:send": "node scripts/send_due_reminders.mjs",
+    "functions:lint": "npm --prefix functions run lint",
+    "functions:deploy": "npx firebase deploy --only functions,firestore:rules --project maison-reset",
     "calendar:preview": "node scripts/export_calendar_sync_preview.mjs",
     "calendar:members": "node scripts/export_household_members.mjs",
     "calendar:sync": "bash scripts/run_calendar_sync.sh",
@@ -31,6 +33,7 @@
   },
   "dependencies": {
     "@capacitor-firebase/authentication": "^8.2.0",
+    "@capacitor-firebase/messaging": "^8.2.0",
     "@capacitor/app": "^8.1.0",
     "@capacitor/core": "^8.3.0",
     "@revenuecat/purchases-capacitor": "^13.0.1",

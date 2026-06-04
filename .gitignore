@@ -37,4 +37,10 @@ android/captures
 android/.idea
 ios/App/Pods
 ios/App/build
+ios/build
 ios/App/App/public
+.xcode-source-packages/
+
+# Firebase/local generated caches
+.firebase/
+tmp/
